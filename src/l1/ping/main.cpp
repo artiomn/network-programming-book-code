@@ -247,7 +247,7 @@ private:
 };
 
 
-void send_ping(const socket_wrapper::Socket &sock, const std::string &hostname, const struct sockaddr_in &host_address)
+void send_ping(const socket_wrapper::Socket &sock, const std::string &hostname, const struct sockaddr_in &host_address, const bool ip_headers_enabled = true)
 {
     int ttl_val = 255;
     using namespace std::chrono;
@@ -321,8 +321,9 @@ void send_ping(const socket_wrapper::Socket &sock, const std::string &hostname, 
         r_addr.sin_addr = host_address.sin_addr;
 
         std::vector<char> buffer;
+        const auto buf_size = ip_headers_enabled ? ping_packet_size + sizeof(ip_hdr) : ping_packet_size;
 
-        buffer.resize(ping_packet_size + 20);
+        buffer.resize(buf_size);
         auto start_time = std::chrono::steady_clock::now();
 
         if (recvfrom(sock, buffer.data(), buffer.size(), 0, reinterpret_cast<struct sockaddr*>(&r_addr), &addr_len) < buffer.size())
@@ -391,17 +392,31 @@ int main(int argc, const char *argv[])
 
     std::cout << "Pinging \"" << remote_host->h_name << "\" [" << inet_ntoa(addr.sin_addr) << "]" << std::endl;
 
+    bool headers_included = true;
     socket_wrapper::Socket sock = {AF_INET, SOCK_RAW, IPPROTO_ICMP};
 
     if (!sock)
     {
-        std::cerr << sock_wrap.get_last_error_string() << std::endl;
-        return EXIT_FAILURE;
+        std::cerr
+            << "Can't create raw socket: "
+            << sock_wrap.get_last_error_string()
+            << std::endl;
+
+        sock = std::move(socket_wrapper::Socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP));
+        if (!sock)
+        {
+            std::cerr
+                << sock_wrap.get_last_error_string()
+                << std::endl;
+
+            return EXIT_FAILURE;
+        }
+        headers_included = false;
     }
 
     std::cout << "Start to sending packets..." << std::endl;
     // Send pings continuously.
-    send_ping(sock, host_name, addr);
+    send_ping(sock, host_name, addr, headers_included);
 
     return EXIT_SUCCESS;
 }
