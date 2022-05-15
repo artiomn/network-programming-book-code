@@ -411,10 +411,15 @@ int main(int argc, const char *argv[])
 
             return EXIT_FAILURE;
         }
+        std::cout << "Datagram socket was created..." << std::endl;
         headers_included = false;
     }
+    else
+    {
+        std::cout << "Raw socket was created..." << std::endl;
+    }
 
-    std::cout << "Start to sending packets..." << std::endl;
+    std::cout << "Starting to send packets..." << std::endl;
     // Send pings continuously.
     send_ping(sock, host_name, addr, headers_included);
 
