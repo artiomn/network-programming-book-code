@@ -1,0 +1,22 @@
+@startuml
+title Сервер
+start
+:socket();
+:bind();
+
+if (Ориентирован на соединение?) then (да)
+  :listen();
+  repeat :accept();
+  repeat while (Есть ли подключения?) is (нет) not (да)
+else (нет)
+endif
+
+repeat :Цикл чтения/записи;
+  :recv()/recvfrom();
+  :send()/sendto();
+repeat while (Соединение установлено?) is (да) not (нет)
+
+:close();
+
+stop
+@enduml

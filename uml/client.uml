@@ -1,0 +1,20 @@
+@startuml
+title Клиент
+start
+:socket();
+
+:bind() - необязательный вызов;
+
+if (Ориентирован на соединение?) then (да);
+  :connect();
+else (нет)
+endif
+
+repeat :Цикл чтения/записи;
+  :send()/sendto();
+  :recv()/recvfrom();
+repeat while (Соединение установлено?) is (да) not (нет)
+
+:close();
+stop
+@enduml
