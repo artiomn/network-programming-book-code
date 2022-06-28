@@ -283,10 +283,10 @@ void send_ping(const socket_wrapper::Socket &sock, const std::string &hostname, 
     }
 
     // Setting timeout of recv setting.
-    if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&tv), sizeof(tv)) != 0)
+/*    if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&tv), sizeof(tv)) != 0)
     {
         throw std::runtime_error("Recv timeout setting failed!");
-    }
+    }*/
 
     std::cout
         << "TTL = " << ttl_val << "\n";
@@ -308,7 +308,7 @@ void send_ping(const socket_wrapper::Socket &sock, const std::string &hostname, 
         auto request = std::move(ping_factory.create_request());
         const auto &request_echo_header = request.header().un.echo;
 
-        std::cout
+/*        std::cout
             << "Sending packet "
             << ntohs(request_echo_header.sequence)
             << " to \""
@@ -323,7 +323,7 @@ void send_ping(const socket_wrapper::Socket &sock, const std::string &hostname, 
         {
             std::cerr << "Packet sending failed: \"" << "\"" << std::endl;
             continue;
-        }
+        }*/
 
         // Receive packet
         socklen_t addr_len = sizeof(sockaddr);
@@ -380,14 +380,6 @@ int main(int argc, const char *argv[])
 
     socket_wrapper::SocketWrapper sock_wrap;
 
-/*    addrinfo hints =
-    {
-		.ai_family = AF_UNSPEC,
-		.ai_protocol = IPPROTO_UDP,
-		.ai_socktype = SOCK_DGRAM,
-		.ai_flags = 0
-	};*/
-
     const std::string host_name = { argv[1] };
     const struct hostent *remote_host { gethostbyname(host_name.c_str()) };
 
@@ -422,18 +414,7 @@ int main(int argc, const char *argv[])
             << sock_wrap.get_last_error_string()
             << std::endl;
 
-        sock_type = SOCK_DGRAM;
-        sock = std::move(socket_wrapper::Socket(AF_INET, sock_type, IPPROTO_ICMP));
-
-        if (!sock)
-        {
-            std::cerr
-                << sock_wrap.get_last_error_string()
-                << std::endl;
-
-            return EXIT_FAILURE;
-        }
-        std::cout << "Datagram socket was created..." << std::endl;
+        return EXIT_FAILURE;
     }
     else
     {

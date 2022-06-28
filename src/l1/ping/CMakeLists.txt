@@ -9,6 +9,9 @@ source_group(source FILES ${${PROJECT_NAME}_SRC}})
 add_executable("${PROJECT_NAME}" "${${PROJECT_NAME}_SRC}")
 target_link_libraries("${PROJECT_NAME}" socket-wrapper)
 
+add_executable("${PROJECT_NAME}-1" "x.cpp")
+target_link_libraries("${PROJECT_NAME}-1" socket-wrapper)
+
 if(WIN32)
   target_link_libraries("${PROJECT_NAME}" wsock32 ws2_32)
 endif()
