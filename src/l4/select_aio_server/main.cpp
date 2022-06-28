@@ -30,6 +30,7 @@ extern "C"
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
 #include <socket_wrapper/socket_class.h>
+#include <socket_wrapper/socket_functions.h>
 
 
 const auto clients_count = 10;
@@ -51,52 +52,6 @@ const wchar_t separ = *reinterpret_cast<const wchar_t*>(&fs::path::preferred_sep
 #endif
 
 
-std::unique_ptr<addrinfo, decltype(&freeaddrinfo)>
-get_serv_info(const char *port)
-{
-    struct addrinfo hints =
-    {
-        .ai_flags = AI_PASSIVE,
-        .ai_family = AF_INET,
-        .ai_socktype = SOCK_STREAM,
-        .ai_protocol = IPPROTO_TCP
-    };
-    struct addrinfo *s_i;
-    int ai_status;
-
-    if ((ai_status = getaddrinfo(nullptr, port, &hints, &s_i)) != 0)
-    {
-        std::cerr << "getaddrinfo error " << gai_strerror(ai_status) << std::endl;
-        return std::unique_ptr<addrinfo, decltype(&freeaddrinfo)>(nullptr, freeaddrinfo);
-    }
-
-    return std::unique_ptr<addrinfo, decltype(&freeaddrinfo)>(s_i, freeaddrinfo);
-}
-
-
-socket_wrapper::Socket accept_client(socket_wrapper::Socket &server_sock)
-{
-    struct sockaddr_storage client_addr;
-    socklen_t client_addr_length = sizeof(client_addr);
-    std::array<char, INET_ADDRSTRLEN> addr;
-
-    socket_wrapper::Socket client_sock(accept(server_sock, reinterpret_cast<sockaddr*>(&client_addr), &client_addr_length));
-
-    if (!client_sock)
-    {
-        throw std::logic_error("Accepting client");
-    }
-
-    assert(sizeof(sockaddr_in) == client_addr_length);
-
-    std::cout <<
-        "Client from " << inet_ntop(AF_INET, &(reinterpret_cast<const sockaddr_in * const>(&client_addr)->sin_addr), &addr[0], addr.size())
-        << "..."
-        << std::endl;
-    return client_sock;
-}
-
-
 void set_nonblock(int fd)
 {
     const IoctlType flag = 1;
@@ -104,18 +59,6 @@ void set_nonblock(int fd)
     if (ioctl(fd, FIONBIO, const_cast<IoctlType*>(&flag)) < 0)
     {
         throw std::logic_error("Setting non-blocking mode");
-    }
-}
-
-
-void set_reuse_addr(socket_wrapper::Socket &sock)
-{
-    const int flag = 1;
-
-    // Allow reuse of port.
-    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&flag), sizeof(flag)) < 0)
-    {
-        throw std::logic_error("Set SO_REUSEADDR error");
     }
 }
 
@@ -402,12 +345,7 @@ private:
 
     void process_new_client()
     {
-        auto client_sock = accept_client(server_socket_);
-
-        if (!client_sock)
-        {
-            throw std::logic_error("Client socket error");
-        }
+        auto client_sock = socket_wrapper::accept_client(server_socket_);
 
         if (clients_.size() >= max_clients)
         {
@@ -557,7 +495,7 @@ int main(int argc, const char * const argv[])
 
     try
     {
-        auto servinfo = get_serv_info(argv[1]);
+        auto servinfo = socket_wrapper::get_serv_info(argv[1]);
         if (!servinfo)
         {
             std::cerr << "Can't get servinfo!" << std::endl;
@@ -568,25 +506,25 @@ int main(int argc, const char * const argv[])
 
         if (!server_sock)
         {
-            throw std::logic_error("Socket creation error");
+            throw std::logic_error("socket");
         }
 
         set_reuse_addr(server_sock);
 
         if (bind(server_sock, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
         {
-            throw std::logic_error("Bind error");
+            throw std::logic_error("bind");
+        }
+
+        if (listen(server_sock, clients_count) < 0)
+        {
+            throw std::logic_error("Listen error");
         }
 
         std::cout
             << "Listening on port " << argv[1] << "...\n"
             << "Server path: " << fs::current_path()
             << std::endl;
-
-        if (listen(server_sock, clients_count) < 0)
-        {
-            throw std::logic_error("Listen error");
-        }
 
         SelectProcessor sp(server_sock);
 
@@ -601,7 +539,7 @@ int main(int argc, const char * const argv[])
     {
         std::cerr
             << e.what()
-            << " [" << sock_wrap.get_last_error_string() << "]!"
+            << ": " << sock_wrap.get_last_error_string() << "!"
             << std::endl;
         return EXIT_FAILURE;
     }

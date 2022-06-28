@@ -45,30 +45,6 @@ const wchar_t separ = *reinterpret_cast<const wchar_t*>(&fs::path::preferred_sep
 #endif
 
 
-socket_wrapper::Socket accept_client(socket_wrapper::Socket &server_sock)
-{
-    struct sockaddr_storage client_addr;
-    socklen_t client_addr_length = sizeof(client_addr);
-    std::array<char, INET_ADDRSTRLEN> addr;
-
-    socket_wrapper::Socket client_sock(accept(server_sock, reinterpret_cast<sockaddr*>(&client_addr), &client_addr_length));
-
-    if (!client_sock)
-    {
-        throw std::logic_error("Accepting client");
-    }
-
-    assert(sizeof(sockaddr_in) == client_addr_length);
-
-    std::cout
-        << "Client from "
-        << inet_ntop(AF_INET, &(reinterpret_cast<const sockaddr_in * const>(&client_addr)->sin_addr), &addr[0], addr.size())
-        << "..."
-        << std::endl;
-    return client_sock;
-}
-
-
 class Transceiver
 {
 public:
@@ -293,12 +269,7 @@ int main(int argc, const char * const argv[])
 
         while (true)
         {
-            auto client_sock = accept_client(server_sock);
-
-            if (!client_sock)
-            {
-                throw std::logic_error("Client socket accepting error: ");
-            }
+            auto client_sock = socket_wrapper::accept_client(server_sock);
 
             pending_tasks.push_back(std::async(std::launch::async, [&](socket_wrapper::Socket &&sock)
             {
