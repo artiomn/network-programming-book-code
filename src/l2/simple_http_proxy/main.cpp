@@ -25,7 +25,7 @@ void sigpipe_handler(int sig)
 #include "proxy_server.h"
 
 
-int main(int argc, const char *argv[])
+int main(int argc, const char * const argv[])
 {
 #if !defined(_WIN32)
     // Ignore SIGPIPE.
@@ -45,12 +45,12 @@ int main(int argc, const char *argv[])
 
         proxy.start();
     }
-    catch(const std::exception &e)
+    catch (const std::exception &e)
     {
         std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
     }
-    catch(...)
+    catch (...)
     {
         std::cerr << "Unknown exception!" << std::endl;
         return EXIT_FAILURE;

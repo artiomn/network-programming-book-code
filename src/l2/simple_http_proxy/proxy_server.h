@@ -14,10 +14,10 @@ class ProxyServer final
 public:
     static const std::regex uri_regexp;
 
-	const size_t back_log = 10;
-	const unsigned short default_target_port = 80;
+    const size_t back_log = 10;
+    const unsigned short default_target_port = 80;
 
-	typedef std::tuple<std::string, std::string, unsigned short> uri_data;
+    typedef std::tuple<std::string, std::string, unsigned short> uri_data;
 
 public:
     ProxyServer(unsigned short port = 8080);
@@ -55,8 +55,8 @@ public:
     unsigned short get_port() const { return port_; }
 
 private:
-	bool try_to_connect(socket_wrapper::Socket &s, const sockaddr* sa, size_t sa_size);
-	socket_wrapper::Socket connect_to_target_server(const std::string &host_name, unsigned short port);
+    bool try_to_connect(socket_wrapper::Socket &s, const sockaddr* sa, size_t sa_size);
+    socket_wrapper::Socket connect_to_target_server(const std::string &host_name, unsigned short port);
 
 private:
     unsigned short port_;
