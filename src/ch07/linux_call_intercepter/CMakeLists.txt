@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(call-intercepter C CXX)
+project("${CHAPTER_NAME}call-intercepter" C CXX)
 
 #set(CMAKE_COMPILER_IS_GNUCC TRUE)
 

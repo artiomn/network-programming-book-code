@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(ping C CXX)
+project("${CHAPTER_NAME}ping" C CXX)
 
 set(${PROJECT_NAME}_SRC ping.cpp)
 

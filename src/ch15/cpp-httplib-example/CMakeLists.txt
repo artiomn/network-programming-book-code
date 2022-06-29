@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(cpp-httplib-example C CXX)
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+project("${CHAPTER_NAME}cpp-httplib-example" C CXX)
 
 find_package(OpenSSL REQUIRED)
 

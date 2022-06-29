@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(poco-example C CXX)
+project("${CHAPTER_NAME}poco-examples" C CXX)
 
 # include(FetchContent)
 # FetchContent_Declare(
@@ -10,14 +10,10 @@ project(poco-example C CXX)
 
 find_package(Poco COMPONENTS Net REQUIRED)
 
-add_executable("poco-dns-resolver" "dns_resolver.cpp")
-add_executable("poco-client" "client.cpp")
-add_executable("poco-server" "server.cpp")
-target_link_libraries("poco-dns-resolver" PRIVATE Poco::Net)
-target_link_libraries("poco-server" PRIVATE Poco::Net)
-target_link_libraries("poco-client" PRIVATE Poco::Net)
-
-if(WIN32)
-  target_link_libraries("${PROJECT_NAME}" PRIVATE wsock32 ws2_32)
-endif()
+add_executable("${PROJECT_NAME}-dns-resolver" "dns_resolver.cpp")
+add_executable("${PROJECT_NAME}-client" "client.cpp")
+add_executable("${PROJECT_NAME}-server" "server.cpp")
+target_link_libraries("${PROJECT_NAME}-dns-resolver" PRIVATE Poco::Net)
+target_link_libraries("${PROJECT_NAME}-server" PRIVATE Poco::Net)
+target_link_libraries("${PROJECT_NAME}-client" PRIVATE Poco::Net)
 

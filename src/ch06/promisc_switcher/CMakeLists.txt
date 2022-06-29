@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(promisc-switcher C CXX)
+project("${CHAPTER_NAME}promisc-switcher" C CXX)
 
 set(${PROJECT_NAME}_SRC main.cpp)
 

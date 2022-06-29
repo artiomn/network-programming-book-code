@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(reuse_addr_experiment C CXX)
+project("${CHAPTER_NAME}reuse_addr_experiment" C CXX)
 
 set(${PROJECT_NAME}_SRC main.cpp)
 

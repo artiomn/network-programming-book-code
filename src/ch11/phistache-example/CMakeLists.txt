@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(phistache-example C CXX)
+project("${CHAPTER_NAME}phistache-example" C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

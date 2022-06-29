@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(libevpp-echo-server C CXX)
+project("${CHAPTER_NAME}libevpp-echo-server" C CXX)
 
 find_library(LIBEV ev REQUIRED)
 set(${PROJECT_NAME}_SRC libevpp_echo_server.cpp)

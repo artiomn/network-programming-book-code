@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(asio-server C CXX)
+project("${CHAPTER_NAME}asio-server" C CXX)
 
 find_package(Boost REQUIRED COMPONENTS system) # asio
 

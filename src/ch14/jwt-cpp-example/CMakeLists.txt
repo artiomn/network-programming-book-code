@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(jwt-cpp-example C CXX)
+project("${CHAPTER_NAME}jwt-cpp-example" C CXX)
 
 find_package(jwt-cpp CONFIG REQUIRED)
 

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(cpp-network-lesson-7)
+get_filename_component(CHAPTER_NAME "${CMAKE_CURRENT_LIST_DIR}-" NAME CACHED)
 
 if (UNIX)
     add_subdirectory("tg-arm-bot")

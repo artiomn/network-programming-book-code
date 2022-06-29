@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(qt-wordcount LANGUAGES CXX)
+project("${CHAPTER_NAME}qt-wordcount" LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
 

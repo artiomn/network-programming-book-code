@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(openssl-client C CXX)
+project("${CHAPTER_NAME}openssl-client" C CXX)
 
 find_package(OpenSSL REQUIRED)
 

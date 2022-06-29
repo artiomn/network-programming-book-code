@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(libuv-echo-server C CXX)
+project("${CHAPTER_NAME}libuv-echo-server" C CXX)
 
 find_library(LIBUV uv REQUIRED)
 set(${PROJECT_NAME}_SRC libuv_echo_server.cpp)

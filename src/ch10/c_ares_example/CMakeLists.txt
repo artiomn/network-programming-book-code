@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(c-ares-example C CXX)
+project("${CHAPTER_NAME}c-ares-example" C CXX)
 
 find_library(CARES cares REQUIRED)
 set(${PROJECT_NAME}_SRC main.cpp)

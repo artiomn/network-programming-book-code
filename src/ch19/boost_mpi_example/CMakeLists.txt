@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(boost-mpi-example LANGUAGES CXX)
+project("${CHAPTER_NAME}boost-mpi-example" LANGUAGES CXX)
 
 find_package(Boost COMPONENTS mpi serialization REQUIRED)
 

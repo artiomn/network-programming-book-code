@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(incorrect-udp-client C CXX)
+project("${CHAPTER_NAME}incorrect-udp-client" C CXX)
 
 set(${PROJECT_NAME}_SRC main.cpp)
 

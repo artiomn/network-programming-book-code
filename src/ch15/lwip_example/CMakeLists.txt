@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.8)
 
-project(lwip-runner)
+project("${CHAPTER_NAME}lwip-runner")
 
 set(CMAKE_BUILD_TYPE DEBUG)
 set(CMAKE_C_FLAGS "-O0 -ggdb")
@@ -26,11 +26,11 @@ include_directories(
 
 include(${LWIP_DIR}/src/Filelists.cmake)
 
-add_executable(lwip-runner
+add_executable("${PROJECT_NAME}"
     ${LWIP_DIR}/contrib/ports/unix/port/sys_arch.c
 	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/echo.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ping.cpp
 )
 
-target_link_libraries(lwip-runner ${PCAP_LIBRARY} lwipcore pthread)
+target_link_libraries("${PROJECT_NAME}" "${PCAP_LIBRARY}" lwipcore pthread)

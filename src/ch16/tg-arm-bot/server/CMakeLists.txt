@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(tg-arm-bot-server C CXX)
-
+project("${CHAPTER_NAME}tg-arm-bot-server" C CXX)
 
 set(Boost_USE_MULTITHREADED ON)
 
@@ -20,7 +19,6 @@ if (CURL_FOUND)
     include_directories(${CURL_INCLUDE_DIRS})
     add_definitions(-DHAVE_CURL)
 endif()
-
 
 file(GLOB_RECURSE ${PROJECT_NAME}_SERVER_SOURCE robotic_arm_server_api/*.cpp)
 

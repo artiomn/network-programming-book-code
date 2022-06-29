@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(mt-server C CXX)
+project("${CHAPTER_NAME}mt-server" C CXX)
 
 set(${PROJECT_NAME}_SRC main.cpp)
 

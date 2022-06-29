@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(select-aio-server C CXX)
+project("${CHAPTER_NAME}select-aio-server" C CXX)
 
 set(${PROJECT_NAME}_SRC main.cpp)
 

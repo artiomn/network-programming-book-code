@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(gio-client C CXX)
+project("${CHAPTER_NAME}gio-client" C CXX)
 
 find_package(GTK2 REQUIRED)
 

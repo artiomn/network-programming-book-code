@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(simple-http-proxy C CXX)
+project("${CHAPTER_NAME}simple-http-proxy" C CXX)
 
 set(${PROJECT_NAME}_SRC main.cpp proxy_server.cpp)
 
