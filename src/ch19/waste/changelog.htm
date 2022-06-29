@@ -1,0 +1,402 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<META content="MSHTML 6.00.2900.2096" name=GENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=#ffffff>
+<DIV><FONT face=Arial size=2>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt 18pt"><B><SPAN lang=EN-US 
+style="mso-ansi-language: EN-US"><FONT size=3><FONT face="Times New Roman">V1.5 
+beta2 (build 405)<?xml:namespace prefix = o ns = 
+"urn:schemas-microsoft-com:office:office" 
+/><o:p></o:p></FONT></FONT></SPAN></B></P>
+<UL style="MARGIN-TOP: 0cm" type=disc>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">All this changes below were made by 
+  Md5Chap...<B><o:p></o:p></B></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Fixed the license dialog which was stalling for a few 
+  seconds when opened.. <B><o:p></o:p></B></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Minor cosmetic gui 
+  changes<B><o:p></o:p></B></FONT></FONT></SPAN></LI></UL>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt"><B><SPAN lang=EN-US 
+style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+face="Times New Roman">&nbsp;<o:p></o:p></FONT></FONT></SPAN></B></P>
+<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt 18pt"><B><SPAN lang=EN-US 
+style="mso-ansi-language: EN-US"><FONT size=3><FONT face="Times New Roman">V1.5 
+beta1 (build 394)<o:p></o:p></FONT></FONT></SPAN></B></P>
+<UL style="MARGIN-TOP: 0cm" type=disc>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">All this changes below were made by 
+  Md5Chap...<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Added nick coloring in the 
+  chat.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Added a more generic and configurable logging 
+  facility.<BR>Added a class that knows levels of logging. you decide what to 
+  log.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have completely converted the code to C++, including 
+  the RSA sources.<BR>I have also made it compatible for some other source 
+  editors.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have introduced RSA blinding to prevent RSA timing 
+  attacks.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have put my own blowfish implementation c++ class to 
+  waste.<BR>It's easier to use because it's a template 
+  class.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have introduced "stealth mode". This mode should make 
+  it harder to passively detect a waste client. It makes it invisible to 
+  p2pwatchdog.com. It also significantly increases security and DOS-attack 
+  resistance.<BR>Handshake packets have random length in this mode.<BR>The 
+  connection sequence code was partially recoded to have a better handling of 
+  the current state of the handshake.<BR>you could call it pre shared key mode 
+  although this one is even more.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">If not in "stealth mode" a warning is printed to the 
+  logfile if someone tries to connect to you with valid private key but wrong 
+  network password.<BR>In "stealth mode" this is not possible, because using 
+  wrong passwords leads to random data. You will see unknown pubkey messages in 
+  the log with changing pubkey hashes for every connect you might assume someone 
+  with bad password or simply someone connecting to you not using 
+  waste.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Protocol is sligtly modified when using network hashes 
+  to prevent offline cracking of network 
+  password.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have fixed several exploitable 
+  holes.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have introduced limiting of incoming 
+  connections.<BR>You can choose between limiting all incoming connections 
+  regardless of the clients or<BR>you can choose to limit the connections each 
+  client can open(each client is identified by its public key). Shortly said if 
+  two waste clients share one private key, you must set the incoming connection 
+  limit per host to two in order to have both clients connected.<BR>You can also 
+  have both limits active.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">At logging level of 5 the public key hash of a client 
+  is also logged when there are connection problems. You will see the hashes of 
+  clients that try to connect to you and<SPAN style="mso-spacerun: yes">&nbsp; 
+  </SPAN>were not allowed to.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have spent lots of time cleaning out bad coded crap 
+  from waste.<BR>I have made it more unified.. You can compile for linux as 
+  server, which code is nearly the same now as for windows except some small 
+  part in the startup code.<BR>Unfortunately some parts of the waste protocol 
+  depends on the gui.(really stupid problem). The linux server has a command 
+  line do make it daemon. (run in background without a logged on 
+  user).<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">You can also compile a Windows waste command line 
+  server which is functionally equal to the linux version. Mainly for 
+  testing!<BR>But you could also make it windows service with the SrvAny tool 
+  from the Windows resource kit.<BR>Small modification would make it native 
+  windows service capable....<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have made a special chat room $$broadcast to send 
+  messages to all users.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">You can now send chat to either clientid or public key 
+  hash or username. This is a commandline only fearure from the chat window. 
+  Don't bog me making this gui.<BR>You can also use /whois [pubkeyhash] for 
+  example.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Now waste honors hidden file attributes and on linux 
+  ".filename".(dotted filenames)<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Uploads and Downloads to clients are optionally 
+  "unique". An option download only once forces a file being unique in a 
+  directory. Up and download feature! This should prevent you to upload a file 
+  to a user several thousand times ;)<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">You may have problems using the download list from the 
+  alpha2+ clients. It may happen that they are not fully imported. Simply 
+  re-download them and they will be 
+resumed!<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Usernames are persisted on downloads as they were when 
+  the download started.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Usernames with beginning dot is now handles correctly 
+  as "invisible client". This is no new function. It is bug fixed. It is nearly 
+  the same as if you have no nick, but you may chat with this dotted name. Such 
+  users are not seen on the userlist. On the browse such user is shown as the 
+  clientid.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Linux server now knows signals HUP and USR1 and 
+  INT.<BR>HUP does dynamic reload of keys and config. USR1 flushes logs. INT 
+  shuts down.<BR>I have put my batch scripts to the 
+  distribution.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have introduced dynamic Ip support (called auto-mode) 
+  and fixed the other option dyn dns support to resolve addresses on reconnect 
+  when completely disconnected.<BR>Now Waste is able to keep a dynamic network 
+  up if you have auto reconnect activated on your dialup 
+  connection.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">The dyn dns is resolved every time a waste client 
+  switches from "network down" to active 
+  state(connecting)<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have made chat rooms pop up on incoming messages when 
+  you have sent it to tray. This is a configurable 
+  option.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have added sounds to incoming chats. This is a 
+  configurable option.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have added chat logging. You can select what kind of 
+  chats you want to log.<BR>You can select private, room or broadcast.<BR>Every 
+  context(chat room) is saved to a single file with 
+  timestamp.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Changing pass phrase of private key now works. Did 
+  someone notice that it hasn't worked????<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have made access lists work. That code behind was 
+  completely buggy. I have made several functions that handles IP 
+  better.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Waste now also enumerates the local subnets from 
+  adapters to determine if an address on local subets may be reachable. This 
+  should avoid connecting to unreachable clients and sending private IPs to the 
+  internet.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">well tons of that old code was modified by me. I have 
+  introduced templates, rewritten the Blowfish engine(it's now a c++ template 
+  class with automatic termination of keys when the object is being 
+  unreferenced). I have also made it a bit 
+  faster...<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have fixed the Random number generation which was 
+  very very buggy and could have been determined on older waste versions easier 
+  than intended. <o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Although the inner protocol is compatible to older 
+  clients, I have made them incompatible by forcing another sync sequence. 
+  Because older clients have security issues this step is really 
+  needed.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have fixed the connection list, so that clients die 
+  after more that 100 tries and when connected clients die 8 times faster. That 
+  was intended but did not work.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have made all configuration parameters declared in 
+  one c++ header file. All network parameters in another 
+  file.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have changed some configuration defaults. (maintain 
+  connections is default 0 in my version, coz I don't like auto-connecting 
+  clients, although the value is still persisted as before). Another one was the 
+  stupid upload 160 files at once crap(now 16). I have also fixed the bug in 
+  that limiter.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have cleaned up the whole source code and made it 
+  better readable.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have closed several buffer overflow 
+  conditions.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">The hashing of files is now only done when a client 
+  initially starts a download. This should prevent lockups of waste when users 
+  resume downloads.<BR>The hashing should be either asynchronous or 
+  pre-calculated, but it's difficult to implement. When you experience stalled 
+  waste for several seconds, this is due to hashing uploads. Deactivate hashing 
+  on send preferences to avoid waste consuming much 
+  resources.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">The handling of IP's has been improved. The private 
+  172.16.0.0/12 network has also been added to be 
+  known.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">A small bug that may happen on slow connections 
+  sporadically refusing to connect has been 
+  solved.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Several parts in the handshake sequence were non-random 
+  looking. Now everything is optionally padded with random 
+  crap.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Tons of bugs in the chat have been fixed. Lines can now 
+  be up to one 1024 chars.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">The time before a nick starves has been doubled to 
+  prevent messages of stalled or slow 
+  clients.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">The database has scanned the drive on startup whatever 
+  you have configured in the preferences. That has been fixed. Only cached data 
+  is read on startup.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Several memory leaks have been fixed through all parts 
+  of waste.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Many parts in the source code have been revised and 
+  duplicate code parts merged and 
+optimized.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">When you have your download path and parts of your 
+  shared uploads in one directory, the other waste clients won't see that file 
+  unless it's complete. Shortly said a file that has a ".wastestate" file 
+  belonging to it is not seen to other clients. This should prevent others 
+  reading incomplete files. This is necessary because waste is currently unable 
+  to handle partial downloads like emule or gnutella does. For that reason you 
+  should use a tool like winrar to split files, like those people in the ftp 
+  scene do.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Closed a bug in the memory management of chat functions 
+  that could have crashed waste.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Optimized the code to make it easier to 
+  debug.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Now clients try to maintain direct connections on 
+  transfers if configured. You can choose if your client permits this and if 
+  your client actively tries to open a direct connection. It is now done 
+  regardless if you are uploader or downloader. This should fix many problems in 
+  the waste network because of routing 
+  traffic.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">Your local Ip is only sent to other clients if it was 
+  correctly resolved. This should prevent bad ip's on the network lists. Please 
+  remember that it is still your responsibility to make the waste port 
+  connectable. If you use a router you must set a rule that the TCP-port is 
+  forwarded to you. Otherwise other clients cannot connect. Same as for every 
+  other application...<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">The title bar of network connection should now be 
+  updated correctly to show the active 
+  connections.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">The preferences have got a big rework. It's slightly 
+  bigger in size and where appropriate I have split the options to more tabs to 
+  make it easier to read. Too much information on one tab might confuse 
+  users.<o:p></o:p></FONT></FONT></SPAN></LI>
+  <LI class=MsoNormal 
+  style="MARGIN: 0cm 0cm 0pt; mso-list: l0 level1 lfo1; tab-stops: list 36.0pt"><SPAN 
+  lang=EN-US style="mso-ansi-language: EN-US"><FONT size=3><FONT 
+  face="Times New Roman">I have fixed so many bugs in file transfers and in 
+  other parts, that I simply forgot most of 
+  them....<o:p></o:p></FONT></FONT></SPAN></LI></UL></FONT></DIV></BODY>
+</HTML>

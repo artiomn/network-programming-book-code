@@ -26,9 +26,10 @@ set(LINK_SEARCH_START_STATIC ON)
 set(BUILD_SHARED_LIBS OFF)
 # set(CMAKE_EXE_LINKER_FLAGS "-static")
 
-file(GLOB lessons LIST_DIRECTORIES true "l[1-9]")
+file(GLOB chapters LIST_DIRECTORIES true "ch[0-9][0-9]")
 add_subdirectory("socket_wrapper")
 
-foreach(lesson ${lessons})
-  add_subdirectory("${lesson}")
+foreach(chapter ${chapters})
+    message(STATUS "Adding code for the chapter ${chapter}")
+    add_subdirectory("${chapter}")
 endforeach()

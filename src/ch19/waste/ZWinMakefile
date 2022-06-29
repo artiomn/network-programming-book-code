@@ -1,0 +1,127 @@
+
+# WASTE - Makefile
+# Copyright (C) 2004 WASTE Development Team
+#
+# WASTE is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# WASTE  is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with WASTE; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+#
+# Win Makefile for WASTE
+# Coding Md5Chap
+# you will need the free compiler from Microsoft and the Platform SDK to go!
+#
+
+TARGETS = WASTE.exe
+
+SOURCES1 = stdafx.cpp
+
+SOURCES2 = \
+asyncdns.cpp \
+blowfish.cpp \
+childwnd.cpp \
+config.cpp \
+connection.cpp \
+d_chat.cpp \
+filedb.cpp \
+keygen.cpp \
+license.cpp \
+listen.cpp \
+listview.cpp \
+m_chat.cpp \
+m_file.cpp \
+m_keydist.cpp \
+m_lcaps.cpp \
+m_ping.cpp \
+m_search.cpp \
+m_upload.cpp \
+main.cpp \
+mqueue.cpp \
+mqueuelist.cpp \
+netkern.cpp \
+netq.cpp \
+prefs.cpp \
+rsa\md5.cpp \
+rsa\nn.cpp \
+rsa\prime.cpp \
+rsa\r_keygen.cpp \
+rsa\r_random.cpp \
+rsa\rsa.cpp \
+sha.cpp \
+sharedmain.cpp \
+shbuf.cpp \
+srchwnd.cpp \
+stdafx.cpp \
+util.cpp \
+xfers.cpp \
+xferwnd.cpp
+
+SOURCES3 = waste.rc
+
+_OUTDIR = Release_WASTE
+_INTDIR = Release_WASTE_i
+
+_CL=cl.exe
+_C1=C1.dll
+_CX=c1xx.dll
+_C2=c2.dll
+_RSC=rc.exe
+_LINK=link.exe
+
+_CFLAGS=/Ox /Os /GL /GA /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_DEFINE_SNIFF" /D "_MBCS" /GF /Gm /EHsc /MT /GS /Gy /Fp"$(_INTDIR)/WASTE.pch" /Fo"$(_INTDIR)/" /Fd"$(_INTDIR)/vc70.pdb" /W3 /nologo /Zi /TP /c
+_CFLAGS1=$(_CFLAGS) /Yc"StdAfx.hpp"
+_CFLAGS2=$(_CFLAGS) /Yu"StdAfx.hpp"
+_LFLAGS=/INCREMENTAL:NO /NOLOGO /DEBUG /PDB:"$(_OUTDIR)/WASTE.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /OPT:NOWIN98 /LTCG /MACHINE:X86 ws2_32.lib ComCtl32.Lib Winmm.lib  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
+_RCFLAGS=/d "NDEBUG"
+
+.SUFFIXES:
+
+all : $(TARGETS)
+	@echo Finished!!!
+
+$(TARGETS) : objects1 objects2 resources
+	@if exist "$(_INTDIR)\objects.rsp" del "$(_INTDIR)\objects.rsp"
+	-@for %%i in ($(_INTDIR)\*.obj) do @echo %%i >>$(_INTDIR)\objects.rsp
+	-@for %%i in ($(_INTDIR)\*.res) do @echo %%i >>$(_INTDIR)\objects.rsp
+	$(_LINK) $(_LFLAGS) /OUT:"$(_OUTDIR)/$@" @$(_INTDIR)\objects.rsp
+
+objects1: $(SOURCES1)
+	@if not exist $(_OUTDIR) md $(_OUTDIR)
+	@if not exist $(_INTDIR) md $(_INTDIR)
+	@if exist "$(_INTDIR)\sources1.rsp" del "$(_INTDIR)\sources1.rsp"
+	!@echo $** >>$(_INTDIR)\sources1.rsp
+	$(_CL) $(_CFLAGS1) @$(_INTDIR)\sources1.rsp
+
+objects2: $(SOURCES2)
+	@if not exist $(_OUTDIR) md $(_OUTDIR)
+	@if not exist $(_INTDIR) md $(_INTDIR)
+	@if exist "$(_INTDIR)\sources2.rsp" del "$(_INTDIR)\sources2.rsp"
+	!@echo $** >>$(_INTDIR)\sources2.rsp
+	$(_CL) $(_CFLAGS2) @$(_INTDIR)\sources2.rsp
+
+resources: $(SOURCES3)
+	@if not exist $(_OUTDIR) md $(_OUTDIR)
+	@if not exist $(_INTDIR) md $(_INTDIR)
+	!$(_RSC) $(_RCFLAGS) /fo"$(_INTDIR)/$(**B).res" $**
+
+clean:
+	-@for %i in ("$(_INTDIR)\*.idb") do del "%i"
+	-@for %i in ("$(_INTDIR)\*.obj") do del "%i"
+	-@for %i in ("$(_INTDIR)\*.pdb") do del "%i"
+	-@for %i in ("$(_INTDIR)\*.pch") do del "%i"
+	-@for %i in ("$(_INTDIR)\*.res") do del "%i"
+	-@for %i in ("$(_INTDIR)\*.rsp") do del "%i"
+	-@for %i in ("$(_OUTDIR)\*.exe") do del "%i"
+	-@for %i in ("$(_OUTDIR)\*.ilk") do del "%i"
+	-@for %i in ("$(_OUTDIR)\*.pdb") do del "%i"
+

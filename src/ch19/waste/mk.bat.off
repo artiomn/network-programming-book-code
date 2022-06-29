@@ -1,0 +1,28 @@
+mkdir waste
+mkdir waste\rsa
+copy *.rc waste\
+copy *.h waste\
+copy *.c waste\
+copy *.cpp waste\
+copy *.dsp waste\
+copy *.dsw waste\
+copy *.ico waste\
+copy *.xml waste\
+copy *.doc waste\
+copy Makefile.* waste\
+copy waste.nsi waste\
+copy mk.bat waste\ 
+copy license.txt waste\
+copy rsa\*.* waste\rsa\
+
+del waste-source.zip
+del waste-source.tar.gz
+zip -X9r waste-source.zip waste
+tar cvzf waste-source.tar.gz waste
+
+del /q waste\rsa
+del /q waste\
+rd waste\rsa
+rd waste
+
+\progra~1\nsis\makensis /DHAVE_UPX waste

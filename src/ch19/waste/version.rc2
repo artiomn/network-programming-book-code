@@ -1,0 +1,65 @@
+/*
+WASTE
+Copyright (C) 2003 Nullsoft, Inc.
+Copyright (C) 2004 WASTE Development Team
+
+WASTE is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+WASTE  is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with WASTE; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
+#include "build\build.hpp"
+
+#ifdef APSTUDIO_INVOKED
+#error "Cannot open that one in RC-Editor"
+#endif
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
+#ifdef _WIN32
+		LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+#pragma code_page(1252)
+#endif
+
+VS_VERSION_INFO VERSIONINFO
+	FILEVERSION __VER_IFULLRB
+	PRODUCTVERSION __VER_IFULLRB
+	FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+		FILEFLAGS 0x1L
+#else
+		FILEFLAGS 0x0L
+#endif
+	FILEOS 0x4L
+	FILETYPE  0x1L
+	FILESUBTYPE 0x0L
+	BEGIN
+		BLOCK "StringFileInfo"
+		BEGIN
+			BLOCK "000004b0"
+			BEGIN
+				VALUE "CompanyName", "GNU"
+				VALUE "FileDescription", "Waste Secure Network"
+				VALUE "FileVersion", __VER_SFULLRB
+				VALUE "InternalName", "Waste.exe"
+				VALUE "LegalCopyright", "(C) 2003 Nullsoft, Inc., (C) 2004 WASTE Development Team"
+				VALUE "OriginalFilename", "Waste.exe"
+				VALUE "ProductName", "Waste"
+				VALUE "ProductVersion", __VER_SFULLRB
+			END
+		END
+		BLOCK "VarFileInfo"
+		BEGIN
+			VALUE "Translation", 0x0, 1200
+		END
+	END
+#endif

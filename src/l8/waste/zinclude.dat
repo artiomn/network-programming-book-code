@@ -1,8 +1,0 @@
-*.*
-build\*.*
-Makefiles\darwin\*.*
-Makefiles\gnu\*.*
-Makefiles\posix\*.*
-Res\*.*
-rsa\*.*
-Linux_Scripts\*.*
