@@ -22,6 +22,7 @@ namespace
 {
 
 const size_t clients_count = 10;
+const size_t buffer_size = 255;
 
 std::function<void(int)> sig_handler;
 
@@ -68,13 +69,15 @@ int main(int argc, const char * const argv[])
 
         sig_handler = [&client_sock](int sig_num)
         {
-            char buff[100];
+            std::vector<char> buff;
+            buff.resize(buffer_size);
 
             std::cout << "SIGURG received" << std::endl;
-            auto n = recv(client_sock, buff, sizeof(buff) - 1, MSG_OOB);
+            auto n = recv(client_sock, &buff[0], buff.size() - 1, MSG_OOB);
             buff[n] = 0;
             std::cout
-                << n << " OOB byte: " << buff
+                << n << " OOB bytes was read: "
+                << std::string(buff.begin(), buff.begin() + n)
                 << std::endl;
         };
 
@@ -83,14 +86,14 @@ int main(int argc, const char * const argv[])
         fcntl(client_sock, F_SETOWN, getpid());
 
         std::vector<char> buff;
-        buff.resize(100);
+        buff.resize(buffer_size);
 
         for (ssize_t n = 1; n; n = recv(client_sock, &buff[0], buff.size() - 1, 0))
         {
             buff[n] = 0;
             std::cout
-                << "read " << n
-                << " bytes: " << std::string(buff.begin(), buff.begin() + n)
+                << n
+                << " bytes was read: " << std::string(buff.begin(), buff.begin() + n)
                 << std::endl;
         }
 

@@ -4,4 +4,5 @@ get_filename_component(CHAPTER_NAME "${CMAKE_CURRENT_LIST_DIR}-" NAME CACHED)
 
 add_subdirectory("oob_example")
 add_subdirectory("tcp_client")
+add_subdirectory("socket_address")
 
