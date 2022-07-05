@@ -212,7 +212,6 @@ socket_wrapper::Socket ProxyServer::connect_to_target_server(const std::string &
 
     for (auto const *s = servinfo.get(); s != nullptr; s = s->ai_next)
     {
-
         assert(s->ai_family == s->ai_addr->sa_family);
         if (AF_INET == s->ai_family)
         {
