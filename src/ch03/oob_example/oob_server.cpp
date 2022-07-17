@@ -88,8 +88,13 @@ int main(int argc, const char * const argv[])
         std::vector<char> buff;
         buff.resize(buffer_size);
 
-        for (ssize_t n = 1; n; n = recv(client_sock, &buff[0], buff.size() - 1, 0))
+        for (ssize_t n = recv(client_sock, &buff[0], buff.size() - 1, 0); n; n = recv(client_sock, &buff[0], buff.size() - 1, 0))
         {
+            if (n < 0)
+            {
+                throw std::logic_error("recvmsg");
+            }
+
             buff[n] = 0;
             std::cout
                 << n
