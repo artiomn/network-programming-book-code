@@ -4,4 +4,5 @@ get_filename_component(CHAPTER_NAME "${CMAKE_CURRENT_LIST_DIR}-" NAME CACHED)
 
 if (UNIX)
     add_subdirectory("if_nameindex")
+    add_subdirectory("ancil_data_recv")
 endif()
