@@ -11,14 +11,14 @@ namespace socket_wrapper
 {
 
 std::unique_ptr<addrinfo, decltype(&freeaddrinfo)>
-get_serv_info(const char *port)
+get_serv_info(const char *port, int sock_type)
 {
     struct addrinfo hints =
     {
         .ai_flags = AI_PASSIVE,
         .ai_family = AF_INET,
-        .ai_socktype = SOCK_STREAM,
-        .ai_protocol = IPPROTO_TCP
+        .ai_socktype = sock_type,
+        .ai_protocol = (sock_type == SOCK_STREAM ? IPPROTO_TCP : IPPROTO_UDP)
     };
     struct addrinfo *s_i;
     int ai_status;
