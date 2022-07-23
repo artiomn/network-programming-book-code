@@ -2,9 +2,10 @@ cmake_minimum_required(VERSION 3.10)
 
 project("${CHAPTER_NAME}if_nameindex" C CXX)
 
-set(${PROJECT_NAME}_SRC main.cpp)
+add_executable("${PROJECT_NAME}_if_nameindex" if_nameindex.cpp)
+add_executable("${PROJECT_NAME}_siocifname" siocifname.cpp)
+add_executable("${PROJECT_NAME}_get_ifaddrs" get_ifaddrs.cpp)
 
-source_group(source FILES ${${PROJECT_NAME}_SRC}})
-
-add_executable("${PROJECT_NAME}" "${${PROJECT_NAME}_SRC}")
-target_link_libraries("${PROJECT_NAME}" socket-wrapper)
+target_link_libraries("${PROJECT_NAME}_if_nameindex" socket-wrapper)
+target_link_libraries("${PROJECT_NAME}_siocifname" socket-wrapper)
+target_link_libraries("${PROJECT_NAME}_get_ifaddrs" socket-wrapper)
