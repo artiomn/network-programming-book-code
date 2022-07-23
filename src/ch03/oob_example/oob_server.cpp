@@ -50,6 +50,11 @@ int main(int argc, const char * const argv[])
 
         socket_wrapper::Socket server_sock = {servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol};
 
+        if (!socket)
+        {
+            throw std::logic_error("socket");
+        }
+
         if (bind(server_sock, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
         {
             throw std::logic_error("bind");
