@@ -117,7 +117,7 @@ int main(int argc, const char * const argv[])
                 std::cout
                     << "    tx_packets = " << stats->tx_packets << "\n"
                     << "    rx_packets = " << stats->rx_packets << "\n"
-                    << "    ttx_bytes  = " << stats->tx_bytes << "\n"
+                    << "    tx_bytes  = " << stats->tx_bytes << "\n"
                     << "    rx_bytes   = " << stats->rx_bytes;
             }
             /*
