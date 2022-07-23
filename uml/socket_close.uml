@@ -1,0 +1,42 @@
+@startuml
+start
+:Открыть сокет;
+
+group Цикл\nобмена
+  while (Завершить обмен?) is (нет)
+    :Записать/прочитать данные;
+  endwhile (да)
+end group
+
+if (Мой узел завершает обмен) then (да)
+
+group Инициация\nзакрытия\nсоединения
+  :shutdown(SHUT_WR): //Отправить FIN//;
+  :Прекратить отправку данных;
+
+  repeat
+    :Читать данные абонента;
+  repeat while (read() == 0) is (нет) not (да)
+endgroup
+
+else (нет: //Пришёл FIN//)
+
+group Закрытие\nсоединения\nабонентом
+  repeat
+    :Читать данные абонента;
+  repeat while (read() == 0) is (нет) not (да)
+
+  if (Есть неотправленные данные?) then (да)
+    :Отправить данные;
+  else (нет)
+  endif
+
+  :shutdown(SHUT_WR): //Отправить FIN//;  
+endgroup
+
+endif
+
+:close();
+
+stop
+@enduml

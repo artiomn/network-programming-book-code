@@ -1,0 +1,40 @@
+@startuml
+
+title Закрытие TCP соединения
+
+Клиент -> Клиент : close()
+
+activate Клиент
+
+Клиент -> Клиент : shutdown(SHUT_RDWR)
+
+activate Клиент
+
+Клиент -> Сервер : FIN, ACK
+Клиент <- Сервер : ACK
+
+Сервер -> Сервер : close()
+
+activate Сервер
+
+Сервер -> Сервер : shutdown(SHUT_RDWR)
+
+activate Сервер
+
+Клиент <- Сервер : FIN, ACK
+Клиент -> Сервер : ACK
+
+Сервер -> Сервер : shutdown()
+
+deactivate Сервер
+
+Сервер -> Сервер : close()
+
+deactivate Сервер
+
+Клиент -> Клиент : shutdown()
+deactivate Клиент
+Клиент -> Клиент : close()
+deactivate Клиент
+
+@enduml
