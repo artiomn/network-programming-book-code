@@ -129,25 +129,17 @@ int main(int argc, const char * const argv[])
             } */
             else if (i->ifa_addr)
             {
-                std::cout << "    unimplemented address family to parse data";
+                std::cout
+                    << "    " << i->ifa_addr->sa_family
+                    << " - unimplemented address family to parse data";
             }
             else
             {
-                struct unk_data
-                {
-                        char txq_len[5];
-                        uint8_t oper_state[5];
-                        uint8_t link_mode[5];
-                        uint64_t mtu;
-                } __attribute__((packed));
-
-                auto u_data = static_cast<const unk_data*>(ifa->ifa_data);
                 std::cout
-                    << "    address is null, but data is not:\n"
-                    << "        MTU = " << int(u_data->txq_len[0]) << int(u_data->txq_len[1]);
+                    << "    address is null, but data is not.";
             }
         }
-        std::cout << "\n";
+        std::cout << "\n\n";
     }
     std::cout << std::endl;
 
