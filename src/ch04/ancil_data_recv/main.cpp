@@ -54,7 +54,6 @@ int main(int argc, const char * const argv[])
             .msg_controllen = ancil_data_buff.size(),
             .msg_flags = 0
         };
-        cmsghdr *cmsg;
 
         int recv_ttl = 1;
 
@@ -64,6 +63,7 @@ int main(int argc, const char * const argv[])
             throw std::logic_error("Set IP_RECVTTL");
         }
 
+        // Receive auxiliary data in msgh.
         for (ssize_t n = recvmsg(sock, &msgh, 0); n; n = recvmsg(sock, &msgh, 0))
         {
             if (n < 0)
@@ -76,7 +76,9 @@ int main(int argc, const char * const argv[])
                 << " bytes was read: " << std::string(data_buff.begin(), data_buff.begin() + n)
                 << std::endl;
 
-            // Receive auxiliary data in msgh.
+            cmsghdr *cmsg;
+
+            // Get ancillary data.
             for (cmsg = CMSG_FIRSTHDR(&msgh); cmsg != nullptr;
                  cmsg = CMSG_NXTHDR(&msgh, cmsg))
             {
@@ -97,6 +99,8 @@ int main(int argc, const char * const argv[])
                 // Error: IP_TTL was not enabled or small buffer or I/O error.
                 throw std::logic_error("IP_RECVTTL receiving");
             }
+
+            break;
         }
 
     }
