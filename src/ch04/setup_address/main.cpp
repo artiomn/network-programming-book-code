@@ -1,4 +1,4 @@
-void setip (int fd)
+void set_ip_address(int fd)
 {
      struct ifreq ifr;
      struct sockaddr_in addr;

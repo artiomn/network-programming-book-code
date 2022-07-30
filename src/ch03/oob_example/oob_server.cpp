@@ -72,17 +72,30 @@ int main(int argc, const char * const argv[])
             throw std::logic_error("accept");
         }
 
-        sig_handler = [&client_sock](int sig_num)
+        std::vector<char> data_buff;
+        data_buff.resize(buffer_size);
+        auto data_buff_iterator = data_buff.begin();
+
+        sig_handler = [&client_sock, &data_buff_iterator](int sig_num)
         {
-            std::vector<char> buff;
-            buff.resize(buffer_size);
+            std::vector<char> oob_buff;
+            oob_buff.resize(buffer_size);
 
             std::cout << "SIGURG received" << std::endl;
-            auto n = recv(client_sock, &buff[0], buff.size() - 1, MSG_OOB);
-            buff[n] = 0;
+
+            while (!socatmark(client_sock))
+            {
+                buf_free_size = data_buff.size() -
+                                (data_buff_iterator - data_buff.cbegin()) - 1;
+
+                ssize_t n = recv(client_sock, &(*data_buff_iterator), buff_free_size, 0);
+            }
+
+            auto n = recv(client_sock, &oob_buff[0], oob_buff.size() - 1, MSG_OOB);
+            oob_buff[n] = '\0';
             std::cout
                 << n << " OOB bytes was read: "
-                << std::string(buff.begin(), buff.begin() + n)
+                << std::string(oob_buff.begin(), oob_buff.begin() + n)
                 << std::endl;
         };
 
@@ -90,20 +103,21 @@ int main(int argc, const char * const argv[])
 
         fcntl(client_sock, F_SETOWN, getpid());
 
-        std::vector<char> buff;
-        buff.resize(buffer_size);
-
-        for (ssize_t n = recv(client_sock, &buff[0], buff.size() - 1, 0); n; n = recv(client_sock, &buff[0], buff.size() - 1, 0))
+        for (ssize_t n = recv(client_sock, &(*data_buff_iterator),
+                              data_buff.size() - (data_buff_iterator - data_buff.cbegin()) - 1, 0);
+             n;
+             n = recv(client_sock, &data_buff[0], data_buff.size() - 1, 0))
         {
             if (n < 0)
             {
                 throw std::logic_error("recvmsg");
             }
 
-            buff[n] = 0;
+			data_buff_iterator += n;
+            *data_buff_iterator = '\0';
             std::cout
                 << n
-                << " bytes was read: " << std::string(buff.begin(), buff.begin() + n)
+                << " bytes was read: " << std::string(data_buff.begin(), data_buff.begin() + n)
                 << std::endl;
         }
 
