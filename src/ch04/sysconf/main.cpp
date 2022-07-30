@@ -20,13 +20,13 @@ int main(int argc, const char* const argv[])
 #if defined(IOV_MAX)
         buf_count = IOV_MAX;
         std::cout
-            << "Buffers count will be set via IOV_MAX\n"
+            << "Buffers count got via IOV_MAX\n";
 #endif
     }
     else
     {
         std::cout
-            << "Buffers count will be set via sysconf()\n"
+            << "Buffers count got via sysconf()\n";
     }
 
 #if defined(IOV_MAX)
@@ -36,4 +36,6 @@ int main(int argc, const char* const argv[])
     std::cout
         << "Buffers count = "
         << buf_count << std::endl;
+
+    return EXIT_SUCCESS;
 }

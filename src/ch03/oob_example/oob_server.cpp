@@ -76,19 +76,19 @@ int main(int argc, const char * const argv[])
         data_buff.resize(buffer_size);
         auto data_buff_iterator = data_buff.begin();
 
-        sig_handler = [&client_sock, &data_buff_iterator](int sig_num)
+        sig_handler = [&client_sock, &data_buff_iterator, &data_buff](int sig_num)
         {
             std::vector<char> oob_buff;
             oob_buff.resize(buffer_size);
 
             std::cout << "SIGURG received" << std::endl;
 
-            while (!socatmark(client_sock))
+            while (!sockatmark(client_sock))
             {
-                buf_free_size = data_buff.size() -
-                                (data_buff_iterator - data_buff.cbegin()) - 1;
+                auto buf_free_size = data_buff.size() -
+                                     (data_buff_iterator - data_buff.cbegin()) - 1;
 
-                ssize_t n = recv(client_sock, &(*data_buff_iterator), buff_free_size, 0);
+                ssize_t n = recv(client_sock, &(*data_buff_iterator), buf_free_size, 0);
             }
 
             auto n = recv(client_sock, &oob_buff[0], oob_buff.size() - 1, MSG_OOB);
