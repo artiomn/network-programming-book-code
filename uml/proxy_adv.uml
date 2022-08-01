@@ -1,0 +1,32 @@
+@startuml
+
+title Работа через HTTTP прокси
+
+actor Браузер
+
+Браузер -> proxy.example.com : GET / HTTP/1.1\nHost: artiomsoft.ru
+activate Браузер
+activate proxy.example.com
+proxy.example.com -> artiomsoft.ru : GET / HTTP/1.1\nHost: artiomsoft.ru
+activate artiomsoft.ru
+proxy.example.com <-- artiomsoft.ru : HTTP/1.1 301 Moved Permanently\nLocation: https:///artiomsoft.ru
+deactivate artiomsoft.ru
+Браузер <-- proxy.example.com : HTTP/1.1 301 Moved Permanently\nLocation: https:///artiomsoft.ru\nX-Cache: MISS from proxy
+deactivate proxy.example.com
+deactivate Браузер
+
+Браузер -> proxy.example.com : CONNECT artiomsoft.ru:443 HTTP/1.1
+activate Браузер
+activate proxy.example.com
+proxy.example.com -> artiomsoft.ru
+activate artiomsoft.ru
+proxy.example.com <-- artiomsoft.ru
+Браузер <-- proxy.example.com : HTTP/1.1 200 Connection established
+proxy.example.com -> artiomsoft.ru : GET / HTTP/1.1\nHost: artiomsoft.ru
+proxy.example.com <-- artiomsoft.ru : HTTP/1.1 200 OK
+deactivate artiomsoft.ru
+Браузер <-- proxy.example.com : HTTP/1.1 200 OK
+deactivate proxy.example.com
+deactivate Браузер
+
+@enduml
