@@ -10,8 +10,7 @@
 namespace socket_wrapper
 {
 
-std::unique_ptr<addrinfo, decltype(&freeaddrinfo)>
-get_serv_info(const char *port, int sock_type)
+AddrInfoResult get_serv_info(const char *port, int sock_type)
 {
     struct addrinfo hints =
     {
@@ -24,6 +23,28 @@ get_serv_info(const char *port, int sock_type)
     int ai_status;
 
     if ((ai_status = getaddrinfo(nullptr, port, &hints, &s_i)) != 0)
+    {
+        throw std::logic_error(gai_strerror(ai_status));
+    }
+
+    return std::unique_ptr<addrinfo, decltype(&freeaddrinfo)>(s_i, freeaddrinfo);
+}
+
+
+AddrInfoResult get_client_info(const std::string &host, unsigned short port, int sock_type)
+{
+    struct addrinfo hints =
+    {
+        .ai_flags = AI_CANONNAME | AI_NUMERICSERV,
+        .ai_family = AF_UNSPEC,
+        .ai_socktype = sock_type,
+        .ai_protocol = (sock_type == SOCK_STREAM ? IPPROTO_TCP : IPPROTO_UDP)
+    };
+    struct addrinfo *s_i;
+    int ai_status;
+
+    if ((ai_status = getaddrinfo(host.c_str(), std::to_string(port).c_str(),
+                                 &hints, &s_i)) != 0)
     {
         throw std::logic_error(gai_strerror(ai_status));
     }
