@@ -1,8 +1,10 @@
 #include <cassert>
 #include <exception>
+#include <memory>
 #include <sstream>
 
 #include <socket_wrapper/socket_headers.h>
+#include <socket_wrapper/socket_functions.h>
 #include <socket_wrapper/socket_wrapper.h>
 
 #include "proxy_server.h"
@@ -190,25 +192,7 @@ bool ProxyServer::try_to_connect(socket_wrapper::Socket &s, const sockaddr* sa, 
 
 socket_wrapper::Socket ProxyServer::connect_to_target_server(const std::string &host_name, unsigned short port)
 {
-    addrinfo hints =
-    {
-        .ai_flags= AI_CANONNAME,
-        .ai_family = AF_UNSPEC,
-        .ai_socktype = SOCK_STREAM,
-        .ai_protocol = IPPROTO_TCP
-    };
-
-    addrinfo *s_i = nullptr;
-    int status = 0;
-
-    if ((status = getaddrinfo(host_name.c_str(), std::to_string(port).c_str(), &hints, &s_i)) != 0)
-    {
-        std::string msg{"getaddrinfo error: "};
-        msg += gai_strerror(status);
-        throw std::runtime_error(msg);
-    }
-
-    std::unique_ptr<addrinfo, decltype(&freeaddrinfo)> servinfo{s_i, freeaddrinfo};
+    auto servinfo = socket_wrapper::get_client_info(host_name, port);
 
     for (auto const *s = servinfo.get(); s != nullptr; s = s->ai_next)
     {
