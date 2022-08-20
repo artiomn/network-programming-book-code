@@ -1,0 +1,73 @@
+@startuml
+left to right direction
+set namespaceSeparator none
+
+class "TlsCertificate" as proxy.core.tls.certificate.TlsCertificate {
+}
+class "TlsCertificateRequest" as proxy.core.tls.certificate.TlsCertificateRequest {
+}
+class "TlsCertificateVerify" as proxy.core.tls.certificate.TlsCertificateVerify {
+}
+class "TlsClientHello" as proxy.core.tls.hello.TlsClientHello {
+}
+class "TlsClientKeyExchange" as proxy.core.tls.key_exchange.TlsClientKeyExchange {
+}
+class "TlsFinished" as proxy.core.tls.finished.TlsFinished {
+}
+class "TlsHandshake" as proxy.core.tls.handshake.TlsHandshake {
+}
+class "TlsHelloRequest" as proxy.core.tls.hello.TlsHelloRequest {
+}
+class "TlsParser" as proxy.core.tls.tls.TlsParser {
+}
+class "TlsServerHello" as proxy.core.tls.hello.TlsServerHello {
+}
+class "TlsServerHelloDone" as proxy.core.tls.hello.TlsServerHelloDone {
+}
+class "TlsServerKeyExchange" as proxy.core.tls.key_exchange.TlsServerKeyExchange {
+}
+
+
+class "SshHttpProtocolHandler" as proxy.core.ssh.handler.SshHttpProtocolHandler {
+}
+class "SshTunnelListener" as proxy.core.ssh.listener.SshTunnelListener {
+}
+
+class "WebSocketTransport" as proxy.http.websocket.transport.WebSocketTransport {
+}
+class "WebSocketTransportBasePlugin" as proxy.http.websocket.plugin.WebSocketTransportBasePlugin {
+}
+class "WebsocketClient" as proxy.http.websocket.client.WebsocketClient {
+}
+
+class "InspectTrafficPlugin" as proxy.http.inspector.inspect_traffic.InspectTrafficPlugin {
+}
+
+
+proxy.core.tls.certificate.TlsCertificate --* proxy.core.tls.handshake.TlsHandshake : certificate
+proxy.core.tls.certificate.TlsCertificateRequest --* proxy.core.tls.handshake.TlsHandshake : certificate_request
+proxy.core.tls.certificate.TlsCertificateVerify --* proxy.core.tls.handshake.TlsHandshake : certificate_verify
+proxy.core.tls.finished.TlsFinished --* proxy.core.tls.handshake.TlsHandshake : finished
+proxy.core.tls.handshake.TlsHandshake --* proxy.core.tls.tls.TlsParser : handshake
+proxy.core.tls.hello.TlsClientHello --* proxy.core.tls.handshake.TlsHandshake : client_hello
+proxy.core.tls.hello.TlsHelloRequest --* proxy.core.tls.handshake.TlsHandshake : hello_request
+proxy.core.tls.hello.TlsServerHello --* proxy.core.tls.handshake.TlsHandshake : server_hello
+proxy.core.tls.hello.TlsServerHelloDone --* proxy.core.tls.handshake.TlsHandshake : server_hello_done
+proxy.core.tls.key_exchange.TlsClientKeyExchange --* proxy.core.tls.handshake.TlsHandshake : client_key_exchange
+proxy.core.tls.key_exchange.TlsServerKeyExchange --* proxy.core.tls.handshake.TlsHandshake : server_key_exchange
+
+proxy.core.ssh.handler.SshHttpProtocolHandler --* proxy.proxy.Proxy : ssh_http_protocol_handler
+proxy.core.ssh.listener.SshTunnelListener --* proxy.proxy.Proxy : ssh_tunnel_listener
+
+
+proxy.http.websocket.client.WebsocketClient --|> proxy.core.connection.connection.TcpConnection
+proxy.http.websocket.transport.WebSocketTransport --|> proxy.http.server.plugin.HttpWebServerBasePlugin
+
+proxy.http.inspector.inspect_traffic.InspectTrafficPlugin --|> proxy.http.websocket.plugin.WebSocketTransportBasePlugin
+
+proxy.http.inspector.inspect_traffic.InspectTrafficPlugin --|> proxy.http.websocket.plugin.WebSocketTransportBasePlugin
+proxy.core.event.subscriber.EventSubscriber --* proxy.http.inspector.inspect_traffic.InspectTrafficPlugin : subscriber
+
+proxy.core.event.queue.EventQueue --* proxy.http.websocket.plugin.WebSocketTransportBasePlugin : event_queue
+
+@enduml

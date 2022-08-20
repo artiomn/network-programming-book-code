@@ -1,0 +1,473 @@
+@startuml packages
+set namespaceSeparator none
+package "proxy" as proxy {
+}
+package "proxy.__main__" as proxy.__main__ {
+}
+package "proxy.common" as proxy.common {
+}
+package "proxy.common._scm_version" as proxy.common._scm_version {
+}
+package "proxy.common._version" as proxy.common._version {
+}
+package "proxy.common.backports" as proxy.common.backports {
+}
+package "proxy.common.constants" as proxy.common.constants {
+}
+package "proxy.common.flag" as proxy.common.flag {
+}
+package "proxy.common.logger" as proxy.common.logger {
+}
+package "proxy.common.pki" as proxy.common.pki {
+}
+package "proxy.common.plugins" as proxy.common.plugins {
+}
+package "proxy.common.types" as proxy.common.types {
+}
+package "proxy.common.utils" as proxy.common.utils {
+}
+package "proxy.common.version" as proxy.common.version {
+}
+package "proxy.core" as proxy.core {
+}
+package "proxy.core.acceptor" as proxy.core.acceptor {
+}
+package "proxy.core.acceptor.acceptor" as proxy.core.acceptor.acceptor {
+}
+package "proxy.core.acceptor.pool" as proxy.core.acceptor.pool {
+}
+package "proxy.core.base" as proxy.core.base {
+}
+package "proxy.core.base.tcp_server" as proxy.core.base.tcp_server {
+}
+package "proxy.core.base.tcp_tunnel" as proxy.core.base.tcp_tunnel {
+}
+package "proxy.core.base.tcp_upstream" as proxy.core.base.tcp_upstream {
+}
+package "proxy.core.connection" as proxy.core.connection {
+}
+package "proxy.core.connection.client" as proxy.core.connection.client {
+}
+package "proxy.core.connection.connection" as proxy.core.connection.connection {
+}
+package "proxy.core.connection.pool" as proxy.core.connection.pool {
+}
+package "proxy.core.connection.server" as proxy.core.connection.server {
+}
+package "proxy.core.connection.types" as proxy.core.connection.types {
+}
+package "proxy.core.event" as proxy.core.event {
+}
+package "proxy.core.event.dispatcher" as proxy.core.event.dispatcher {
+}
+package "proxy.core.event.manager" as proxy.core.event.manager {
+}
+package "proxy.core.event.names" as proxy.core.event.names {
+}
+package "proxy.core.event.queue" as proxy.core.event.queue {
+}
+package "proxy.core.event.subscriber" as proxy.core.event.subscriber {
+}
+package "proxy.core.listener" as proxy.core.listener {
+}
+package "proxy.core.listener.base" as proxy.core.listener.base {
+}
+package "proxy.core.listener.pool" as proxy.core.listener.pool {
+}
+package "proxy.core.listener.tcp" as proxy.core.listener.tcp {
+}
+package "proxy.core.listener.unix" as proxy.core.listener.unix {
+}
+package "proxy.core.ssh" as proxy.core.ssh {
+}
+package "proxy.core.ssh.handler" as proxy.core.ssh.handler {
+}
+package "proxy.core.ssh.listener" as proxy.core.ssh.listener {
+}
+package "proxy.core.tls" as proxy.core.tls {
+}
+package "proxy.core.tls.certificate" as proxy.core.tls.certificate {
+}
+package "proxy.core.tls.finished" as proxy.core.tls.finished {
+}
+package "proxy.core.tls.handshake" as proxy.core.tls.handshake {
+}
+package "proxy.core.tls.hello" as proxy.core.tls.hello {
+}
+package "proxy.core.tls.key_exchange" as proxy.core.tls.key_exchange {
+}
+package "proxy.core.tls.pretty" as proxy.core.tls.pretty {
+}
+package "proxy.core.tls.tls" as proxy.core.tls.tls {
+}
+package "proxy.core.tls.types" as proxy.core.tls.types {
+}
+package "proxy.core.work" as proxy.core.work {
+}
+package "proxy.core.work.delegate" as proxy.core.work.delegate {
+}
+package "proxy.core.work.fd" as proxy.core.work.fd {
+}
+package "proxy.core.work.fd.fd" as proxy.core.work.fd.fd {
+}
+package "proxy.core.work.fd.local" as proxy.core.work.fd.local {
+}
+package "proxy.core.work.fd.remote" as proxy.core.work.fd.remote {
+}
+package "proxy.core.work.local" as proxy.core.work.local {
+}
+package "proxy.core.work.pool" as proxy.core.work.pool {
+}
+package "proxy.core.work.remote" as proxy.core.work.remote {
+}
+package "proxy.core.work.task" as proxy.core.work.task {
+}
+package "proxy.core.work.task.handler" as proxy.core.work.task.handler {
+}
+package "proxy.core.work.task.local" as proxy.core.work.task.local {
+}
+package "proxy.core.work.task.remote" as proxy.core.work.task.remote {
+}
+package "proxy.core.work.task.task" as proxy.core.work.task.task {
+}
+package "proxy.core.work.threaded" as proxy.core.work.threaded {
+}
+package "proxy.core.work.threadless" as proxy.core.work.threadless {
+}
+package "proxy.core.work.work" as proxy.core.work.work {
+}
+package "proxy.dashboard" as proxy.dashboard {
+}
+package "proxy.dashboard.dashboard" as proxy.dashboard.dashboard {
+}
+package "proxy.http" as proxy.http {
+}
+package "proxy.http.codes" as proxy.http.codes {
+}
+package "proxy.http.connection" as proxy.http.connection {
+}
+package "proxy.http.descriptors" as proxy.http.descriptors {
+}
+package "proxy.http.exception" as proxy.http.exception {
+}
+package "proxy.http.exception.base" as proxy.http.exception.base {
+}
+package "proxy.http.exception.http_request_rejected" as proxy.http.exception.http_request_rejected {
+}
+package "proxy.http.exception.proxy_auth_failed" as proxy.http.exception.proxy_auth_failed {
+}
+package "proxy.http.exception.proxy_conn_failed" as proxy.http.exception.proxy_conn_failed {
+}
+package "proxy.http.handler" as proxy.http.handler {
+}
+package "proxy.http.headers" as proxy.http.headers {
+}
+package "proxy.http.inspector" as proxy.http.inspector {
+}
+package "proxy.http.inspector.devtools" as proxy.http.inspector.devtools {
+}
+package "proxy.http.inspector.inspect_traffic" as proxy.http.inspector.inspect_traffic {
+}
+package "proxy.http.inspector.transformer" as proxy.http.inspector.transformer {
+}
+package "proxy.http.methods" as proxy.http.methods {
+}
+package "proxy.http.parser" as proxy.http.parser {
+}
+package "proxy.http.parser.chunk" as proxy.http.parser.chunk {
+}
+package "proxy.http.parser.parser" as proxy.http.parser.parser {
+}
+package "proxy.http.parser.protocol" as proxy.http.parser.protocol {
+}
+package "proxy.http.parser.types" as proxy.http.parser.types {
+}
+package "proxy.http.plugin" as proxy.http.plugin {
+}
+package "proxy.http.protocols" as proxy.http.protocols {
+}
+package "proxy.http.proxy" as proxy.http.proxy {
+}
+package "proxy.http.proxy.auth" as proxy.http.proxy.auth {
+}
+package "proxy.http.proxy.plugin" as proxy.http.proxy.plugin {
+}
+package "proxy.http.proxy.server" as proxy.http.proxy.server {
+}
+package "proxy.http.responses" as proxy.http.responses {
+}
+package "proxy.http.server" as proxy.http.server {
+}
+package "proxy.http.server.middleware" as proxy.http.server.middleware {
+}
+package "proxy.http.server.pac_plugin" as proxy.http.server.pac_plugin {
+}
+package "proxy.http.server.plugin" as proxy.http.server.plugin {
+}
+package "proxy.http.server.protocols" as proxy.http.server.protocols {
+}
+package "proxy.http.server.reverse" as proxy.http.server.reverse {
+}
+package "proxy.http.server.web" as proxy.http.server.web {
+}
+package "proxy.http.url" as proxy.http.url {
+}
+package "proxy.http.websocket" as proxy.http.websocket {
+}
+package "proxy.http.websocket.client" as proxy.http.websocket.client {
+}
+package "proxy.http.websocket.frame" as proxy.http.websocket.frame {
+}
+package "proxy.http.websocket.plugin" as proxy.http.websocket.plugin {
+}
+package "proxy.http.websocket.transport" as proxy.http.websocket.transport {
+}
+package "proxy.plugin" as proxy.plugin {
+}
+package "proxy.plugin.cache" as proxy.plugin.cache {
+}
+package "proxy.plugin.cache.base" as proxy.plugin.cache.base {
+}
+package "proxy.plugin.cache.cache_responses" as proxy.plugin.cache.cache_responses {
+}
+package "proxy.plugin.cache.store" as proxy.plugin.cache.store {
+}
+package "proxy.plugin.cache.store.base" as proxy.plugin.cache.store.base {
+}
+package "proxy.plugin.cache.store.disk" as proxy.plugin.cache.store.disk {
+}
+package "proxy.plugin.cloudflare_dns" as proxy.plugin.cloudflare_dns {
+}
+package "proxy.plugin.custom_dns_resolver" as proxy.plugin.custom_dns_resolver {
+}
+package "proxy.plugin.filter_by_client_ip" as proxy.plugin.filter_by_client_ip {
+}
+package "proxy.plugin.filter_by_upstream" as proxy.plugin.filter_by_upstream {
+}
+package "proxy.plugin.filter_by_url_regex" as proxy.plugin.filter_by_url_regex {
+}
+package "proxy.plugin.man_in_the_middle" as proxy.plugin.man_in_the_middle {
+}
+package "proxy.plugin.mock_rest_api" as proxy.plugin.mock_rest_api {
+}
+package "proxy.plugin.modify_chunk_response" as proxy.plugin.modify_chunk_response {
+}
+package "proxy.plugin.modify_post_data" as proxy.plugin.modify_post_data {
+}
+package "proxy.plugin.program_name" as proxy.plugin.program_name {
+}
+package "proxy.plugin.proxy_pool" as proxy.plugin.proxy_pool {
+}
+package "proxy.plugin.redirect_to_custom_server" as proxy.plugin.redirect_to_custom_server {
+}
+package "proxy.plugin.reverse_proxy" as proxy.plugin.reverse_proxy {
+}
+package "proxy.plugin.shortlink" as proxy.plugin.shortlink {
+}
+package "proxy.plugin.web_server_route" as proxy.plugin.web_server_route {
+}
+package "proxy.proxy" as proxy.proxy {
+}
+package "proxy.socks" as proxy.socks {
+}
+package "proxy.socks.client" as proxy.socks.client {
+}
+package "proxy.socks.handler" as proxy.socks.handler {
+}
+package "proxy.socks.operations" as proxy.socks.operations {
+}
+package "proxy.socks.packet" as proxy.socks.packet {
+}
+package "proxy.testing" as proxy.testing {
+}
+package "proxy.testing.test_case" as proxy.testing.test_case {
+}
+proxy --> proxy
+proxy --> proxy.testing
+proxy.__main__ --> proxy
+proxy.common._version --> proxy.common._scm_version
+proxy.common.constants --> proxy.common.version
+proxy.common.flag --> proxy.common.constants
+proxy.common.flag --> proxy.common.logger
+proxy.common.flag --> proxy.common.plugins
+proxy.common.flag --> proxy.common.types
+proxy.common.flag --> proxy.common.utils
+proxy.common.flag --> proxy.common.version
+proxy.common.logger --> proxy.common.constants
+proxy.common.pki --> proxy.common.constants
+proxy.common.pki --> proxy.common.utils
+proxy.common.pki --> proxy.common.version
+proxy.common.plugins --> proxy.common.constants
+proxy.common.plugins --> proxy.common.utils
+proxy.common.utils --> proxy.common.constants
+proxy.common.utils --> proxy.common.types
+proxy.common.version --> proxy.common._version
+proxy.core.acceptor --> proxy.core.acceptor.acceptor
+proxy.core.acceptor --> proxy.core.acceptor.pool
+proxy.core.acceptor.pool --> proxy.core.acceptor.acceptor
+proxy.core.base --> proxy.core.base.tcp_server
+proxy.core.base --> proxy.core.base.tcp_tunnel
+proxy.core.base --> proxy.core.base.tcp_upstream
+proxy.core.base.tcp_tunnel --> proxy.core.base.tcp_server
+proxy.core.connection --> proxy.core.connection.client
+proxy.core.connection --> proxy.core.connection.connection
+proxy.core.connection --> proxy.core.connection.pool
+proxy.core.connection --> proxy.core.connection.server
+proxy.core.connection --> proxy.core.connection.types
+proxy.core.connection.client --> proxy.core.connection.connection
+proxy.core.connection.client --> proxy.core.connection.types
+proxy.core.connection.connection --> proxy.core.connection.types
+proxy.core.connection.pool --> proxy.core.connection.server
+proxy.core.connection.server --> proxy.core.connection.connection
+proxy.core.connection.server --> proxy.core.connection.types
+proxy.core.event --> proxy.core.event.dispatcher
+proxy.core.event --> proxy.core.event.manager
+proxy.core.event --> proxy.core.event.names
+proxy.core.event --> proxy.core.event.queue
+proxy.core.event --> proxy.core.event.subscriber
+proxy.core.event.dispatcher --> proxy.core.event.names
+proxy.core.event.dispatcher --> proxy.core.event.queue
+proxy.core.event.dispatcher --> proxy.core.event.queue
+proxy.core.event.manager --> proxy.core.event.dispatcher
+proxy.core.event.manager --> proxy.core.event.queue
+proxy.core.event.queue --> proxy.core.event.names
+proxy.core.event.subscriber --> proxy.core.event.names
+proxy.core.event.subscriber --> proxy.core.event.queue
+proxy.core.event.subscriber --> proxy.core.event.queue
+proxy.core.listener --> proxy.core.listener.pool
+proxy.core.listener --> proxy.core.listener.tcp
+proxy.core.listener --> proxy.core.listener.unix
+proxy.core.listener.pool --> proxy.core.listener.base
+proxy.core.listener.pool --> proxy.core.listener.tcp
+proxy.core.listener.pool --> proxy.core.listener.unix
+proxy.core.listener.tcp --> proxy.core.listener.base
+proxy.core.listener.unix --> proxy.core.listener.base
+proxy.core.ssh --> proxy.core.listener
+proxy.core.ssh --> proxy.core.ssh.handler
+proxy.core.tls --> proxy.core.tls.tls
+proxy.core.tls --> proxy.core.tls.types
+proxy.core.tls.handshake --> proxy.core.tls.certificate
+proxy.core.tls.handshake --> proxy.core.tls.finished
+proxy.core.tls.handshake --> proxy.core.tls.hello
+proxy.core.tls.handshake --> proxy.core.tls.key_exchange
+proxy.core.tls.handshake --> proxy.core.tls.types
+proxy.core.tls.hello --> proxy.core.tls.pretty
+proxy.core.tls.tls --> proxy.core.tls.certificate
+proxy.core.tls.tls --> proxy.core.tls.handshake
+proxy.core.tls.tls --> proxy.core.tls.types
+proxy.core.work --> proxy.core.work.delegate
+proxy.core.work --> proxy.core.work.local
+proxy.core.work --> proxy.core.work.pool
+proxy.core.work --> proxy.core.work.remote
+proxy.core.work --> proxy.core.work.threaded
+proxy.core.work --> proxy.core.work.threadless
+proxy.core.work --> proxy.core.work.work
+proxy.core.work.fd --> proxy.core.work.fd.fd
+proxy.core.work.fd --> proxy.core.work.local
+proxy.core.work.fd --> proxy.core.work.remote
+proxy.core.work.fd.local --> proxy.core.work.fd.fd
+proxy.core.work.fd.remote --> proxy.core.work.fd.fd
+proxy.core.work.local --> proxy.core.work.threadless
+proxy.core.work.pool --> proxy.core.work.threadless
+proxy.core.work.remote --> proxy.core.work.threadless
+proxy.core.work.task --> proxy.core.work.local
+proxy.core.work.task --> proxy.core.work.remote
+proxy.core.work.task --> proxy.core.work.task.handler
+proxy.core.work.task --> proxy.core.work.task.task
+proxy.core.work.task.handler --> proxy.core.work.task.task
+proxy.core.work.task.local --> proxy.core.work.task.local
+proxy.core.work.task.remote --> proxy.core.work.task.remote
+proxy.core.work.threaded --> proxy.core.work.work
+proxy.core.work.threadless --> proxy.core.work.work
+proxy.dashboard --> proxy.dashboard.dashboard
+proxy.http --> proxy.http.codes
+proxy.http --> proxy.http.connection
+proxy.http --> proxy.http.handler
+proxy.http --> proxy.http.headers
+proxy.http --> proxy.http.methods
+proxy.http --> proxy.http.plugin
+proxy.http --> proxy.http.url
+proxy.http.exception --> proxy.http.exception.base
+proxy.http.exception --> proxy.http.exception.http_request_rejected
+proxy.http.exception --> proxy.http.exception.proxy_auth_failed
+proxy.http.exception --> proxy.http.exception.proxy_conn_failed
+proxy.http.exception.http_request_rejected --> proxy.http.exception.base
+proxy.http.exception.proxy_auth_failed --> proxy.http.exception.base
+proxy.http.exception.proxy_conn_failed --> proxy.http.exception.base
+proxy.http.handler --> proxy.http.connection
+proxy.http.handler --> proxy.http.exception
+proxy.http.handler --> proxy.http.parser
+proxy.http.handler --> proxy.http.plugin
+proxy.http.handler --> proxy.http.protocols
+proxy.http.handler --> proxy.http.responses
+proxy.http.inspector.devtools --> proxy.http.inspector.transformer
+proxy.http.parser --> proxy.http.parser.chunk
+proxy.http.parser --> proxy.http.parser.parser
+proxy.http.parser --> proxy.http.parser.protocol
+proxy.http.parser --> proxy.http.parser.types
+proxy.http.parser.parser --> proxy.http.parser.chunk
+proxy.http.parser.parser --> proxy.http.parser.protocol
+proxy.http.parser.parser --> proxy.http.parser.types
+proxy.http.plugin --> proxy.http.connection
+proxy.http.plugin --> proxy.http.descriptors
+proxy.http.plugin --> proxy.http.parser
+proxy.http.proxy --> proxy.http.plugin
+proxy.http.proxy --> proxy.http.proxy.server
+proxy.http.proxy.server --> proxy.http.proxy.plugin
+proxy.http.responses --> proxy.http.codes
+proxy.http.server --> proxy.http.plugin
+proxy.http.server --> proxy.http.protocols
+proxy.http.server --> proxy.http.server.pac_plugin
+proxy.http.server --> proxy.http.server.web
+proxy.http.server.pac_plugin --> proxy.http.server.plugin
+proxy.http.server.pac_plugin --> proxy.http.server.protocols
+proxy.http.server.plugin --> proxy.http.url
+proxy.http.server.reverse --> proxy.http.server.plugin
+proxy.http.server.web --> proxy.http.server.plugin
+proxy.http.server.web --> proxy.http.server.protocols
+proxy.http.url --> proxy.http.exception
+proxy.http.websocket --> proxy.http.plugin
+proxy.http.websocket --> proxy.http.websocket.client
+proxy.http.websocket --> proxy.http.websocket.frame
+proxy.http.websocket.client --> proxy.http.websocket.frame
+proxy.http.websocket.transport --> proxy.http.websocket.frame
+proxy.http.websocket.transport --> proxy.http.websocket.plugin
+proxy.plugin --> proxy.plugin.cache
+proxy.plugin --> proxy.plugin.cloudflare_dns
+proxy.plugin --> proxy.plugin.custom_dns_resolver
+proxy.plugin --> proxy.plugin.filter_by_client_ip
+proxy.plugin --> proxy.plugin.filter_by_upstream
+proxy.plugin --> proxy.plugin.filter_by_url_regex
+proxy.plugin --> proxy.plugin.man_in_the_middle
+proxy.plugin --> proxy.plugin.mock_rest_api
+proxy.plugin --> proxy.plugin.modify_chunk_response
+proxy.plugin --> proxy.plugin.modify_post_data
+proxy.plugin --> proxy.plugin.program_name
+proxy.plugin --> proxy.plugin.proxy_pool
+proxy.plugin --> proxy.plugin.redirect_to_custom_server
+proxy.plugin --> proxy.plugin.reverse_proxy
+proxy.plugin --> proxy.plugin.shortlink
+proxy.plugin --> proxy.plugin.web_server_route
+proxy.plugin.cache --> proxy.plugin.cache.base
+proxy.plugin.cache --> proxy.plugin.cache.cache_responses
+proxy.plugin.cache.base --> proxy.plugin.cache.store.base
+proxy.plugin.cache.cache_responses --> proxy.plugin.cache.base
+proxy.plugin.cache.cache_responses --> proxy.plugin.cache.store.disk
+proxy.plugin.cache.store.disk --> proxy.plugin.cache.store.base
+proxy.proxy --> proxy.common.constants
+proxy.proxy --> proxy.common.flag
+proxy.proxy --> proxy.common.utils
+proxy.proxy --> proxy.core.acceptor
+proxy.proxy --> proxy.core.event
+proxy.proxy --> proxy.core.listener
+proxy.proxy --> proxy.core.ssh
+proxy.proxy --> proxy.core.work
+proxy.proxy --> proxy.core.work.fd
+proxy.socks --> proxy.socks.client
+proxy.socks --> proxy.socks.handler
+proxy.socks --> proxy.socks.operations
+proxy.socks --> proxy.socks.packet
+proxy.socks.handler --> proxy.socks.client
+proxy.testing --> proxy.testing.test_case
+proxy.testing.test_case --> proxy
+@enduml

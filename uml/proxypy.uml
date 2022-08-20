@@ -1,0 +1,408 @@
+@startuml
+left to right direction
+skinparam linetype ortho
+set namespaceSeparator none
+
+class "TcpUpstreamConnectionHandler" as proxy.core.base.tcp_upstream.TcpUpstreamConnectionHandler {
+}
+
+class "Acceptor" as proxy.core.acceptor.acceptor.Acceptor {
+}
+
+class "BaseListener" as proxy.core.listener.base.BaseListener {
+}
+
+class "ReverseProxyBasePlugin" as proxy.http.server.plugin.ReverseProxyBasePlugin {
+}
+class "ReverseProxyPlugin" as proxy.plugin.reverse_proxy.ReverseProxyPlugin {
+}
+
+package "Обработчики HTTP" as http_handlers_base
+{
+class "HttpProxyPlugin" as proxy.http.proxy.server.HttpProxyPlugin {
+}
+
+class "HttpWebServerPlugin" as proxy.http.server.web.HttpWebServerPlugin {
+}
+
+}
+
+together {
+
+package "Плагины HTTP прокси" as http_proxy_plugins
+{
+class "AuthPlugin" as proxy.http.proxy.auth.AuthPlugin {
+}
+class "BaseCacheResponsesPlugin" as proxy.plugin.cache.base.BaseCacheResponsesPlugin {
+}
+class "CloudflareDnsResolverPlugin" as proxy.plugin.cloudflare_dns.CloudflareDnsResolverPlugin {
+}
+class "CustomDnsResolverPlugin" as proxy.plugin.custom_dns_resolver.CustomDnsResolverPlugin {
+}
+class "FilterByClientIpPlugin" as proxy.plugin.filter_by_client_ip.FilterByClientIpPlugin {
+}
+class "FilterByURLRegexPlugin" as proxy.plugin.filter_by_url_regex.FilterByURLRegexPlugin {
+}
+class "FilterByUpstreamHostPlugin" as proxy.plugin.filter_by_upstream.FilterByUpstreamHostPlugin {
+}
+
+class "ModifyChunkResponsePlugin" as proxy.plugin.modify_chunk_response.ModifyChunkResponsePlugin {
+}
+class "ModifyPostDataPlugin" as proxy.plugin.modify_post_data.ModifyPostDataPlugin {
+}
+
+class "ProgramNamePlugin" as proxy.plugin.program_name.ProgramNamePlugin {
+}
+class "ProposedRestApiPlugin" as proxy.plugin.mock_rest_api.ProposedRestApiPlugin {
+}
+class "ProxyPoolPlugin" as proxy.plugin.proxy_pool.ProxyPoolPlugin {
+}
+class "RedirectToCustomServerPlugin" as proxy.plugin.redirect_to_custom_server.RedirectToCustomServerPlugin {
+}
+class "ShortLinkPlugin" as proxy.plugin.shortlink.ShortLinkPlugin {
+}
+
+class "ManInTheMiddlePlugin" as proxy.plugin.man_in_the_middle.ManInTheMiddlePlugin {
+}
+}
+
+}
+
+together {
+
+package "Плагины HTTP Web сервера" as http_server_plugins
+{
+class "ReverseProxy" as proxy.http.server.reverse.ReverseProxy {
+}
+class "DevtoolsProtocolPlugin" as proxy.http.inspector.devtools.DevtoolsProtocolPlugin {
+}
+class "ProxyDashboard" as proxy.dashboard.dashboard.ProxyDashboard {
+}
+class "WebServerPlugin" as proxy.plugin.web_server_route.WebServerPlugin {
+}
+class "HttpWebServerPacFilePlugin" as proxy.http.server.pac_plugin.HttpWebServerPacFilePlugin {
+}
+
+}
+
+}
+
+together {
+
+class "Threadless" as proxy.core.work.threadless.Threadless {
+}
+
+package Исполнители as executors
+{
+
+package "Наследники Threadless" as threadless_childs
+{
+class "BaseLocalExecutor" as proxy.core.work.local.BaseLocalExecutor {
+}
+class "BaseRemoteExecutor" as proxy.core.work.remote.BaseRemoteExecutor {
+}
+class "ThreadlessFdExecutor" as proxy.core.work.fd.fd.ThreadlessFdExecutor {
+}
+}
+
+class "LocalFdExecutor" as proxy.core.work.fd.local.LocalFdExecutor {
+}
+class "LocalTaskExecutor" as proxy.core.work.task.local.LocalTaskExecutor {
+}
+
+class "RemoteFdExecutor" as proxy.core.work.fd.remote.RemoteFdExecutor {
+}
+
+together {
+class "RemoteTaskExecutor" as proxy.core.work.task.remote.RemoteTaskExecutor {
+}
+class "SingleProcessTaskExecutor" as proxy.core.work.task.remote.SingleProcessTaskExecutor {
+}
+}
+
+class "ThreadedTaskExecutor" as proxy.core.work.task.local.ThreadedTaskExecutor {
+}
+
+}
+
+}
+
+package Пулы as pools
+{
+class "ListenerPool" as proxy.core.listener.pool.ListenerPool {
+}
+class "ThreadlessPool" as proxy.core.work.pool.ThreadlessPool {
+}
+class "AcceptorPool" as proxy.core.acceptor.pool.AcceptorPool {
+}
+}
+
+package "Обработчики протоколов, основанных на TCP" as tcp_handlers
+{
+
+class "BaseTcpTunnelHandler" as proxy.core.base.tcp_tunnel.BaseTcpTunnelHandler {
+}
+class "HttpProtocolHandler" as proxy.http.handler.HttpProtocolHandler {
+}
+class "SocksProtocolHandler" as proxy.socks.handler.SocksProtocolHandler {
+}
+}
+
+package Listeners as listeners
+{
+class "TcpSocketListener" as proxy.core.listener.tcp.TcpSocketListener {
+}
+class "UnixSocketListener" as proxy.core.listener.unix.UnixSocketListener {
+}
+
+}
+
+package Соединения as connections
+{
+class "HttpClientConnection" as proxy.http.connection.HttpClientConnection {
+}
+class "SocksClientConnection" as proxy.socks.client.SocksClientConnection {
+}
+class "TcpClientConnection" as proxy.core.connection.client.TcpClientConnection {
+}
+class "TcpConnection" as proxy.core.connection.connection.TcpConnection {
+}
+class "TcpServerConnection" as proxy.core.connection.server.TcpServerConnection {
+}
+}
+
+package Кэш as cache
+{
+class "CacheStore" as proxy.plugin.cache.store.base.CacheStore {
+}
+class "CacheResponsesPlugin" as proxy.plugin.cache.cache_responses.CacheResponsesPlugin {
+}
+class "OnDiskCacheStore" as proxy.plugin.cache.store.disk.OnDiskCacheStore {
+}
+
+}
+
+together {
+
+package "Парсер HTTP"
+{
+
+class "HttpParser" as proxy.http.parser.parser.HttpParser {
+}
+class "ProxyProtocol" as proxy.http.parser.protocol.ProxyProtocol {
+}
+class "Url" as proxy.http.url.Url {
+}
+class "ChunkParser" as proxy.http.parser.chunk.ChunkParser {
+}
+}
+
+}
+
+package "Событийные классы"
+{
+class "EventDispatcher" as proxy.core.event.dispatcher.EventDispatcher {
+}
+class "EventManager" as proxy.core.event.manager.EventManager {
+}
+class "EventQueue" as proxy.core.event.queue.EventQueue {
+}
+class "EventSubscriber" as proxy.core.event.subscriber.EventSubscriber {
+}
+}
+
+package Works as works
+{
+
+class "TaskHandler" as proxy.core.work.task.handler.TaskHandler {
+}
+
+class "BaseTcpServerHandler" as proxy.core.base.tcp_server.BaseTcpServerHandler {
+}
+
+class "UpstreamConnectionPool" as proxy.core.connection.pool.UpstreamConnectionPool {
+}
+}
+
+class "NonBlockingQueue" as proxy.common.backports.NonBlockingQueue {
+}
+class "Proxy" as proxy.proxy.Proxy {
+}
+
+together {
+
+class "Task" as proxy.core.work.task.task.Task {
+}
+class "Work" as proxy.core.work.work.Work {
+}
+}
+
+together {
+
+class "DescriptorsHandlerMixin" as proxy.http.descriptors.DescriptorsHandlerMixin {
+}
+
+package "Обработчики дескрипторов" as descriptors_handlers
+{
+class "HttpProtocolHandlerPlugin" as proxy.http.plugin.HttpProtocolHandlerPlugin {
+}
+
+class "HttpProxyBasePlugin" as proxy.http.proxy.plugin.HttpProxyBasePlugin {
+}
+
+class "HttpWebServerBasePlugin" as proxy.http.server.plugin.HttpWebServerBasePlugin {
+}
+
+}
+
+}
+
+/'
+proxy.core.base.tcp_server.BaseTcpServerHandler --|> proxy.core.work.work.Work
+proxy.core.connection.pool.UpstreamConnectionPool --|> proxy.core.work.work.Work
+proxy.core.work.task.handler.TaskHandler --|> proxy.core.work.work.Work
+'/
+
+works --|> proxy.core.work.work.Work
+
+/'
+proxy.http.proxy.server.HttpProxyPlugin --|> proxy.http.plugin.HttpProtocolHandlerPlugin
+proxy.http.server.web.HttpWebServerPlugin --|> proxy.http.plugin.HttpProtocolHandlerPlugin
+'/
+
+http_handlers_base --|> proxy.http.plugin.HttpProtocolHandlerPlugin
+
+/'
+proxy.http.parser.parser.HttpParser --* proxy.http.proxy.server.HttpProxyPlugin
+proxy.http.parser.parser.HttpParser --* proxy.http.server.web.HttpWebServerPlugin
+'/
+
+proxy.http.parser.parser.HttpParser --* http_handlers_base
+
+/'
+proxy.http.plugin.HttpProtocolHandlerPlugin --|> proxy.http.descriptors.DescriptorsHandlerMixin
+proxy.http.proxy.plugin.HttpProxyBasePlugin --|> proxy.http.descriptors.DescriptorsHandlerMixin
+proxy.http.server.plugin.HttpWebServerBasePlugin --|> proxy.http.descriptors.DescriptorsHandlerMixin
+'/
+
+descriptors_handlers ---|> proxy.http.descriptors.DescriptorsHandlerMixin
+
+proxy.http.connection.HttpClientConnection ---* proxy.http.handler.HttpProtocolHandler
+
+/'
+proxy.http.connection.HttpClientConnection --* proxy.http.plugin.HttpProtocolHandlerPlugin
+proxy.http.connection.HttpClientConnection --* proxy.http.proxy.plugin.HttpProxyBasePlugin
+proxy.http.connection.HttpClientConnection --* proxy.http.server.plugin.HttpWebServerBasePlugin
+'/
+
+proxy.http.connection.HttpClientConnection --* descriptors_handlers
+
+/'
+proxy.core.work.local.BaseLocalExecutor --|> proxy.core.work.threadless.Threadless
+proxy.core.work.remote.BaseRemoteExecutor --|> proxy.core.work.threadless.Threadless
+proxy.core.work.fd.fd.ThreadlessFdExecutor --|> proxy.core.work.threadless.Threadless
+'/
+
+threadless_childs --|> proxy.core.work.threadless.Threadless
+
+proxy.core.connection.client.TcpClientConnection --|> proxy.core.connection.connection.TcpConnection
+proxy.core.connection.server.TcpServerConnection --|> proxy.core.connection.connection.TcpConnection
+proxy.core.work.fd.local.LocalFdExecutor --|> proxy.core.work.fd.fd.ThreadlessFdExecutor
+proxy.core.work.fd.remote.RemoteFdExecutor --|> proxy.core.work.fd.fd.ThreadlessFdExecutor
+proxy.core.work.task.local.LocalTaskExecutor --|> proxy.core.work.local.BaseLocalExecutor
+proxy.core.work.task.remote.RemoteTaskExecutor --|> proxy.core.work.remote.BaseRemoteExecutor
+proxy.http.connection.HttpClientConnection --|> proxy.core.connection.client.TcpClientConnection
+proxy.http.server.reverse.ReverseProxy --|> proxy.core.base.tcp_upstream.TcpUpstreamConnectionHandler
+proxy.plugin.cache.cache_responses.CacheResponsesPlugin --|> proxy.plugin.cache.base.BaseCacheResponsesPlugin
+proxy.plugin.cache.store.disk.OnDiskCacheStore --|> proxy.plugin.cache.store.base.CacheStore
+'proxy.plugin.proxy_pool.ProxyPoolPlugin --|> proxy.core.base.tcp_upstream.TcpUpstreamConnectionHandler
+proxy.socks.client.SocksClientConnection --|> proxy.core.connection.client.TcpClientConnection
+proxy.common.backports.NonBlockingQueue --* proxy.core.acceptor.acceptor.Acceptor
+proxy.core.connection.pool.UpstreamConnectionPool --* proxy.core.work.threadless.Threadless
+proxy.core.connection.server.TcpServerConnection --* proxy.core.base.tcp_tunnel.BaseTcpTunnelHandler
+proxy.core.connection.server.TcpServerConnection --* proxy.core.base.tcp_upstream.TcpUpstreamConnectionHandler
+proxy.core.connection.server.TcpServerConnection --* proxy.http.proxy.server.HttpProxyPlugin
+proxy.core.event.dispatcher.EventDispatcher --* proxy.core.event.manager.EventManager
+proxy.core.event.manager.EventManager --* proxy.proxy.Proxy
+proxy.core.event.queue.EventQueue --* proxy.core.event.dispatcher.EventDispatcher
+proxy.core.event.queue.EventQueue --* proxy.core.event.manager.EventManager
+proxy.core.event.queue.EventQueue --* proxy.core.event.subscriber.EventSubscriber
+proxy.core.event.queue.EventQueue --* proxy.http.server.plugin.HttpWebServerBasePlugin
+'proxy.core.event.subscriber.EventSubscriber --* proxy.http.inspector.devtools.DevtoolsProtocolPlugin
+proxy.core.listener.pool.ListenerPool --* proxy.core.acceptor.pool.AcceptorPool
+proxy.core.work.fd.local.LocalFdExecutor --* proxy.core.acceptor.acceptor.Acceptor
+proxy.core.work.task.local.LocalTaskExecutor --* proxy.core.work.task.local.ThreadedTaskExecutor
+proxy.core.work.task.remote.RemoteTaskExecutor --* proxy.core.work.task.remote.SingleProcessTaskExecutor
+proxy.http.parser.chunk.ChunkParser --* proxy.http.parser.parser.HttpParser
+'proxy.http.parser.parser.HttpParser --* proxy.core.base.tcp_tunnel.BaseTcpTunnelHandler
+proxy.http.parser.parser.HttpParser --* proxy.http.handler.HttpProtocolHandler
+proxy.http.parser.parser.HttpParser --* proxy.http.plugin.HttpProtocolHandlerPlugin
+'proxy.http.parser.parser.HttpParser --* proxy.plugin.modify_chunk_response.ModifyChunkResponsePlugin
+proxy.http.parser.protocol.ProxyProtocol --* proxy.http.parser.parser.HttpParser
+proxy.http.url.Url --* proxy.http.parser.parser.HttpParser
+'proxy.http.url.Url --* proxy.http.server.reverse.ReverseProxy
+'proxy.http.url.Url --* proxy.plugin.proxy_pool.ProxyPoolPlugin
+proxy.plugin.cache.store.base.CacheStore --* proxy.plugin.cache.base.BaseCacheResponsesPlugin
+proxy.plugin.cache.store.disk.OnDiskCacheStore --* proxy.plugin.cache.cache_responses.CacheResponsesPlugin
+proxy.plugin.reverse_proxy.ReverseProxyPlugin --|> proxy.http.server.plugin.ReverseProxyBasePlugin
+
+listeners --|> proxy.core.listener.base.BaseListener
+
+/'
+proxy.core.listener.tcp.TcpSocketListener --|> proxy.core.listener.base.BaseListener
+proxy.core.listener.unix.UnixSocketListener --|> proxy.core.listener.base.BaseListener
+'/
+
+pools --* proxy.proxy.Proxy
+
+/'
+proxy.core.acceptor.pool.AcceptorPool --* proxy.proxy.Proxy : acceptors
+proxy.core.listener.pool.ListenerPool --* proxy.proxy.Proxy : listeners
+proxy.core.work.pool.ThreadlessPool --* proxy.proxy.Proxy : executors
+'/
+
+http_server_plugins --|> proxy.http.server.plugin.HttpWebServerBasePlugin
+
+/'
+proxy.http.server.pac_plugin.HttpWebServerPacFilePlugin --|> proxy.http.server.plugin.HttpWebServerBasePlugin
+proxy.dashboard.dashboard.ProxyDashboard --|> proxy.http.server.plugin.HttpWebServerBasePlugin
+proxy.http.server.reverse.ReverseProxy --|> proxy.http.server.plugin.HttpWebServerBasePlugin
+proxy.http.inspector.devtools.DevtoolsProtocolPlugin --|> proxy.http.server.plugin.HttpWebServerBasePlugin
+proxy.plugin.web_server_route.WebServerPlugin --|> proxy.http.server.plugin.HttpWebServerBasePlugin
+'/
+
+http_proxy_plugins --|> proxy.http.proxy.plugin.HttpProxyBasePlugin
+
+/'
+proxy.plugin.cloudflare_dns.CloudflareDnsResolverPlugin --|> proxy.http.proxy.plugin.HttpProxyBasePlugin
+proxy.plugin.custom_dns_resolver.CustomDnsResolverPlugin --|> proxy.http.proxy.plugin.HttpProxyBasePlugin
+proxy.plugin.filter_by_client_ip.FilterByClientIpPlugin --|> proxy.http.proxy.plugin.HttpProxyBasePlugin
+proxy.plugin.filter_by_upstream.FilterByUpstreamHostPlugin --|> proxy.http.proxy.plugin.HttpProxyBasePlugin
+proxy.plugin.filter_by_url_regex.FilterByURLRegexPlugin --|> proxy.http.proxy.plugin.HttpProxyBasePlugin
+proxy.plugin.man_in_the_middle.ManInTheMiddlePlugin --|> proxy.http.proxy.plugin.HttpProxyBasePlugin
+proxy.plugin.mock_rest_api.ProposedRestApiPlugin --|> proxy.http.proxy.plugin.HttpProxyBasePlugin
+proxy.plugin.modify_chunk_response.ModifyChunkResponsePlugin --|> proxy.http.proxy.plugin.HttpProxyBasePlugin
+proxy.plugin.modify_post_data.ModifyPostDataPlugin --|> proxy.http.proxy.plugin.HttpProxyBasePlugin
+proxy.plugin.program_name.ProgramNamePlugin --|> proxy.http.proxy.plugin.HttpProxyBasePlugin
+proxy.plugin.shortlink.ShortLinkPlugin --|> proxy.http.proxy.plugin.HttpProxyBasePlugin
+proxy.core.event.queue.EventQueue --* proxy.http.proxy.plugin.HttpProxyBasePlugin
+proxy.plugin.cache.base.BaseCacheResponsesPlugin --|> proxy.http.proxy.plugin.HttpProxyBasePlugin
+proxy.plugin.proxy_pool.ProxyPoolPlugin --|> proxy.http.proxy.plugin.HttpProxyBasePlugin
+proxy.plugin.redirect_to_custom_server.RedirectToCustomServerPlugin --|> proxy.http.proxy.plugin.HttpProxyBasePlugin
+proxy.http.proxy.auth.AuthPlugin --|> proxy.http.proxy.plugin.HttpProxyBasePlugin
+'/
+
+
+tcp_handlers --|> proxy.core.base.tcp_server.BaseTcpServerHandler
+
+/'
+proxy.core.base.tcp_tunnel.BaseTcpTunnelHandler --|> proxy.core.base.tcp_server.BaseTcpServerHandler
+proxy.socks.handler.SocksProtocolHandler --|> proxy.core.base.tcp_server.BaseTcpServerHandler
+proxy.http.handler.HttpProtocolHandler --|> proxy.core.base.tcp_server.BaseTcpServerHandler
+'/
+
+
+proxy.core.work.task.task.Task --* proxy.core.work.work.Work
+
+
+@enduml
