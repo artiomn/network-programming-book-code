@@ -409,7 +409,7 @@ void ProxyServer::start()
         throw std::logic_error("Can't listen on the socket!");
     }
 
-    std::cout << "Listening on the port " << port_ << "..." << std::endl;
+    std::cout << "Listening on port " << port_ << "..." << std::endl;
 
     while (started_)
     {
