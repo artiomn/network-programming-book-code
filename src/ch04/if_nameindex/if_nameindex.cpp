@@ -1,3 +1,4 @@
+#include <cerrno>
 #include <iostream>
 #include <memory>
 #include <net/if.h>
@@ -9,7 +10,7 @@ int main(int argc, const char * const argv[])
 
     if (nullptr == if_ni)
     {
-        perror("if_nameindex");
+        std::perror("if_nameindex");
         return EXIT_FAILURE;
     }
 
