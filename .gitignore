@@ -3,3 +3,4 @@ build
 out
 .idea
 cmake-build-*
+a.out
