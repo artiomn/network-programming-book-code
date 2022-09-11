@@ -24,9 +24,6 @@ extern "C"
 }
 
 
-const auto buffer_size = 1600;
-
-
 int perform_ioctl(int fd, const int call_id, void *result, const std::string &msg)
 {
     auto ioctl_res = ioctl(fd, call_id, result);
@@ -109,11 +106,17 @@ public:
         std::copy(old_name.begin(), old_name.end(), ifr.ifr_name);
         std::copy(new_name.begin(), new_name.end(), ifr.ifr_newname);
 
-        if (ioctl(sock, SIOCSIFNAME, &ifr) != 0)
+        try
+        {
+            perform_ioctl(sock, SIOCSIFNAME, &ifr, "SIOCSIFNAME ioctl failed");
+        }
+        catch(...)
         {
             close(sock);
-            throw std::system_error(errno, std::generic_category(), "SIOCSIFNAME ioctl failed");
+            throw;
         }
+
+        close(sock);
 
         return get_name();
     }
@@ -205,11 +208,7 @@ public:
 
         // Only for Ethernet.
         ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
-
-        if (ioctl(sock, SIOCSIFHWADDR, &ifr) < 0)
-        {
-            throw std::system_error(errno, std::generic_category(), "Can't set interface address");
-        }
+        perform_ioctl(sock, SIOCSIFHWADDR, &ifr, "Can't set interface address");
     }
 
 };
@@ -259,6 +258,7 @@ private:
 
 int main(int argc, const char * const argv[])
 {
+    const auto buffer_size = 1600;
     TunTapController controller;
 
     try
@@ -280,7 +280,7 @@ int main(int argc, const char * const argv[])
         while (true)
         {
             std::cout
-                << "Waiting for a data..."
+                << "Waiting for data..."
                 << std::endl;
             bytes_count = read(tt_iface, &buf[0], buf.size());
             std::cout
