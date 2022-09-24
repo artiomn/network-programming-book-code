@@ -308,7 +308,7 @@ void send_ping(const socket_wrapper::Socket &sock, const std::string &hostname, 
         auto request = std::move(ping_factory.create_request());
         const auto &request_echo_header = request.header().un.echo;
 
-/*        std::cout
+        std::cout
             << "Sending packet "
             << ntohs(request_echo_header.sequence)
             << " to \""
@@ -323,7 +323,7 @@ void send_ping(const socket_wrapper::Socket &sock, const std::string &hostname, 
         {
             std::cerr << "Packet sending failed: \"" << "\"" << std::endl;
             continue;
-        }*/
+        }
 
         // Receive packet
         socklen_t addr_len = sizeof(sockaddr);

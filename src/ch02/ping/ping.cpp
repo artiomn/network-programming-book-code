@@ -62,25 +62,6 @@ struct icmphdr
     } un;
 };
 
-
-//
-// IPv4 Header (without any IP options)
-//
-
-typedef struct ip_hdr
-{
-    unsigned char  ip_verlen;        // 4-bit IPv4 version.
-                                     // 4-bit header length (in 32-bit words).
-    unsigned char  ip_tos;           // IP type of service.
-    unsigned short ip_totallength;   // Total length.
-    unsigned short ip_id;            // Unique identifier.
-    unsigned short ip_offset;        // Fragment offset field.
-    unsigned char  ip_ttl;           // Time to live.
-    unsigned char  ip_protocol;      // Protocol(TCP, UDP, etc.).
-    unsigned short ip_checksum;      // IP checksum.
-    unsigned int   ip_srcaddr;       // Source address.
-    unsigned int   ip_destaddr;      // Destination address.
-} IPV4_HDR, *PIPV4_HDR;
 #pragma pack(pop)
 
 
@@ -251,12 +232,6 @@ private:
 };
 
 
-size_t ip_header_len(const PingPacket::BufferType &buffer)
-{
-    return (reinterpret_cast<const struct ip_hdr*>(buffer.data())->ip_verlen & 0x0f) * sizeof(uint32_t);
-}
-
-
 void send_ping(const socket_wrapper::Socket &sock, const std::string &hostname, const struct sockaddr_in &host_address, const bool ip_headers_enabled = true)
 {
     int ttl_val = 255;
@@ -331,9 +306,8 @@ void send_ping(const socket_wrapper::Socket &sock, const std::string &hostname, 
         r_addr.sin_addr = host_address.sin_addr;
 
         std::vector<char> buffer;
-        const auto buf_size = ip_headers_enabled ? ping_packet_size + sizeof(ip_hdr) : ping_packet_size;
 
-        buffer.resize(buf_size);
+        buffer.resize(ping_packet_size);
         auto start_time = std::chrono::steady_clock::now();
 
         if (recvfrom(sock, buffer.data(), buffer.size(), 0, reinterpret_cast<struct sockaddr*>(&r_addr), &addr_len) < buffer.size())
@@ -343,7 +317,7 @@ void send_ping(const socket_wrapper::Socket &sock, const std::string &hostname, 
         }
 
         auto response = std::move(ip_headers_enabled ?
-                                    ping_factory.create_response(buffer.begin() + ip_header_len(buffer), buffer.end())
+                                    ping_factory.create_response(buffer.begin(), buffer.end())
                                   : ping_factory.create_response(std::move(buffer)));
 
         if ((ICMP_ECHO_REPLY == response.header().type) and (0 == response.header().code))
@@ -379,15 +353,6 @@ int main(int argc, const char *argv[])
     }
 
     socket_wrapper::SocketWrapper sock_wrap;
-
-/*    addrinfo hints =
-    {
-		.ai_family = AF_UNSPEC,
-		.ai_protocol = IPPROTO_UDP,
-		.ai_socktype = SOCK_DGRAM,
-		.ai_flags = 0
-	};*/
-
     const std::string host_name = { argv[1] };
     const struct hostent *remote_host { gethostbyname(host_name.c_str()) };
 
@@ -412,28 +377,16 @@ int main(int argc, const char *argv[])
 
     std::cout << "Pinging \"" << remote_host->h_name << "\" [" << inet_ntoa(addr.sin_addr) << "]" << std::endl;
 
-    int sock_type = SOCK_RAW;
+    int sock_type = SOCK_DGRAM;
     socket_wrapper::Socket sock = {AF_INET, sock_type, IPPROTO_ICMP};
 
     if (!sock)
     {
         std::cerr
-            << "Can't create raw socket: "
+            << "Can't create socket: "
             << sock_wrap.get_last_error_string()
             << std::endl;
-
-        sock_type = SOCK_DGRAM;
-        sock = std::move(socket_wrapper::Socket(AF_INET, sock_type, IPPROTO_ICMP));
-
-        if (!sock)
-        {
-            std::cerr
-                << sock_wrap.get_last_error_string()
-                << std::endl;
-
-            return EXIT_FAILURE;
-        }
-        std::cout << "Datagram socket was created..." << std::endl;
+        return EXIT_FAILURE;
     }
     else
     {
