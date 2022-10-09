@@ -48,17 +48,13 @@ int main(int argc, const char* argv[])
     if (0 == connect(sock, reinterpret_cast<const sockaddr* const>(&server_addr), sizeof(server_addr)))
     {
         std::string request(command_size, '\0');
-        std::vector<uint8_t> buffer;
-        buffer.resize(command_size);
 
         std::cout << "Connected to \"" << host_name << "\"..." << std::endl;
 
         while (true)
         {
             // !---> Error! Buffer size maybe low! <---!
-            int scanf_result = scanf("%s", &request[0]);
-
-            assert(scanf_result > 0 && scanf_result < buffer.size());
+            std::cin >> &request[0];
 
             request += "\n";
 
