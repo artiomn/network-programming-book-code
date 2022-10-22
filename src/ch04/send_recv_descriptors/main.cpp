@@ -48,8 +48,6 @@ void send_descriptors(int socket, int fd)
 
     *reinterpret_cast<int *>(CMSG_DATA(cmsg)) = fd;
 
-    msg.msg_controllen = CMSG_SPACE(sizeof(fd));
-
     if (sendmsg(socket, &msg, 0) < 0)
         throw std::system_error(errno, std::generic_category(), "sendmsg");
 }
@@ -59,19 +57,21 @@ int receive_descriptors(int socket)
 {
     struct msghdr msgh = {0};
 
-    char m_buffer[buffer_size];
-    struct iovec io = { .iov_base = m_buffer, .iov_len = sizeof(m_buffer) };
+    std::vector<char> buffer(buffer_size);
+    struct iovec io = { .iov_base = &buffer[0], .iov_len = buffer.size() };
     msgh.msg_iov = &io;
     msgh.msg_iovlen = 1;
 
-    char c_buffer[buffer_size];
-    msgh.msg_control = c_buffer;
-    msgh.msg_controllen = sizeof(c_buffer);
+    std::vector<char> c_buffer(buffer_size);
+    msgh.msg_control = &c_buffer[0];
+    msgh.msg_controllen = c_buffer.size();
 
     if (recvmsg(socket, &msgh, 0) < 0)
-        throw std::system_error(errno, std::generic_category(), "sendmsg");
+        throw std::system_error(errno, std::generic_category(), "recvmsg");
 
     cmsghdr *cmsg;
+
+    int received_descriptor = -1;
 
     // Get ancillary data.
     for (cmsg = CMSG_FIRSTHDR(&msgh); cmsg != nullptr;
@@ -79,23 +79,30 @@ int receive_descriptors(int socket)
     {
         if (SOL_SOCKET == cmsg->cmsg_level && SCM_RIGHTS == cmsg->cmsg_type)
         {
-            uint32_t received_ttl = 0;
-            std::copy(CMSG_DATA(cmsg), CMSG_DATA(cmsg) + sizeof(received_ttl), &received_ttl);
+            if (received_descriptor < 0)
+            {
+                std::copy(CMSG_DATA(cmsg), CMSG_DATA(cmsg) + sizeof(received_descriptor),
+                          &received_descriptor);
 
-            std::cout
-                << "Descriptor was received: " << received_ttl
-                << std::endl;
-            break;
+                std::cout
+                    << "Descriptor was received: " << received_descriptor
+                    << std::endl;
+            }
+            else
+            {
+                int fd;
+                std::copy(CMSG_DATA(cmsg), CMSG_DATA(cmsg) + sizeof(fd), &fd);
+                close(fd);
+            }
         }
     }
 
-    if (nullptr == cmsg)
+    if (-1 == received_descriptor)
     {
-        // Error: IP_TTL was not enabled or small buffer or I/O error.
         throw std::logic_error("Descriptor receiving error");
     }
 
-    return *(reinterpret_cast<int*>(CMSG_DATA(cmsg)));
+    return received_descriptor;
 }
 
 
@@ -151,7 +158,7 @@ void child(int sock)
     char buffer[256];
     ssize_t nbytes;
 
-    std::cout << "Reading from file in the client..." << std::endl;
+    std::cout << "Reading from a file in the child..." << std::endl;
 
     while ((nbytes = read(fd, buffer, sizeof(buffer))) > 0)
         write(1, buffer, nbytes);
