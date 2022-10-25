@@ -1,7 +1,11 @@
-#include <cerrno>
+#include <stdexcept>
 #include <iostream>
 #include <memory>
+
+extern "C"
+{
 #include <net/if.h>
+}
 
 
 int main(int argc, const char * const argv[])
@@ -10,8 +14,7 @@ int main(int argc, const char * const argv[])
 
     if (nullptr == if_ni)
     {
-        std::perror("if_nameindex");
-        return EXIT_FAILURE;
+        throw std::system_error(errno, std::generic_category(), "if_nameindex");
     }
 
     for (auto i = if_ni.get(); !(0 == i->if_index && nullptr == i->if_name); ++i)

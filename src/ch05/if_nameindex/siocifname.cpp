@@ -4,8 +4,11 @@
 #include <iostream>
 #include <string>
 
+extern "C"
+{
 #include <sys/ioctl.h>
 #include <net/if.h>
+}
 
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>

@@ -1,31 +1,35 @@
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
+extern "C"
+{
 #include <unistd.h>
 #include <sys/socket.h>
-#include <sys/un.h>
+#include <asm/types.h>
+#include <net/if.h>
+
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
 #include <linux/sock_diag.h>
-#include <linux/unix_diag.h>
 #include <linux/inet_diag.h>
+#include <linux/tcp.h>
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
-#include <netinet/tcp.h>
+// Don't use this here!
+// #include <netinet/tcp.h>
+}
 
+#include <cerrno>
 #include <iostream>
+#include <memory>
 
 
 struct netlink_request
 {
     struct nlmsghdr nlh;
-    // struct unix_diag_req udr;
-    struct inet_diag_req_v2 idr;
+    struct inet_diag_req_v2 irh;
 };
 
 
-static int send_query(int fd)
+void send_query(int fd)
 {
     sockaddr_nl nladdr =
     {
@@ -40,13 +44,15 @@ static int send_query(int fd)
             .nlmsg_type = SOCK_DIAG_BY_FAMILY,
             .nlmsg_flags = NLM_F_REQUEST | NLM_F_DUMP
         },
-        .idr =
+        .irh =
         {
             .sdiag_family = AF_INET,
             .sdiag_protocol = IPPROTO_TCP,
-            .idiag_ext = 0,
+            .idiag_ext = 1 << (INET_DIAG_TOS - 1) | 1 << (INET_DIAG_INFO - 1),
             .pad = 0,
-            .idiag_states = static_cast<__u32>(-1), //  1<<TCP_ESTABLISHED|1<<TCP_SYN_SENT|1<<TCP_FIN_WAIT1|1<<TCP_FIN_WAIT2|1<<TCP_CLOSE_WAIT|1<<TCP_LAST_ACK|1<<TCP_CLOSING|0x1, // ~(-1),
+            // 1 << TCP_ESTABLISHED | 1 << TCP_SYN_SENT | 1 << TCP_FIN_WAIT1| \
+            // 1 << TCP_FIN_WAIT2 | 1 << TCP_CLOSE_WAIT | 1 << TCP_LAST_ACK | 1 << TCP_CLOSING
+            .idiag_states = static_cast<__u32>(-1),
             .id = {0}
         }
     };
@@ -73,55 +79,23 @@ static int send_query(int fd)
         {
             if (EINTR == errno) continue;
 
-            perror("sendmsg");
-            return -1;
+            throw std::system_error(errno, std::generic_category(), "sendmsg");
         }
-
-        return 0;
+       break;
     }
 }
 
 
-static int print_diag(const struct inet_diag_msg *diag, unsigned int len)
+void print_diag(const inet_diag_msg *diag, unsigned int len)
 {
     if (len < NLMSG_LENGTH(sizeof(*diag)))
     {
-        fputs("short response\n", stderr);
-        return -1;
+        throw std::system_error(errno, std::generic_category(), "short response");
     }
 
     if (diag->idiag_family != AF_INET && diag->idiag_family != AF_INET6)
     {
-        fprintf(stderr, "unexpected family %u\n", diag->idiag_family);
-        return -1;
-    }
-
-    unsigned int rta_len = len - NLMSG_LENGTH(sizeof(*diag));
-    unsigned int peer = 0;
-    size_t path_len = 0;
-    struct tcp_info ti;
-
-    for (struct rtattr *attr = (struct rtattr *) (diag + 1);
-         RTA_OK(attr, rta_len); attr = RTA_NEXT(attr, rta_len))
-    {
-            std::cout << attr->rta_type << "\n";
-        switch (attr->rta_type)
-        {
-            case INET_DIAG_TOS:
-                if (!path_len)
-                {
-                    path_len = RTA_PAYLOAD(attr);
-//                if (path_len > sizeof(path) - 1) path_len = sizeof(path) - 1;
-//                memcpy(path, RTA_DATA(attr), path_len);
-//                path[path_len] = '\0';
-                }
-            break;
-
-            case INET_DIAG_INFO:
-                if (RTA_PAYLOAD(attr) >= sizeof(peer))
-                    peer = *static_cast<unsigned int *>(RTA_DATA(attr));
-            break;
-        }
+        throw std::logic_error("unexpected protocol family");
     }
 
     std::string src_addr;
@@ -130,22 +104,84 @@ static int print_diag(const struct inet_diag_msg *diag, unsigned int len)
     std::string dst_addr;
     dst_addr.resize(INET_ADDRSTRLEN);
 
-//    inet_ntop(AF_INET, idiag_src, &src_addr[0], src_addr.size());
-//    printf("inode=%u", diag->udiag_ino);
+    inet_ntop(diag->idiag_family, diag->id.idiag_src, &src_addr[0], src_addr.size());
+    inet_ntop(diag->idiag_family, diag->id.idiag_dst, &dst_addr[0], src_addr.size());
 
-    if (peer)
-        printf(", peer=%u", peer);
+    std::cout
+        << src_addr << ":" << ntohs(diag->id.idiag_sport)
+        << " -> "
+        << dst_addr << ":" << ntohs(diag->id.idiag_dport);
 
-//    if (path_len)
-//        printf(", name=%s%s", *path ? "" : "@",
-//                *path ? path : path + 1);
+    if (diag->id.idiag_if)
+    {
+        // Socket was bound to the interface.
+        std::unique_ptr<struct if_nameindex, decltype(&if_freenameindex)> if_ni(if_nameindex(), &if_freenameindex);
+
+        if (nullptr == if_ni)
+        {
+            throw std::system_error(errno, std::generic_category(), "if_nameindex");
+        }
+
+        std::string if_name;
+
+        for (auto i = if_ni.get(); !(0 == i->if_index && nullptr == i->if_name); ++i)
+        {
+            if (i->if_index == diag->id.idiag_if)
+            {
+                if_name = i->if_name;
+                break;
+            }
+        }
+
+        std::cout << " [" << if_name << "]";
+    }
+
+    std::cout << ":\n";
+
+    unsigned int rta_len = len - NLMSG_LENGTH(sizeof(*diag));
+    struct tcp_info ti;
+
+    // Attributes.
+    for (const rtattr *attr = reinterpret_cast<const rtattr *>(diag + 1);
+         RTA_OK(attr, rta_len); attr = RTA_NEXT(attr, rta_len))
+    {
+        switch (attr->rta_type)
+        {
+            case INET_DIAG_TOS:
+                if (RTA_PAYLOAD(attr) != 1)
+                    throw std::logic_error("TOS length error");
+                std::cout << "  TOS: " << +*static_cast<const uint8_t*>(RTA_DATA(attr)) << "\n";
+            break;
+            case INET_DIAG_INFO:
+            {
+                auto data_size = RTA_PAYLOAD(attr);
+                if (data_size != sizeof(tcp_info))
+                    throw std::logic_error("tcp_info length error, check if you use correct header (linux/tcp.h)");
+
+                tcp_info ti;
+                auto data = static_cast<const uint8_t*>(RTA_DATA(attr));
+
+                std::copy(data, data + data_size, reinterpret_cast<uint8_t*>(&ti));
+
+                std::cout
+                    << "  Lost packets: " << ti.tcpi_lost << "\n"
+                    << "  Retransmits:" << +ti.tcpi_retransmits << "\n"
+                    << "  RTT: " << ti.tcpi_rtt << "\n";
+                break;
+            }
+            default:
+                std::cerr
+                    << "  Unknown attribute: "
+                    << "0x" << std::hex << attr->rta_type
+                    << std::dec << "\n";
+        }
+    }
 
     std::cout << "\n";
-    return 0;
 }
 
 
-static int receive_responses(int fd)
+void print_responses(int fd)
 {
     long buf[8192 / sizeof(long)];
     struct sockaddr_nl nladdr;
@@ -173,29 +209,26 @@ static int receive_responses(int fd)
         {
             if (EINTR == errno) continue;
 
-            perror("recvmsg");
-            return -1;
+            throw std::system_error(errno, std::generic_category(), "recvmsg");
         }
 
-        if (ret == 0) return 0;
+        if (ret == 0) return;
 
         if (nladdr.nl_family != AF_NETLINK)
         {
-            fputs("!AF_NETLINK\n", stderr);
-            return -1;
+            throw std::system_error(errno, std::generic_category(), "nl_family != AF_NETLINK");
         }
 
         const struct nlmsghdr *h = (struct nlmsghdr *) buf;
 
         if (!NLMSG_OK(h, ret))
         {
-            fputs("!NLMSG_OK\n", stderr);
-            return -1;
+            throw std::system_error(errno, std::generic_category(), "not NLMSG_OK");
         }
 
         for (; NLMSG_OK(h, ret); h = NLMSG_NEXT(h, ret))
         {
-            if (h->nlmsg_type == NLMSG_DONE) return 0;
+            if (h->nlmsg_type == NLMSG_DONE) return;
 
             if (h->nlmsg_type == NLMSG_ERROR)
             {
@@ -203,26 +236,21 @@ static int receive_responses(int fd)
 
                 if (h->nlmsg_len < NLMSG_LENGTH(sizeof(*err)))
                 {
-                    fputs("NLMSG_ERROR\n", stderr);
+                    throw std::system_error(errno, std::generic_category(), "NLMSG_ERROR");
                 }
                 else
                 {
                     errno = -err->error;
-                    perror("NLMSG_ERROR");
+                    throw std::system_error(errno, std::generic_category(), "NLMSG_ERROR");
                 }
-
-                return -1;
             }
 
             if (h->nlmsg_type != SOCK_DIAG_BY_FAMILY)
             {
-                fprintf(stderr, "unexpected nlmsg_type %u\n",
-                        (unsigned) h->nlmsg_type);
-                return -1;
+                throw std::system_error(errno, std::generic_category(), "unexpected nlmsg_type");
             }
 
-            if (print_diag(static_cast<const inet_diag_msg*>(NLMSG_DATA(h)), h->nlmsg_len))
-                return -1;
+            print_diag(static_cast<const inet_diag_msg*>(NLMSG_DATA(h)), h->nlmsg_len);
         }
     }
 }
@@ -230,23 +258,41 @@ static int receive_responses(int fd)
 
 int main(void)
 {
-    int fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_SOCK_DIAG);
-
-    if (fd < 0)
+    try
     {
-        perror("socket");
-        return 1;
+        int fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_SOCK_DIAG);
+
+        if (fd < 0)
+        {
+            throw std::system_error(errno, std::generic_category(), "socket");
+        }
+
+        try
+        {
+            send_query(fd);
+            print_responses(fd);
+            close(fd);
+        }
+        catch(...)
+        {
+            close(fd);
+            throw;
+        }
+
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+    catch (...)
+    {
+        std::cerr << "Unknown exception!" << std::endl;
+        return EXIT_FAILURE;
     }
 
-    int result = send_query(fd);
+    return EXIT_SUCCESS;
 
 
-//    if (!result) 
-receive_responses(fd);
-
-std::cout << result << std::endl;
-
-    close(fd);
-    return result;
 }
 
