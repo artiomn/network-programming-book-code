@@ -165,15 +165,36 @@ void print_diag(const inet_diag_msg *diag, unsigned int len)
 
                 std::cout
                     << "  Lost packets: " << ti.tcpi_lost << "\n"
-                    << "  Retransmits:" << +ti.tcpi_retransmits << "\n"
+                    << "  Retransmits: " << +ti.tcpi_retransmits << "\n"
                     << "  RTT: " << ti.tcpi_rtt << "\n";
                 break;
             }
+            case INET_DIAG_SHUTDOWN:
+                if (RTA_PAYLOAD(attr) != 1)
+                    throw std::logic_error("Shutdown flags length error");
+                std::cout
+                    << "  Shutdown flags: "
+                    << +*static_cast<uint8_t*>(RTA_DATA(attr))
+                    << "\n";
+            break;
+            case INET_DIAG_CGROUP_ID:
+                if (RTA_PAYLOAD(attr) != sizeof(uint64_t))
+                    throw std::logic_error("CGroup length error");
+                std::cout
+                    << "  Control group: "
+                    << *static_cast<const uint64_t*>(RTA_DATA(attr))
+                    << "\n";
+            break;
+            case INET_DIAG_SOCKOPT:
+                if (RTA_PAYLOAD(attr) != sizeof(inet_diag_sockopt))
+                    throw std::logic_error("Sockopt flags length error");
+                std::cout << "  SOCKOPT\n";
+            break;
             default:
                 std::cerr
                     << "  Unknown attribute: "
                     << "0x" << std::hex << attr->rta_type
-                    << std::dec << "\n";
+                    << "\n";
         }
     }
 
@@ -216,7 +237,7 @@ void print_responses(int fd)
 
         if (nladdr.nl_family != AF_NETLINK)
         {
-            throw std::system_error(errno, std::generic_category(), "nl_family != AF_NETLINK");
+            throw std::logic_error("nl_family != AF_NETLINK");
         }
 
         const struct nlmsghdr *h = (struct nlmsghdr *) buf;
