@@ -240,7 +240,7 @@ void print_responses(int fd)
             throw std::logic_error("nl_family != AF_NETLINK");
         }
 
-        const struct nlmsghdr *h = (struct nlmsghdr *) buf;
+        const struct nlmsghdr *h = reinterpret_cast<const nlmsghdr *>(buf);
 
         if (!NLMSG_OK(h, ret))
         {

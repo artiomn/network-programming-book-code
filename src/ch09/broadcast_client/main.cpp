@@ -41,7 +41,7 @@ int main(int argc, const char * const argv[])
     int broadcast = 1;
     if (-1 == setsockopt(sock, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<const char*>(&broadcast), sizeof(broadcast)))
     {
-        throw std::runtime_error("setsockopt()");
+        throw std::system_error(errno, std::generic_category(), "setsockopt()");
     }
 
     std::string message = {"Test broadcast messaging!"};
