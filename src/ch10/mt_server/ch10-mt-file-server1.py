@@ -98,7 +98,6 @@ class Client:
 
 
 def send_file_to_the_client(c_sock: socket.socket):
-    result = True
     try:
         print(f'Client tid = {current_thread().name} [{current_thread().ident}]')
         client = Client(c_sock)
