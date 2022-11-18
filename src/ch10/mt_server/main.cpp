@@ -122,7 +122,7 @@ public:
                 break;
             }
             recv_bytes += result;
-            if (size == recv_bytes) break;
+            if (size <= recv_bytes) break;
         }
 
         buffer[recv_bytes] = '\0';
@@ -138,11 +138,15 @@ private:
     {
         switch (errno)
         {
+            // These are not errors: must to repeat send().
             case EINTR:
+            case EWOULDBLOCK:
+#if defined(EAGAIN)
+#    if (EAGAIN) != (EWOULDBLOCK)
             case EAGAIN:
-            // case EWOULDBLOCK: // EWOULDBLOCK == EINTR.
-                return true;
-        }
+#    endif
+#endif
+                return true;        }
 
         return false;
     };
