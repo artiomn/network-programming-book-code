@@ -14,7 +14,7 @@ int main(int argc, const char * const argv[])
 
     if (nullptr == if_ni)
     {
-        throw std::system_error(errno, std::generic_category(), "if_nameindex");
+        throw std::system_error(errno, std::system_category(), "if_nameindex");
     }
 
     for (auto i = if_ni.get(); !(0 == i->if_index && nullptr == i->if_name); ++i)

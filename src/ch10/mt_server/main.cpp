@@ -22,8 +22,8 @@ extern "C"
 #   include <cwctype>
 #endif
 
-#include <socket_wrapper/socket_functions.h>
 #include <socket_wrapper/socket_headers.h>
+#include <socket_wrapper/socket_functions.h>
 #include <socket_wrapper/socket_wrapper.h>
 #include <socket_wrapper/socket_class.h>
 
@@ -109,7 +109,7 @@ public:
             if (-1 == result)
             {
                 if (need_to_repeat()) continue;
-                throw std::logic_error("Socket reading error");
+                throw std::system_error(errno, std::system_category(), "Socket reading error");
             }
 
             auto fragment_begin = buffer.begin() + recv_bytes;
@@ -146,9 +146,10 @@ private:
             case EAGAIN:
 #    endif
 #endif
-                return true;        }
+                return true;
+       }
 
-        return false;
+       return false;
     };
 
 private:
@@ -223,7 +224,6 @@ public:
 
 private:
     Transceiver tsr_;
-    fs::path file_path_;
 };
 
 
@@ -243,27 +243,30 @@ int main(int argc, const char * const argv[])
 
     try
     {
-        auto servinfo = socket_wrapper::get_serv_info(argv[1]);
+        auto servinfo = std::move(socket_wrapper::get_serv_info(argv[1]));
 
         socket_wrapper::Socket server_sock = {servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol};
 
         if (!server_sock)
         {
-            throw std::logic_error("socket");
+            throw std::system_error(errno, std::system_category(),
+                                    "Socket creation error");
         }
 
-        set_reuse_addr(server_sock);
+        socket_wrapper::set_reuse_addr(server_sock);
 
         if (bind(server_sock, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
         {
-            throw std::logic_error("bind");
+            throw std::system_error(errno, std::system_category(),
+                                    "Bind error");
         }
 
         std::list<std::future<bool>> pending_tasks;
 
         if (listen(server_sock, clients_count) < 0)
         {
-            throw std::logic_error("listen");
+            throw std::system_error(errno, std::system_category(),
+                                    "Listen error");
         }
 
         std::cout
