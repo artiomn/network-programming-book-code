@@ -23,12 +23,7 @@ class Transceiver:
         return self._client_sock
 
     def send_buffer(self, buffer):
-        transmit_bytes_count = 0
-
-        while transmit_bytes_count != len(buffer):
-            result = self._client_sock.send(buffer[transmit_bytes_count:],
-                                            len(buffer) - transmit_bytes_count)
-            transmit_bytes_count += result
+        self._client_sock.sendall(buffer)
 
     def send_file(self, file_path: Path):
         try:
@@ -91,7 +86,7 @@ class Client:
         return Path(cwd) / file_path.lstrip('/\\')
 
     def send_file(self, file_path: Path):
-        if not (file_path.exists() and file_path.is_file()):
+        if not (file_path and (file_path.exists() and file_path.is_file())):
             return False
 
         return self._tsr.send_file(file_path)

@@ -37,7 +37,7 @@ class Client:
         return Path(cwd) / file_path.lstrip('/\\')
 
     def send_file(self, file_path: Path):
-        if not (file_path.exists() and file_path.is_file()):
+        if not (file_path and (file_path.exists() and file_path.is_file())):
             return False
 
         print(f'Sending file "{file_path}"...')

@@ -306,7 +306,7 @@ int main(int argc, const char * const argv[])
             }
         }
     }
-    catch (const std::logic_error &e)
+    catch (const std::exception &e)
     {
         std::cerr
             << e.what()
