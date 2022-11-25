@@ -8,6 +8,7 @@ if (UNIX)
     add_subdirectory("sysconf")
     add_subdirectory("netlink")
     add_subdirectory("sockdiag")
+    add_subdirectory("ethtool")
 endif()
 
 if (APPLE)
