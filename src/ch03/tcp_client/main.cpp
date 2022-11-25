@@ -162,7 +162,7 @@ int main(int argc, const char * const argv[])
             {
                 if (EINTR == errno) continue;
                 if (0 == errno) break;
-                // std::cerr << errno << ": " << sock_wrap.get_last_error_string() << std::endl;
+                throw std::system_error(errno, std::system_category(), "recv");
                 break;
             }
 
