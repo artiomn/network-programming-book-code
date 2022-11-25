@@ -16,7 +16,7 @@ extern "C"
 
 void print_adapter_params(const std::string &name)
 {
-    ethtool_cmd cmd = { .cmd = ETHTOOL_GSET };
+    ethtool_link_settings cmd = { .cmd = ETHTOOL_GLINKSETTINGS };
     ifreq ifr = {0};
 
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
@@ -26,13 +26,29 @@ void print_adapter_params(const std::string &name)
         throw std::system_error(errno, std::system_category(), "socket");
     }
 
-    ifr.ifr_data = reinterpret_cast<caddr_t>(&cmd);
     std::copy_n(name.c_str(), IF_NAMESIZE, ifr.ifr_name);
     ifr.ifr_name[IF_NAMESIZE - 1] = '\0';
+    ifr.ifr_data = reinterpret_cast<caddr_t>(&cmd);
 
     if (ioctl(sock, SIOCETHTOOL, &ifr) < 0)
     {
         throw std::system_error(errno, std::system_category(), "SIOCETHTOOL IOCtl");
+    }
+
+    // We expect a strictly negative value from kernel.
+    if (cmd.link_mode_masks_nwords >= 0 ||
+        cmd.cmd != ETHTOOL_GLINKSETTINGS)
+    {
+        throw std::logic_error("Incorrect speed!");
+    }
+
+    // Got the real link_mode_masks_nwords,
+    // Now send the real request.
+    cmd.cmd = ETHTOOL_GLINKSETTINGS;
+    cmd.link_mode_masks_nwords = -cmd.link_mode_masks_nwords;
+    if (ioctl(sock, SIOCETHTOOL, &ifr) < 0)
+    {
+        std::cerr << "Cannot read speed on interface: " << name;
     }
 
     if (!ethtool_validate_speed(cmd.speed))
@@ -66,7 +82,7 @@ void print_adapter_params(const std::string &name)
         << "Speed = " << speed->second << "\n"
         << "Duplex = "
         << (DUPLEX_HALF == cmd.duplex ? "half" :
-               (DUPLEX_FULL == cmd.duplex ? "full" : "unknown"))
+               (DUPLEX_FULL == cmd.duplex ? "full" : "Unknown"))
         << std::endl;
 }
 
