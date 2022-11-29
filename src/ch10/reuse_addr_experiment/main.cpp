@@ -16,9 +16,9 @@ void bind_sockets(const socket_wrapper::SocketWrapper &sock_wrap,
                   bool add_listen = false)
 {
     struct sockaddr_in addr1 = { .sin_family = PF_INET, .sin_port = htons(port) };
-    addr1.sin_addr.s_addr = htonl(INADDR_ANY);
+    addr1.sin_addr.s_addr = INADDR_ANY;
     struct sockaddr_in addr2 = { .sin_family = PF_INET, .sin_port = htons(port) };
-    addr2.sin_addr.s_addr = htonl(INADDR_ANY);
+    addr2.sin_addr.s_addr = INADDR_ANY;
 
     inet_pton(AF_INET, address1.c_str(), &addr1.sin_addr);
     inet_pton(AF_INET, address2.c_str(), &addr2.sin_addr);
