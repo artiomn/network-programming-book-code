@@ -6,3 +6,7 @@ add_subdirectory("reuse_addr_test")
 add_subdirectory("reuse_addr_experiment")
 add_subdirectory("mt_server")
 add_subdirectory("accept_pool")
+
+if (UNIX)
+    add_subdirectory("scatter_gatter")
+endif()
