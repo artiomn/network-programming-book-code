@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+
+import datetime
+import os
+
+
+print('Content-Type: text/html\n\r\n\r')
+print('<html><head>\n'
+      '<style>\n'
+      'body {\n'
+      '   background-color: black;\n'
+      '   color: white;\n'
+      '}\n'
+      '</style>\n'
+      '<title>Test CGI</title>'
+      '<body>'
+      f'Test content: <i>{datetime.datetime.now().strftime("%H:%M:%S")}</i>!'
+      '<br>')
+
+for name, val in os.environs.items():
+    print(f'<b>{name}</b>: ${val}<br>')
+
+print('</body></html>')
+
