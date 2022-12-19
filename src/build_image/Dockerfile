@@ -7,9 +7,10 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update \
   && gpg --fetch-keys https://neilalexander.s3.eu-west-2.amazonaws.com/deb/key.txt \
   && gpg --export 569130E8CA20FBC4CB3FDE555898470A764B32C9 | apt-key add - \
-  && echo 'deb http://neilalexander.s3.eu-west-2.amazonaws.com/deb/ debian yggdrasil' >> /etc/apt/sources.list.d/yggdrasil.list \
+#  && echo 'deb http://neilalexander.s3.eu-west-2.amazonaws.com/deb/ debian yggdrasil' >> /etc/apt/sources.list.d/yggdrasil.list \
   && apt-get update \
   && apt-get -y --no-install-recommends --show-progress install \
+    apache2 \
     capnproto \
     clang \
     cmake \
@@ -33,6 +34,7 @@ RUN apt-get update \
     meson \
     mpi-default-dev \
     netcat \
+    nginx \
     net-tools \
     protobuf-compiler \
     python \
@@ -46,22 +48,20 @@ RUN apt-get update \
     tcpdump \
     valgrind \
     vim \
-    yggdrasil \
-  && git clone --recursive --depth 1 https://github.com/artiomn/pistache \
+#    yggdrasil \
+  && systemctl disable apache2 \
+  && systemctl disable nginx \
+  && git clone --recursive --depth 1 https://github.com/pistacheio/pistache \
   && cd pistache \
-  && cmake \
-    -DPISTACHE_USE_SSL=true \
-    -DPISTACHE_BUILD_EXAMPLES=true \
-    -DPISTACHE_BUILD_TESTS=false \
-    -DPISTACHE_BUILD_DOCS=false \
-    -DCMAKE_INSTALL_PREFIX=/usr/local \
-    . \
+#  && cmake \
+#    -DPISTACHE_USE_SSL=true \
+#    -DPISTACHE_BUILD_TESTS=false \
+#    -DCMAKE_INSTALL_PREFIX=/usr/local \
+#    . \
   && meson setup build \
     --buildtype=debug \
     -DPISTACHE_USE_SSL=true \
-    -DPISTACHE_BUILD_EXAMPLES=false \
     -DPISTACHE_BUILD_TESTS=false \
-    -DPISTACHE_BUILD_DOCS=false \
     --prefix="/usr/local" \
   && meson compile -C build \
   && meson install -C build \
@@ -122,7 +122,7 @@ RUN apt-get update \
 COPY ./entry.sh /
 RUN chmod +x /entry.sh
 COPY ./bashrc /etc/skel/.bashrc
-COPY ./yggdrasil.conf /etc/yggdrasil.conf
+# COPY ./yggdrasil.conf /etc/yggdrasil.conf
 
 ENTRYPOINT ["/entry.sh"]
 CMD ["/bin/bash"]
