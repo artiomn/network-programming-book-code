@@ -1,11 +1,11 @@
 #!/bin/sh
 
-IMAGE_NAME=artiomn/gb-build-image
+IMAGE_NAME=artiomn/nb-build-image
 
 if [ "$1" == "--" ]; then
     shift
 elif [ "$1" == "-q" ]; then
-    IMAGE_NAME=artiomn/gb-qt-creator-image
+    IMAGE_NAME=artiomn/nb-qt-creator-image
     shift
     CMD="/usr/bin/qtcreator ${*}"
 fi

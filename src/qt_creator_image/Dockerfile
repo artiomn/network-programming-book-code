@@ -1,4 +1,4 @@
-FROM artiomn/gb-build-image
+FROM artiomn/nb-build-image
 
 RUN apt-get update \
   && apt-get -y --no-install-recommends --show-progress install \

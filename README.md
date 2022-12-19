@@ -58,8 +58,8 @@ git pull
 Docker образы могут быть обновлены следующими командами:
 
 ```
-artiomn/gb-build-image
-artiomn/gb-qt-creator-image
+artiomn/nb-build-image
+artiomn/nb-qt-creator-image
 ```
 
 [К оглавлению ⮐](#оглавление)
@@ -75,7 +75,7 @@ artiomn/gb-qt-creator-image
 
 Сборка не подгружает зависимости автоматически.
 Поэтому, для того, чтобы собрать без необходимости заниматься установкой множества пакетов, используется подготовленная среда.
-Она представляет собой Docker-контейнер, образ которого [лежит на docker.hub](https://hub.docker.com/r/artiomn/gb-build-image).
+Она представляет собой Docker-контейнер, образ которого [лежит на docker.hub](https://hub.docker.com/r/artiomn/nb-build-image).
 Сборка в ней запускается через скрипт `./build_dockerized.sh`.
 
 Под Windows сборка была проверена на MSVS 2019 и собранные артефакты будут находиться в `src\out\build\windows-default\bin`.
@@ -172,7 +172,7 @@ CMake Error: The source "/home/artiom/user/cpp-network-tasks/src/CMakeLists.txt"
 - Вы могли собрать код, не устанавливая лишних библиотек.
 - Вы могли проверить сборку тем же самым компилятором, что и проверяющий.
 
-Напомню, что образ с инструкциями [лежит на Docker.hub](https://hub.docker.com/r/artiomn/gb-build-image).
+Напомню, что образ с инструкциями [лежит на Docker.hub](https://hub.docker.com/r/artiomn/nb-build-image).
 
 [К оглавлению ⮐](#оглавление)
 
@@ -234,7 +234,7 @@ $ sudo usermod -a -G docker "${USER}"
 Но все пути к инклудам, а также библиотекам, естественно, будут некорректны, т.к. в контейнере они другие.
 
 Возможно самый просто вариант - установить QtCreator в контейнер и запустить оттуда.
-На данный момент для этого [собран образ](https://hub.docker.com/r/artiomn/gb-qt-creator-image).
+На данный момент для этого [собран образ](https://hub.docker.com/r/artiomn/nb-qt-creator-image).
 Чтобы запустить его, используйте:
 
 ```
@@ -288,12 +288,12 @@ sys network power video storage lp input audio wheel artiom docker
 Обновите его:
 
 ```
-$ docker pull artiomn/gb-build-image
+$ docker pull artiomn/nb-build-image
 Using default tag: latest
-latest: Pulling from artiomn/gb-build-image
+latest: Pulling from artiomn/nb-build-image
 Digest: sha256:be8e76c39543bd03f503a294d96dc578c5ad90b77c1473e6b03ef1feb88c0b0c
-Status: Downloaded newer image for artiomn/gb-build-image:latest
-docker.io/artiomn/gb-build-image:latest
+Status: Downloaded newer image for artiomn/nb-build-image:latest
+docker.io/artiomn/nb-build-image:latest
 ```
 
 [К оглавлению ⮐](#оглавление)
