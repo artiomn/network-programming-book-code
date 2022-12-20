@@ -7,7 +7,7 @@ jobs:
     runs-on: artiomn/nb-build-image
 
     steps:
-   - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
     - name: Build
       run: ./build.sh
 #      uses: nicledomaS/cmake_build_action@v1.4
