@@ -1,5 +1,7 @@
 # Repository with a code for the "Network Programming in the High-level Languages" book
 
+[![Build C++ code](https://github.com/artiomn/network-programming-book-code/actions/workflows/build-cpp-code.yml/badge.svg)](https://github.com/artiomn/network-programming-book-code/actions/workflows/build-cpp-code.yml)
+
 Код для книги "Сетевое программирование на языках высокого уровня".
 
 ## Оглавление
