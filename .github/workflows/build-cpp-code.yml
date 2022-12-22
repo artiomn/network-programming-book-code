@@ -4,13 +4,12 @@ on: [push]
 
 jobs:
   build:
-    runs-on: artiomn/nb-build-image
-
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v2.0.0
     - name: Build
-      run: ./build.sh
+      run: ./build_dockerized.sh
 #      uses: nicledomaS/cmake_build_action@v1.4
 #      with:
 #        submodule_update: ON
