@@ -1,0 +1,15 @@
+<html>
+<head>
+SSI Test
+</head>
+
+<body>
+
+<!--#set var="dir_list_cmd" value="ls -l"-->
+
+<p>Document list of http://<!--#echo var="HTTP_HOST"--><!--#echo var="DOCUMENT_URI"--></p>
+<pre>
+<!--#exec cmd="${dir_list_cmd}"-->
+</pre>
+
+</body>
