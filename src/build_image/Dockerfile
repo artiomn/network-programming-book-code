@@ -49,6 +49,7 @@ RUN apt-get update \
     qtbase5-dev \
     rapidjson-dev \
     rsync \
+    ruby-rack \
     sudo \
     ssh \
     tar \
