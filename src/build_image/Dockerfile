@@ -1,4 +1,4 @@
-FROM gcc:11
+FROM gcc:12
 
 MAINTAINER artiomn
 
