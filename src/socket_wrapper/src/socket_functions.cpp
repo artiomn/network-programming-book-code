@@ -1,3 +1,4 @@
+#include <array>
 #include <cassert>
 #include <iomanip>
 #include <iostream>
