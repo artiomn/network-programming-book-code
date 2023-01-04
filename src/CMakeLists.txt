@@ -31,5 +31,6 @@ add_subdirectory("socket_wrapper")
 
 foreach(chapter ${chapters})
     message(STATUS "Adding code for the chapter ${chapter}")
+    get_filename_component(CHAPTER_NAME "${chapter}-" NAME)
     add_subdirectory("${chapter}/cpp")
 endforeach()
