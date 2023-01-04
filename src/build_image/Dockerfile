@@ -25,6 +25,7 @@ RUN apt-get update \
     libgtk2.0-dev \
     libgtk-3-dev \
     libpcap-dev \
+    libplack-perl \
     libevent-2\* libevent-dev libev-dev libuv1-dev \
     libc-ares-dev \
     libpoco-dev \
