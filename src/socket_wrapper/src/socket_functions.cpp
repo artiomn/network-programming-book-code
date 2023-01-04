@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
+#include <string>
 
 #include <socket_wrapper/socket_functions.h>
 #include <socket_wrapper/socket_headers.h>
