@@ -4,7 +4,7 @@ project("${CHAPTER_NAME}accept-pool" C CXX)
 
 set(${PROJECT_NAME}_SRC main.cpp)
 
-find_package(Boost REQUIRED COMPONENTS system) # asio
+find_package(Boost REQUIRED) # asio
 
 add_executable("${PROJECT_NAME}" "${${PROJECT_NAME}_SRC}")
 target_link_libraries("${PROJECT_NAME}" PRIVATE ${Boost_LIBRARIES} socket-wrapper)

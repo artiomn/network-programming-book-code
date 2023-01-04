@@ -28,7 +28,10 @@
       },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+        "BOOST_ROOT": "C:/boost_1_81_0",
+        "BOOST_INCLUDEDIR": "C:/boost_1_81_0",
+        "BOOST_LIBRARYDIR": "C:/boost_1_81_0/lib64-msvc-14.3"
       },
       "vendor": { "microsoft.com/VisualStudioSettings/CMake/1.0": { "hostOS": [ "Windows" ] } }
     }
