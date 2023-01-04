@@ -12,6 +12,7 @@ target_include_directories("${PROJECT_NAME}" PRIVATE ${Boost_INCLUDE_DIRS})
 
 if(WIN32)
   target_link_libraries("${PROJECT_NAME}" PRIVATE wsock32 ws2_32)
+  target_compile_definitions("${PROJECT_NAME}" PRIVATE -D_WIN32_WINNT=0x0601)
 else()
   target_link_libraries("${PROJECT_NAME}" PRIVATE pthread)
 endif()

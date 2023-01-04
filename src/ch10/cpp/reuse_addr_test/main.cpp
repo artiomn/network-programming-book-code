@@ -20,20 +20,19 @@ int main(int argc, char const * const argv[])
     }
 
     socket_wrapper::SocketWrapper sock_wrap;
-    sockaddr_in si_other;
 
     const int port { std::stoi(argv[1]) };
 
     std::cout << "Trying bind on the port " << port << "...\n";
 
-    struct sockaddr_in addr1 = {.sin_family = PF_INET,
-                                .sin_port = htons(port),
-                                .sin_addr = {.s_addr = INADDR_ANY}};
+    struct sockaddr_in addr1 = { .sin_family = PF_INET,
+                                .sin_port = htons(port) };
+    addr1.sin_addr.s_addr = INADDR_ANY;
 
 
     struct sockaddr_in addr2 = {.sin_family = PF_INET,
-                                .sin_port = htons(port),
-                                .sin_addr = {.s_addr = INADDR_ANY}};
+                                .sin_port = htons(port) };
+    addr2.sin_addr.s_addr = INADDR_ANY ;
 
     socket_wrapper::Socket sock1(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     socket_wrapper::Socket sock2(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -46,9 +45,13 @@ int main(int argc, char const * const argv[])
 
     int flag = 1;
 
+#if defined(WIN32)
+    setsockopt(sock1, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char*>(&flag), sizeof(flag));
+    setsockopt(sock2, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char*>(&flag), sizeof(flag));
+#else
     setsockopt(sock1, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag));
     setsockopt(sock2, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag));
-
+#endif
     if (bind(sock1, reinterpret_cast<const sockaddr *>(&addr1),
              sizeof(sockaddr)) == -1)
     {
