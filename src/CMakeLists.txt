@@ -31,5 +31,5 @@ add_subdirectory("socket_wrapper")
 
 foreach(chapter ${chapters})
     message(STATUS "Adding code for the chapter ${chapter}")
-    add_subdirectory("${chapter}")
+    add_subdirectory("${chapter}/cpp")
 endforeach()
