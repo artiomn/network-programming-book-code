@@ -3,15 +3,20 @@
 import socket
 import sys
 
-from os import path, pathconf
+from os import path
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 from threading import current_thread
 from typing import Optional
 
+try:
+    from os import pathconf
+    MAX_PATH = pathconf('/', 'PC_PATH_MAX')
+except ImportError:
+    MAX_PATH=250
+
 
 BUFFER_SIZE = 4096
-MAX_PATH = pathconf('/', 'PC_PATH_MAX')
 
 
 class Client:
