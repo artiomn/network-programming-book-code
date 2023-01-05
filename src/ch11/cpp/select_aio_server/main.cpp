@@ -54,7 +54,7 @@ const wchar_t separ = *reinterpret_cast<const wchar_t*>(&fs::path::preferred_sep
 #endif
 
 
-void set_nonblock(SOCKET fd)
+void set_nonblock(SocketDescriptorType fd)
 {
     const IoctlType flag = 1;
 
@@ -383,7 +383,6 @@ public:
 
         if (active_descriptors < 0)
         {
-            std::cout << "ge: " << GetLastError() << std::endl;
             throw std::system_error(errno, std::system_category(), "select");
         }
 
