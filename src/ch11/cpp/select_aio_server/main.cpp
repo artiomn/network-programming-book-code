@@ -12,7 +12,6 @@
 #if !defined(_WIN32)
 extern "C"
 {
-#   include <fcntl.h>
 #   include <signal.h>
 #   include <netinet/tcp.h>
 #   include <sys/ioctl.h>
@@ -22,11 +21,13 @@ extern "C"
 extern "C"
 {
 #   include <io.h>
-#   include <fcntl.h>
 }
 
-#   define ioctl ioctlsocket
+#define ioctl (ioctlsocket)
+
 #endif
+
+#include <fcntl.h>
 
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
@@ -53,13 +54,13 @@ const wchar_t separ = *reinterpret_cast<const wchar_t*>(&fs::path::preferred_sep
 #endif
 
 
-void set_nonblock(int fd)
+void set_nonblock(SOCKET fd)
 {
     const IoctlType flag = 1;
 
     if (ioctl(fd, FIONBIO, const_cast<IoctlType*>(&flag)) < 0)
     {
-        throw std::logic_error("Setting non-blocking mode");
+        throw std::system_error(errno, std::system_category(), "Setting non-blocking mode");
     }
 }
 
@@ -83,7 +84,7 @@ public:
     Transceiver() = delete;
     ~Transceiver()
     {
-        close(file_descriptor_);
+        if (file_descriptor_ != -1) close(file_descriptor_);
     }
 
 public:
@@ -145,7 +146,6 @@ public:
         file_descriptor_ = open(file_path.string().c_str(), O_NONBLOCK, O_RDONLY);
 #else
         file_descriptor_ = _open(file_path.string().c_str(), _O_BINARY, _O_RDONLY);
-        set_nonblock(file_descriptor_);
 #endif
 
         return file_descriptor_;
@@ -236,7 +236,7 @@ public:
     }
 
 public:
-    operator int() const { return static_cast<int>(tsr_.ts_socket()); }
+    operator SocketDescriptorType() const { return static_cast<SocketDescriptorType>(tsr_.ts_socket()); }
     int get_fd() const { return tsr_.file_descriptor();  }
     bool file_opened() const { return get_fd() != -1; }
 
@@ -324,14 +324,16 @@ private:
 
         // If the client tries to connect() to the server socket, select() will treat this socket as "readable".
         // Then program must to accept a new connection.
-        FD_SET(static_cast<int>(server_socket_), &read_descriptors_set_);
+        FD_SET(static_cast<SocketDescriptorType>(server_socket_), &read_descriptors_set_);
 
         for (auto &c : clients_)
         {
-            FD_SET(static_cast<int>(c), &read_descriptors_set_);
-            FD_SET(static_cast<int>(c), &write_descriptors_set_);
-            FD_SET(static_cast<int>(c), &err_descriptors_set_);
+            FD_SET(static_cast<SocketDescriptorType>(c), &read_descriptors_set_);
+            FD_SET(static_cast<SocketDescriptorType>(c), &write_descriptors_set_);
+            FD_SET(static_cast<SocketDescriptorType>(c), &err_descriptors_set_);
 
+#if !defined(WIN32)
+            // Windows select() doesn't support file descriptors: it works only with sockets.
             auto fd = c.get_fd();
 
             if (fd != -1)
@@ -340,6 +342,7 @@ private:
                 FD_SET(static_cast<int>(fd), &err_descriptors_set_);
                 if (fd > max_available_descriptor_) max_available_descriptor_ = fd;
             }
+#endif
             if (c > max_available_descriptor_) max_available_descriptor_ = c;
         }
     }
@@ -374,13 +377,14 @@ public:
         build_sock_list();
 
         auto active_descriptors = select(max_available_descriptor_ + 1,
-                                         &read_descriptors_set_,
-                                         &write_descriptors_set_,
-                                         &err_descriptors_set_, &timeout);
+            &read_descriptors_set_,
+            &write_descriptors_set_,
+            &err_descriptors_set_, &timeout);
 
         if (active_descriptors < 0)
         {
-            throw std::logic_error("select");
+            std::cout << "ge: " << GetLastError() << std::endl;
+            throw std::system_error(errno, std::system_category(), "select");
         }
 
         if (0 == active_descriptors)
@@ -536,7 +540,7 @@ int main(int argc, const char * const argv[])
 
         std::cout<<"\n\nExiting normally\n";
     }
-    catch (const std::logic_error &e)
+    catch (const std::exception &e)
     {
         std::cerr
             << e.what()
