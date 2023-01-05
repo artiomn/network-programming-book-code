@@ -49,7 +49,7 @@ void send_descriptors(int socket, int fd)
     *reinterpret_cast<int *>(CMSG_DATA(cmsg)) = fd;
 
     if (sendmsg(socket, &msg, 0) < 0)
-        throw std::system_error(errno, std::generic_category(), "sendmsg");
+        throw std::system_error(errno, std::system_category(), "sendmsg");
 }
 
 
@@ -67,7 +67,7 @@ int receive_descriptors(int socket)
     msgh.msg_controllen = c_buffer.size();
 
     if (recvmsg(socket, &msgh, 0) < 0)
-        throw std::system_error(errno, std::generic_category(), "recvmsg");
+        throw std::system_error(errno, std::system_category(), "recvmsg");
 
     cmsghdr *cmsg;
 
@@ -118,7 +118,7 @@ void parent(int sock)
     int file_fd = open(local_file.string().c_str(), O_RDWR | O_CREAT);
 
     if (file_fd < 0)
-        throw std::system_error(errno, std::generic_category(), "Parent opening local file");
+        throw std::system_error(errno, std::system_category(), "Parent opening local file");
 
     std::cout
         << "Parent opened file with descriptor = " << file_fd
@@ -148,7 +148,7 @@ void child(int sock)
     ss << "/proc/self/fd/" << fd;
 
     if (readlink(ss.str().c_str(), filename, sizeof(filename)) < 0)
-        throw std::system_error(errno, std::generic_category(), "readlink");
+        throw std::system_error(errno, std::system_category(), "readlink");
 
     std::cout
         << "Child received descriptor = " << fd
@@ -176,7 +176,7 @@ int main(int argc, char **argv)
     {
         int sp[2];
         if (socketpair(AF_UNIX, SOCK_DGRAM, 0, sp) != 0)
-            throw std::system_error(errno, std::generic_category(), "socketpair");
+            throw std::system_error(errno, std::system_category(), "socketpair");
 
         int pid = fork();
         if (pid > 0)

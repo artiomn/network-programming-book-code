@@ -45,13 +45,9 @@ int main(int argc, char const * const argv[])
 
     int flag = 1;
 
-#if defined(WIN32)
     setsockopt(sock1, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char*>(&flag), sizeof(flag));
     setsockopt(sock2, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char*>(&flag), sizeof(flag));
-#else
-    setsockopt(sock1, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag));
-    setsockopt(sock2, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag));
-#endif
+
     if (bind(sock1, reinterpret_cast<const sockaddr *>(&addr1),
              sizeof(sockaddr)) == -1)
     {

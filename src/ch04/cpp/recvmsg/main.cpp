@@ -55,7 +55,7 @@ public:
         }
         else if (len == 0)
         {
-            fprintf(stderr, "recvmsg len 0, Connection closed");
+            std::cout << "recvmsg len 0, Connection closed" << std::endl;
             goto done;
         }
 
