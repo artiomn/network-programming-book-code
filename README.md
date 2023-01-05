@@ -133,6 +133,7 @@ CMake Error: The source "/home/artiom/user/cpp-network-tasks/src/CMakeLists.txt"
 ### Могу ли я собрать код на Windows?
 
 Да, возможно собрать часть кода. Сборка проверялась на MS Visual Studio 2019.  
+Подробнее о поддержке CMake в MSVS, вы можете [прочитать у Microsoft](https://github.com/MicrosoftDocs/cpp-docs/blob/main/docs/build/cmake-projects-in-visual-studio.md).  
 Чтобы собрать код, надо открыть корневой CMakeLists.txt, как CMake проект.  
 
 Но есть следующие проблемы:
