@@ -53,6 +53,12 @@ public:
         fd_ = other.reset();
     }
 
+    TunTapNetworkInterface& operator=(TunTapNetworkInterface &&other)
+    {
+        fd_ = other.reset();
+        return *this;
+    }
+
     virtual ~TunTapNetworkInterface()
     {
         if (-1 != fd_) close(fd_);
@@ -62,7 +68,6 @@ public:
 
 public:
     TunTapNetworkInterface(const TunTapNetworkInterface &) = delete;
-    TunTapNetworkInterface operator=(const TunTapNetworkInterface &) = delete;
 
 public:
     operator int() const
@@ -155,9 +160,16 @@ public:
 
         perform_ioctl(*this, TUNSETIFF, &ifr, "TUNSETIFF ioctl failed");
     }
+    Tun(Tun &&other) : TunTapNetworkInterface::TunTapNetworkInterface(std::move(other)) {}
 
     virtual const std::string type() const override { return "tun"; }
 
+    Tun &operator=(const Tun&) = delete;
+    Tun& operator=(Tun &&other)
+    {
+        TunTapNetworkInterface::operator=(std::move(other));
+        return *this;
+    }
 protected:
     bool set_if_features(ifreq &ifr)
     {
@@ -175,8 +187,6 @@ protected:
 
         return true;
     }
-
-
 };
 
 
@@ -189,8 +199,15 @@ public:
         ifr.ifr_flags = IFF_TAP;
         perform_ioctl(*this, TUNSETIFF, &ifr, "TUNSETIFF ioctl failed");
     }
+    Tap(Tap &&other) : TunTapNetworkInterface::TunTapNetworkInterface(std::move(other)) {}
 
     virtual const std::string type() const override { return "tap"; }
+
+    Tap& operator=(Tap &&other)
+    {
+        TunTapNetworkInterface::operator=(std::move(other));
+        return *this;
+    }
 
 public:
     void set_hw_addr(const uint8_t hw_addr[TunTapNetworkInterface::mac_size])
@@ -219,12 +236,12 @@ class TunTapController
 public:
     Tap open_tap(const std::optional<std::string> &dev_name = std::nullopt)
     {
-        return std::move(internal_open<Tap>(dev_name));
+        return internal_open<Tap>(dev_name);
     }
 
     Tun open_tun(const std::optional<std::string> &dev_name = std::nullopt)
     {
-        return std::move(internal_open<Tun>(dev_name));
+        return internal_open<Tun>(dev_name);
     }
 
 private:
@@ -250,7 +267,7 @@ private:
             std::copy(dev_name->begin(), dev_name->end(), ifr.ifr_name);
         }
 
-        return T(dev_fd, ifr);
+        return std::move(T(dev_fd, ifr));
     }
 
 };
@@ -263,8 +280,8 @@ int main(int argc, const char * const argv[])
 
     try
     {
-        auto tt_iface = std::move((argc > 1) ? controller.open_tap(std::string(argv[1])) : controller.open_tap());
-        auto dev_name = std::move(tt_iface.get_name());
+        Tap tt_iface{std::move((argc > 1) ? controller.open_tap(std::string(argv[1])) : controller.open_tap())};
+        auto &&dev_name = std::move(tt_iface.get_name());
 
         std::cout
             << "Device " << dev_name
