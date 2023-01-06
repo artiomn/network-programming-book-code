@@ -1,12 +1,17 @@
 #!/bin/sh
 
+SCRIPT_PATH="$(dirname -- "${BASH_SOURCE[0]}")"
+SCRIPT_PATH="$(cd -- "$SCRIPT_PATH" && pwd)"
+
 IMAGE_NAME=artiomn/nb-build-image
+ADD_PARAMS=""
 
 if [ "$1" == "--" ]; then
     shift
 elif [ "$1" == "-q" ]; then
     IMAGE_NAME=artiomn/nb-qt-creator-image
     shift
+    ADD_PARAMS="-v ${SCRIPT_PATH}/user_config:/home/developer/.config"
     CMD="/usr/bin/qtcreator ${*}"
 fi
 
@@ -18,5 +23,10 @@ if [ -z "${CMD}" ]; then
     CMD=${*:-bash}
 fi
 
-docker run -it --rm --network host --cap-add sys_ptrace --privileged -v "$PWD:/usr/src/gb" -e "EXT_UID=$(id -u)" -e "EXT_GID=$(id -g)" -w /usr/src/gb "${IMAGE_NAME}" ${CMD}
+docker run -it --rm --network host --cap-add sys_ptrace --privileged \
+    -v "${SCRIPT_PATH}:/usr/src/gb" \
+    -e "EXT_UID=$(id -u)" -e "EXT_GID=$(id -g)" \
+    -w /usr/src/gb \
+    ${ADD_PARAMS} \
+    "${IMAGE_NAME}" ${CMD}
 
