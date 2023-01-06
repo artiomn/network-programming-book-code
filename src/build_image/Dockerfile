@@ -37,15 +37,20 @@ RUN apt-get update \
     netcat \
     nginx \
     net-tools \
+    php-common libapache2-mod-php php-cli \
     protobuf-compiler \
     python \
+    python3-cryptography \
     python3-flask \
     python3-flask-api \
     python3-flasgger \
-    python3-python-flask-jwt-extended \
     python3-flask-restful \
     python3-flask-sockets \
-    php-common libapache2-mod-php php-cli \
+    python3-matplotlib \
+    python3-pip \
+    python3-python-flask-jwt-extended \
+    python3-pyx \
+    python3-scapy \
     qtbase5-dev \
     rapidjson-dev \
     rsync \
@@ -54,6 +59,7 @@ RUN apt-get update \
     ssh \
     tar \
     telnet \
+    texlive-latex-base \
     tcpdump \
     valgrind \
     vim \
