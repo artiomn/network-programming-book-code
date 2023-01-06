@@ -28,6 +28,21 @@ const size_t buffer_size = 255;
 } // namespace
 
 
+std::filesystem::path get_path_from_fd(int fd)
+{
+    char filename[PATH_MAX];
+
+    std::stringstream ss;
+
+    ss << "/proc/self/fd/" << fd;
+
+    if (readlink(ss.str().c_str(), filename, sizeof(filename)) < 0)
+        throw std::system_error(errno, std::system_category(), "readlink");
+
+    return std::filesystem::path(filename);
+}
+
+
 void send_descriptors(int socket, int fd)
 {
     struct msghdr msg = { 0 };
@@ -112,13 +127,15 @@ void parent(int sock)
     std::cout << "Parent started" << std::endl;
 
     char f_tmpl[] = "/tmp/descr_send_exampleXXXXXX";
-    const std::filesystem::path local_file(mktemp(f_tmpl));
 
     // Descriptor.
-    int file_fd = open(local_file.string().c_str(), O_RDWR | O_CREAT);
+    // open(local_file.string().c_str(), O_RDWR | O_CREAT);
+    int file_fd = mkstemp(f_tmpl);
 
     if (file_fd < 0)
         throw std::system_error(errno, std::system_category(), "Parent opening local file");
+
+    const std::filesystem::path local_file(std::move(get_path_from_fd(file_fd)));
 
     std::cout
         << "Parent opened file with descriptor = " << file_fd
@@ -141,18 +158,10 @@ void child(int sock)
     std::cout << "Child" << std::endl;
 
     int fd = receive_descriptors(sock);
-    char filename[PATH_MAX];
-
-    std::stringstream ss;
-
-    ss << "/proc/self/fd/" << fd;
-
-    if (readlink(ss.str().c_str(), filename, sizeof(filename)) < 0)
-        throw std::system_error(errno, std::system_category(), "readlink");
 
     std::cout
         << "Child received descriptor = " << fd
-        << " [" << filename << "]"
+        << " [" << get_path_from_fd(fd) << "]"
         << std::endl;
 
     char buffer[256];
