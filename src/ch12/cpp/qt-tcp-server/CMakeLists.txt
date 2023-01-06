@@ -19,3 +19,5 @@ source_group(source FILES ${${PROJECT_NAME}_SRC}})
 add_executable("${PROJECT_NAME}" "${${PROJECT_NAME}_SRC}")
 target_link_libraries("${PROJECT_NAME}" PRIVATE Qt6::Core Qt6::Network Qt::Widgets)
 
+add_executable("${CHAPTER_NAME}qt-tcp-simple-server" "simple_variant.cpp")
+target_link_libraries("${CHAPTER_NAME}qt-tcp-simple-server" PRIVATE Qt6::Core Qt6::Network Qt::Widgets)
