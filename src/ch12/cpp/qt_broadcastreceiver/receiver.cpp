@@ -92,7 +92,8 @@ void Receiver::processPendingDatagrams()
 {
     QByteArray datagram;
 //! [2]
-    while (udpSocket->hasPendingDatagrams()) {
+    while (udpSocket->hasPendingDatagrams())
+    {
         datagram.resize(int(udpSocket->pendingDatagramSize()));
         udpSocket->readDatagram(datagram.data(), datagram.size());
         statusLabel->setText(tr("Received datagram: \"%1\"")

@@ -18,10 +18,10 @@ int main(int argc, char *argv[])
 
     auto port = std::stoi(argv[1]);
 
-    auto server = new QTcpServer();
+    auto server{std::make_unique<QTcpServer>()};
 
     // When user connects, signal will be emitted.
-    QObject::connect(server, &QTcpServer::newConnection, [server]()
+    QObject::connect(server.get(), &QTcpServer::newConnection, [&server]()
     {
         QTcpSocket *client_socket = server->nextPendingConnection();
 
