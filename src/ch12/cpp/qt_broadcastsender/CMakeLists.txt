@@ -10,14 +10,14 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 COMPONENTS Core Network Widgets REQUIRED)
+find_package(Qt6 COMPONENTS Core Network Widgets REQUIRED)
 
 set(${PROJECT_NAME}_SRC main.cpp sender.cpp)
 
 source_group(source FILES ${${PROJECT_NAME}_SRC}})
 
 add_executable("${PROJECT_NAME}" "${${PROJECT_NAME}_SRC}")
-target_link_libraries("${PROJECT_NAME}" PRIVATE Qt5::Core Qt5::Gui Qt5::Network Qt5::Widgets)
+target_link_libraries("${PROJECT_NAME}" PRIVATE Qt6::Core Qt6::Gui Qt6::Network Qt6::Widgets)
 
 if(WIN32)
   target_link_libraries("${PROJECT_NAME}" PRIVATE wsock32 ws2_32)

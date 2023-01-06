@@ -7,6 +7,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update \
   && gpg --fetch-keys https://neilalexander.s3.eu-west-2.amazonaws.com/deb/key.txt \
   && gpg --export 569130E8CA20FBC4CB3FDE555898470A764B32C9 | apt-key add - \
+  && echo 'deb http://deb.debian.org/debian bullseye-backports main contrib non-free' >> /etc/apt/sources.list.d/backports.list \
 #  && echo 'deb http://neilalexander.s3.eu-west-2.amazonaws.com/deb/ debian yggdrasil' >> /etc/apt/sources.list.d/yggdrasil.list \
   && apt-get update \
   && apt-get -y --no-install-recommends --show-progress install \
@@ -51,7 +52,7 @@ RUN apt-get update \
     python3-python-flask-jwt-extended \
     python3-pyx \
     python3-scapy \
-    qtbase5-dev \
+    qt6-base-dev \
     rapidjson-dev \
     rsync \
     ruby-rack \

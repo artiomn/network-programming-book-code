@@ -3,7 +3,7 @@ project("${CHAPTER_NAME}qt-wordcount" LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
 
-find_package(Qt5 REQUIRED COMPONENTS Concurrent Core Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Concurrent Core Widgets)
 
 add_executable("${PROJECT_NAME}" main.cpp)
 
