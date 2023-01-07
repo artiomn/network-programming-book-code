@@ -4,3 +4,4 @@ out
 .idea
 cmake-build-*
 a.out
+*.ninja
