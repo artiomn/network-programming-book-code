@@ -157,6 +157,7 @@ CMake Error: The source "/home/artiom/user/cpp-network-tasks/src/CMakeLists.txt"
 
 Есть:
 
+- [CGold: The Hitchhiker’s Guide to the CMake](https://cgold.readthedocs.io/en/latest/).
 - [Уроки на Youtube](https://www.youtube.com/watch?v=SM3Klt2rY8g&list=PL6x9Hnsyqn2UwWjSvjCzAY6sEOBrHY7VH).
 - [Документация](https://cmake.org/documentation/).
 - [Статьи](https://habr.com/ru/post/431428/).
