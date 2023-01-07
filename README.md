@@ -6,6 +6,7 @@ TODO:
 # Repository with a code for the "Network Programming in the High-level Languages" book
 
 [![Build C++ code for Linux](https://github.com/artiomn/network-programming-book-code/actions/workflows/cpp-linux-build.yml/badge.svg)](https://github.com/artiomn/network-programming-book-code/actions/workflows/cpp-linux-build.yml)
+[![Build and push Docker images](https://github.com/artiomn/network-programming-book-code/actions/workflows/docker-images-build.yml/badge.svg)](https://github.com/artiomn/network-programming-book-code/actions/workflows/docker-images-build.yml)
 
 Код для книги "Сетевое программирование на языках высокого уровня".
 
