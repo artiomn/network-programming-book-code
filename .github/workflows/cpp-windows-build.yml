@@ -53,8 +53,8 @@ jobs:
           version: 1.10.0
 
       - name: Build with CMake
-        uses: ashutoshvarma/action-cmake-build@master
         working-directory: ./src
+        uses: ashutoshvarma/action-cmake-build@master
         with:
           build-dir: ${{ runner.workspace }}/build
           cc: cl
