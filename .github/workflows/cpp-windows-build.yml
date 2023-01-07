@@ -7,10 +7,13 @@ on:
       - '.github/workflows/cpp-windows-build.yml'
       - '!src/docker_images/**'
 
+defaults:
+  run:
+    working-directory: ./src
+
 jobs:
   build:
     runs-on: windows-latest
-    working-directory: ./src
     steps:
       - uses: actions/checkout@v3
       - name: Setup MSVC
