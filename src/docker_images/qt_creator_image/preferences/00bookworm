@@ -1,0 +1,4 @@
+Package: *
+Pin: release a=bookworm
+Pin-Priority: 1
+
