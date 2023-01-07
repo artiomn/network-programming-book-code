@@ -3,7 +3,7 @@ name: Build and push Docker images
 on:
   push:
     paths:
-      - 'src/docker_images'
+      - 'src/docker_images/**'
 
 jobs:
   build:
