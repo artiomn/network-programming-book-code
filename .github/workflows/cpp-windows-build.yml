@@ -7,9 +7,9 @@ on:
       - '.github/workflows/cpp-windows-build.yml'
       - '!src/docker_images/**'
 
-defaults:
-  run:
-    working-directory: ./src
+#defaults:
+#  run:
+#    working-directory: ./src
 
 jobs:
   build:
@@ -59,6 +59,7 @@ jobs:
         uses: ashutoshvarma/action-cmake-build@master
         with:
           build-dir: ${{ runner.workspace }}/build
+          source-dir: ./src
           cc: cl
           cxx: cxx
           configure-options: -G Ninja
