@@ -1,3 +1,8 @@
+TODO:
+
+- Исправить пути и названия образов на скриншотах.
+
+
 # Repository with a code for the "Network Programming in the High-level Languages" book
 
 [![Linux C++ build](https://github.com/artiomn/network-programming-book-code/actions/workflows/build-cpp-code.yml/badge.svg)](https://github.com/artiomn/network-programming-book-code/actions/workflows/build-cpp-code.yml)
