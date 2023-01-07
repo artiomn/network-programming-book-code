@@ -3,6 +3,11 @@ name: Build C++ code for Windows
 on:
   workflow_dispatch:
   workflow_call:
+  workflow_run:
+    workflows: ['Build and push Docker images']
+    branches: [master]
+    types:
+      - completed
   push:
     paths:
       - 'src/**/cpp/**'

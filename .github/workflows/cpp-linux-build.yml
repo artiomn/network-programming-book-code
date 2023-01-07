@@ -5,6 +5,11 @@ on:
   workflow_dispatch:
   # To run as dependent.
   workflow_call:
+  workflow_run:
+    workflows: ['Build and push Docker images']
+    branches: [master]
+    types:
+      - completed
   push:
     paths:
       - 'src/**/cpp/**'
