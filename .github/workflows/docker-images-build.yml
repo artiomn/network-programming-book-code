@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build main build image
         working-directory: ./src/docker_images/build_image
-        run: ./build.sh
+        run: ./build.sh -p
       - name: Build Qt Creator image
         working-directory: ./src/docker_images/qt_creator_image
-        run: ./build.sh
+        run: ./build.sh -p
