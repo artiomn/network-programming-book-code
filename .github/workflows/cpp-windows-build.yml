@@ -1,0 +1,61 @@
+name: Build C++ code for Windows
+
+on:
+  push:
+    paths:
+      - src
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Setup MSVC
+        uses: TheMrMilchmann/setup-msvc-dev@v2
+        with:
+          arch: x64
+      - name: Install Boost
+        uses: MarkusJx/install-boost@v2.4.1
+        id: install-boost
+        with:
+          # A list of supported versions can be found here:
+          # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
+          boost_version: 1.81.0
+          # boost_install_dir: C:\some_directory
+          platform_version: 2019
+          toolset: msvc
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.2.*'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2019_64'
+          # dir: '${{ github.workspace }}/example/'
+          install-deps: 'true'
+          modules: 'qtcharts qtwebengine'
+          archives: 'qtbase qtsvg'
+          cache: 'false'
+          cache-key-prefix: 'install-qt-action'
+          setup-python: 'true'
+          tools: 'tools_ifw tools_qtcreator,qt.tools.qtcreator'
+          set-env: 'true'
+          tools-only: 'false'
+          aqtversion: '==2.1.*'
+          py7zrversion: '==0.19.*'
+          extra: '--external 7z'
+      - name: Setup Ninja
+        uses: ashutoshvarma/setup-ninja@master
+        with:
+          # ninja version to download. Default: 1.10.0
+          version: 1.10.0
+
+      - name: Build with CMake
+        uses:
+          - ashutoshvarma/action-cmake-build@master
+          - actions/checkout@v3
+        with:
+          build-dir: ${{ runner.workspace }}/build
+          cc: cl
+          cxx: cxx
+          configure-options: -G Ninja
+          build-type: Debug
