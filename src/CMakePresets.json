@@ -4,12 +4,12 @@
     {
       "name": "linux-default",
       "displayName": "Linux Debug",
-      "description": "Сделать целевой подсистему Windows для Linux (WSL) или удаленную систему Linux.",
+      "description": "Build on Windows for Linux Subsystem (WSL) or on remote Linux.",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "binaryDir": "${sourceDir}/../build/${presetName}",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/install/${presetName}"
       },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": { "hostOS": [ "Linux" ] },
@@ -19,16 +19,16 @@
     {
       "name": "windows-default",
       "displayName": "Windows x64 Debug",
-      "description": "Сделать целевой ОС Windows со средой разработки Visual Studio.",
+      "description": "Build on Windows OS with Visual Studio IDE.",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "binaryDir": "${sourceDir}/../build/${presetName}",
       "architecture": {
         "value": "x64",
         "strategy": "external"
       },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/../build/install/${presetName}",
         "BOOST_ROOT": "C:/boost_1_81_0",
         "BOOST_INCLUDEDIR": "C:/boost_1_81_0",
         "BOOST_LIBRARYDIR": "C:/boost_1_81_0/lib64-msvc-14.3"
