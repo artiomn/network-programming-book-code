@@ -18,10 +18,10 @@ jobs:
           username: artiomn
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - uses: actions/checkout@v3
-      - name: Build main build image
+      - name: Building main build image
         working-directory: ./src/docker_images/build_image
         run: ./build.sh -p
-      - name: Build Qt Creator image
+      - name: Building Qt Creator image
         working-directory: ./src/docker_images/qt_creator_image
         run: ./build.sh -p
 
