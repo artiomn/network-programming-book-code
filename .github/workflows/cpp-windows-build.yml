@@ -10,9 +10,9 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    working-directory: ./src
     steps:
       - uses: actions/checkout@v3
-      - working-directory: ./src
       - name: Setup MSVC
         uses: TheMrMilchmann/setup-msvc-dev@v2
         with:
@@ -52,7 +52,6 @@ jobs:
         with:
           # ninja version to download. Default: 1.10.0
           version: 1.10.0
-
       - name: Build with CMake
         uses: ashutoshvarma/action-cmake-build@master
         with:
