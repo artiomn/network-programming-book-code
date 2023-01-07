@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 
+
+add_subdirectory("boost_beast_coroutine_htpp_client")
+
 if (UNIX)
 # To build this lesson code on Windows, libraries must be installed manually.
     add_subdirectory("qt_broadcastsender")
