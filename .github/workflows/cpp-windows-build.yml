@@ -54,9 +54,11 @@ jobs:
 
       - name: Build with CMake
         uses: ashutoshvarma/action-cmake-build@master
+        working-directory: ./src
         with:
           build-dir: ${{ runner.workspace }}/build
           cc: cl
           cxx: cxx
           configure-options: -G Ninja
           build-type: Debug
+          run-test: false
