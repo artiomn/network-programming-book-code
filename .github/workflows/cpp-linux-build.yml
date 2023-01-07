@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'src/**/cpp/**'
+      - '.github/workflows/cpp-linux-build.yml'
       - '!src/docker_images/**'
 
 jobs:
