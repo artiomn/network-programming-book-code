@@ -64,8 +64,8 @@ jobs:
           source-dir: ./src
           cc: cl
           cxx: cl
-          configure-options: -DBoost_INCLUDE_DIR=${{steps.install-boost.outputs.BOOST_ROOT}}/include \
-             -DBoost_LIBRARY_DIRS=${{steps.install-boost.outputs.BOOST_ROOT}}/lib -DBoost_COMPILER=vc142 \
+          configure-options: -DBoost_INCLUDE_DIR=${{steps.install-boost.outputs.BOOST_ROOT}}/include\
+             -DBoost_LIBRARY_DIRS=${{steps.install-boost.outputs.BOOST_ROOT}}/lib -DBoost_COMPILER=vc142\
              -G Ninja
           build-type: Debug
           run-test: false
