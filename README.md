@@ -99,6 +99,19 @@ artiomn/nb-qt-creator-image
 **Не делайте каталог вида**: `~/Общедоступные/user/Пользователь\Артём/*Network Programming BOOK & Code*/本の宿題/Репозиторий?!/network-programming-book-code`.  
 Для **большинства сборок** - это верный путь к проблемам, о которых не знали авторы книги и разработчики CMake.
 
+<details>
+  <summary>Конкретно в этом каталоге тоже не собирается.</summary>
+<pre>
+~/Общедоступные/user/Пользователь\Артём/*Network Programming BOOK & Code*/本の宿題/Репозиторий?!/network-programming-book-code:master ✓ ➭ ./build.sh
+CMake Error: The source directory "/home/artiom/Общедоступные/user/Пользователь/Артём/*Network Programming BOOK & Code*/本の宿題/Репозиторий?!/network-programming-book-code/src" does not exist.
+Specify --help for usage, or press the help button on the CMake GUI.
+Error: /home/artiom/Общедоступные/user/Пользователь/Артём/*Network Programming BOOK & Code*/本の宿題/Репозиторий?!/network-programming-book-code/build is not a directory
+</pre>
+
+Но сборка в Docker-контейнере будет работать и отсюда.
+
+</details>
+
 Положите репозиторий в каталог с нормальным именем, например `~/projects/cpp-network-tasks`.
 
 Если вы уже собирали проект локально и хотите собрать его в Docker или, наоборот, собирали в Docker и хотите собрать локально, CMake выдаст ошибку, похожую на следующую:
