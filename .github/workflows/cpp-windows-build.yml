@@ -1,7 +1,8 @@
 name: Build C++ code for Windows
 
 on:
-  push:
+  - workflow_dispatch
+  - push:
     paths:
       - 'src/**/cpp/**'
       - '.github/workflows/cpp-windows-build.yml'
