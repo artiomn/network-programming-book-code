@@ -61,7 +61,7 @@ jobs:
           build-dir: ${{ runner.workspace }}/build
           source-dir: ./src
           cc: cl
-          cxx: cxx
+          cxx: cl
           configure-options: -G Ninja
           build-type: Debug
           run-test: false
