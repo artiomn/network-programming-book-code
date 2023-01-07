@@ -1,8 +1,8 @@
 name: Build C++ code for Linux
 
 on:
-  - workflow_dispatch
-  - push:
+  workflow_dispatch
+  push:
     paths:
       - 'src/**/cpp/**'
       - '.github/workflows/cpp-linux-build.yml'
