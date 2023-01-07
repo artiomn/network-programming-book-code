@@ -8,7 +8,7 @@ export CXX=g++
 
 ADD_OPTS=""
 
-if builtin type -P ninja &>/dev/null; then
+if whereis ninja >/dev/null; then
     echo "Using Ninja build..."
     ADD_OPTS="${ADD_OPTS} -GNinja"
 fi
