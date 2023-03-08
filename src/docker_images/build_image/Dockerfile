@@ -52,6 +52,7 @@ RUN apt-get update \
     python3-python-flask-jwt-extended \
     python3-pyx \
     python3-scapy \
+    python3-thrift \
     qt6-base-dev \
     rapidjson-dev \
     rsync \
@@ -62,6 +63,7 @@ RUN apt-get update \
     telnet \
     texlive-latex-base \
     tcpdump \
+    thrift-compiler \
     valgrind \
     vim \
 #    yggdrasil \
