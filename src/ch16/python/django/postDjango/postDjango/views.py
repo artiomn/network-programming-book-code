@@ -4,6 +4,8 @@ from django.shortcuts import render
 
 def index(request):
       return render(request, 'index.html')
+
+
 def validate(request):
    if request.method == 'POST':
       username= request.POST["user"]
