@@ -6,16 +6,16 @@ SCRIPT_PATH="$(cd -- "$SCRIPT_PATH" && pwd)"
 IMAGE_NAME=artiomn/nb-build-image
 ADD_PARAMS=""
 
-if [ "$1" == "--" ]; then
+if [ "$1" = "--" ]; then
     shift
-elif [ "$1" == "-q" ]; then
+elif [ "$1" = "-q" ]; then
     IMAGE_NAME=artiomn/nb-qt-creator-image
     shift
     ADD_PARAMS="-v ${SCRIPT_PATH}/user_config:/home/developer/.config"
     CMD="/usr/bin/qtcreator ${*}"
 fi
 
-if [ "$1" == "--" ]; then
+if [ "$1" = "--" ]; then
     shift
 fi
 
