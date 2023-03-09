@@ -13,7 +13,10 @@ find_package(Poco COMPONENTS Net REQUIRED)
 add_executable("${PROJECT_NAME}-dns-resolver" "dns_resolver.cpp")
 add_executable("${PROJECT_NAME}-client" "client.cpp")
 add_executable("${PROJECT_NAME}-server" "server.cpp")
+add_executable("${PROJECT_NAME}-http-client" "http_client.cpp")
+
 target_link_libraries("${PROJECT_NAME}-dns-resolver" PRIVATE Poco::Net)
 target_link_libraries("${PROJECT_NAME}-server" PRIVATE Poco::Net)
 target_link_libraries("${PROJECT_NAME}-client" PRIVATE Poco::Net)
+target_link_libraries("${PROJECT_NAME}-http-client" PRIVATE Poco::Net)
 
