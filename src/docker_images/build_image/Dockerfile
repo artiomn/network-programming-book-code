@@ -30,6 +30,7 @@ RUN apt-get update \
     libevent-2\* libevent-dev libev-dev libuv1-dev \
     libc-ares-dev \
     libpoco-dev \
+    libthrift-0.13.0 \
     libtorrent-dev \
     libtorrent-rasterbar-dev \
     less \
@@ -42,6 +43,8 @@ RUN apt-get update \
     protobuf-compiler \
     python \
     python3-cryptography \
+    python3-django \
+    python3-fastapi \
     python3-flask \
     python3-flask-api \
     python3-flasgger \
