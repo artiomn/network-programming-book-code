@@ -31,6 +31,7 @@ RUN apt-get update \
     libc-ares-dev \
     libpoco-dev \
     libthrift-0.13.0 \
+    libthrift-dev \
     libtorrent-dev \
     libtorrent-rasterbar-dev \
     less \
