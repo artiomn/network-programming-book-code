@@ -26,6 +26,12 @@ class PhoneServiceHandler : virtual public PhoneServiceIf {
   void findAll(std::vector<Phone> & _return) {
     // Your implementation goes here
     printf("findAll\n");
+    for (const auto &s : std::vector<std::string>{"123-456-789", "777-777"})
+    {
+        Phone phone;
+        phone.__set_number(s);
+        _return.push_back(phone);
+    }
   }
 
 };
