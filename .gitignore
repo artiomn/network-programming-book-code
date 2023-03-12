@@ -5,3 +5,4 @@ out
 cmake-build-*
 a.out
 *.ninja
+__pycache__
