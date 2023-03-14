@@ -14,17 +14,19 @@ on:
       - '.github/workflows/cpp-windows-build.yml'
       - '!src/docker_images/**'
 
+env:
+  VCPKG_INSTALL_ROOT: $(Build.SourcesDirectory)\vcpkg
+  VCPKG_ARCH: 'x64-windows'
+  BUILD_TOOLSET_VERSION: '142'
+  CMAKE_GENERATOR: 'Visual Studio 16 2019'
+
+
 #defaults:
 #  run:
 #    working-directory: ./src
 
 jobs:
   build:
-    variables:
-      VCPKG_INSTALL_ROOT: $(Build.SourcesDirectory)\vcpkg
-      VCPKG_ARCH: 'x64-windows'
-      BUILD_TOOLSET_VERSION: '142'
-      CMAKE_GENERATOR: 'Visual Studio 16 2019'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
