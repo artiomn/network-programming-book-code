@@ -15,7 +15,7 @@ on:
       - '!src/docker_images/**'
 
 env:
-  VCPKG_INSTALL_ROOT: $(Build.SourcesDirectory)\vcpkg
+  VCPKG_INSTALL_ROOT: $(Build.SourcesDirectory)/vcpkg
   VCPKG_ARCH: 'x64-windows'
   BUILD_TOOLSET_VERSION: '142'
   CMAKE_GENERATOR: 'Visual Studio 16 2019'
@@ -72,12 +72,12 @@ jobs:
       - name: Install vcpkg
         run: |
           git clone -q --depth 1 https://github.com/microsoft/vcpkg.git $(VCPKG_INSTALL_ROOT)
-          xcopy .\ports .\vcpkg\ports\ /S
-          $(VCPKG_INSTALL_ROOT)\bootstrap-vcpkg.bat
+          xcopy ./ports ./vcpkg/ports/ /S
+          $(VCPKG_INSTALL_ROOT)/bootstrap-vcpkg.bat
       - name: Install Apache Thrift
         run: |
-          $(VCPKG_INSTALL_ROOT)\vcpkg.exe install --recurse --triplet $(VCPKG_ARCH) thrift
-          $(VCPKG_INSTALL_ROOT)\vcpkg.exe integrate install
+          $(VCPKG_INSTALL_ROOT)/vcpkg.exe install --recurse --triplet $(VCPKG_ARCH) thrift
+          $(VCPKG_INSTALL_ROOT)/vcpkg.exe integrate install
       - name: Build with CMake
         uses: ashutoshvarma/action-cmake-build@master
         env:
