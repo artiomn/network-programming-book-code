@@ -73,7 +73,7 @@ jobs:
         run: |
           git clone -q --depth 1 https://github.com/microsoft/vcpkg.git $(VCPKG_INSTALL_ROOT)
           xcopy ./ports ./vcpkg/ports/ /S
-          $(VCPKG_INSTALL_ROOT)/bootstrap-vcpkg.bat
+          & $(VCPKG_INSTALL_ROOT)/bootstrap-vcpkg.bat
       - name: Install Apache Thrift
         run: |
           $(VCPKG_INSTALL_ROOT)/vcpkg.exe install --recurse --triplet $(VCPKG_ARCH) thrift
