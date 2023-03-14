@@ -1,6 +1,6 @@
 project("${CHAPTER_NAME}thrift-example" C CXX)
 
-find_program(THRIFT_COMPILER thrift)
+find_program(THRIFT_COMPILER thrift REQUIRED)
 find_package(ZLIB)
 
 # Make sure gen-cpp files can be included
@@ -34,4 +34,3 @@ if (ZLIB_FOUND)
   target_link_libraries("${PROJECT_NAME}_server" PRIVATE ZLIB::ZLIB)
   target_link_libraries("${PROJECT_NAME}_client" PRIVATE ZLIB::ZLIB)
 endif ()
-

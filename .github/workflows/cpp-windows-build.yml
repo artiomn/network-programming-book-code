@@ -20,6 +20,11 @@ on:
 
 jobs:
   build:
+    variables:
+      VCPKG_INSTALL_ROOT: $(Build.SourcesDirectory)\vcpkg
+      VCPKG_ARCH: 'x64-windows'
+      BUILD_TOOLSET_VERSION: '142'
+      CMAKE_GENERATOR: 'Visual Studio 16 2019'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -62,6 +67,15 @@ jobs:
         with:
           # ninja version to download. Default: 1.10.0
           version: 1.10.0
+      - script: |
+          git clone -q --depth 1 https://github.com/microsoft/vcpkg.git $(VCPKG_INSTALL_ROOT)
+          xcopy .\ports .\vcpkg\ports\ /S
+          $(VCPKG_INSTALL_ROOT)\bootstrap-vcpkg.bat
+        displayName: 'Install vcpkg'
+      - script: |
+          $(VCPKG_INSTALL_ROOT)\vcpkg.exe install --recurse --triplet $(VCPKG_ARCH) thrift
+          $(VCPKG_INSTALL_ROOT)\vcpkg.exe integrate install
+        displayName: 'Install Apache Thrift'
       - name: Build with CMake
         uses: ashutoshvarma/action-cmake-build@master
         env:
@@ -72,7 +86,7 @@ jobs:
           cc: cl
           cxx: cl
           configure-options: -DBoost_INCLUDE_DIR=${{steps.install-boost.outputs.BOOST_ROOT}}/include\
-             -DBoost_LIBRARY_DIRS=${{steps.install-boost.outputs.BOOST_ROOT}}/lib -DBoost_COMPILER=vc142\
+             -DBoost_LIBRARY_DIRS=${{steps.install-boost.outputs.BOOST_ROOT}}/lib -DBoost_COMPILER=vc$(BUILD_TOOLSET_VERSION) \
              -G Ninja
           build-type: Debug
           run-test: false
