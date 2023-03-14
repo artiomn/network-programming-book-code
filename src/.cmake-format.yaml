@@ -1,0 +1,13 @@
+format:
+  - line_width: 120
+  - tab_size: 4
+  - use_tabchars: false
+  # If true, separate flow control names from their parentheses with a space
+  - separate_ctrl_name_with_space: false
+  # If true, separate function names from parentheses with a space
+  - separate_fn_name_with_space: false
+
+lint:
+  # Invalid {:s} name “{:s}” doesn’t match {:s},
+  # Missing {:s} in statement which allows it.
+  - disabled_codes: ["C0103", "C0113"]

@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<suppressions>
+  <suppress>
+    <!-- Skip "unused members" in the interface structures -->
+    <id>unusedStructMember</id>
+    <fileName>src/include/*</fileName>
+  </suppress>
+</suppressions>
