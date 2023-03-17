@@ -1,0 +1,54 @@
+---
+BasedOnStyle: Google
+AccessModifierOffset: -4
+AlignAfterOpenBracket: AlwaysBreak
+AllowShortFunctionsOnASingleLine: Inline
+BreakBeforeBraces: Allman
+ColumnLimit: 120
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+IndentWidth: 4
+IndentPPDirectives: AfterHash
+MaxEmptyLinesToKeep: 2
+NamespaceIndentation: None
+SpaceInEmptyParentheses: false
+TabWidth: 4
+UseTab: Never
+
+IncludeBlocks: Regroup
+IncludeCategories:
+  # KNP headers in <>.
+  - Regex:           '<knp\/[[:alnum:]_.\/\-]+>'
+    SortPriority:    0
+    Priority:        2
+    CaseSensitive:   true
+  # Headers in <> with .h extension (system C headers).
+  - Regex:           '<[[:alnum:]_.\/\-]+\.h>'
+    SortPriority:    10
+    Priority:        10
+    CaseSensitive:   true
+  # Headers in <> without extension (system C++ headers).
+  - Regex:           '<[[:alnum:]_\/\-]+>'
+    SortPriority:    11
+    Priority:        11
+    CaseSensitive:   true
+  # Boost headers.
+  - Regex:           '<boost\/[[:alnum:]_.\/\-]+>'
+    SortPriority:    20
+    Priority:        20
+    CaseSensitive:   true
+  # Headers in <> with extension.
+  - Regex:           '<[[:alnum:]_.\/\-]+>'
+    SortPriority:    21
+    Priority:        21
+  # Headers in "" with extension.
+  - Regex:           '"[[:alnum:]_.\/\-]+"'
+    SortPriority:    22
+    Priority:        22
+    CaseSensitive:   true
+  # Other headers.
+  - Regex:           '.*'
+    SortPriority:    23
+    Priority:        23
+    CaseSensitive:   true
+SortIncludes: CaseSensitive
