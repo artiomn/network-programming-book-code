@@ -15,6 +15,9 @@ RUN apt-get update \
     capnproto \
     clang \
     cmake \
+    flatbuffers-compiler \
+    flatbuffers-compiler-dev \
+    libflatbuffers-dev \
     gdb \
     gdbserver \
     gosu \
@@ -51,6 +54,7 @@ RUN apt-get update \
     python3-flasgger \
     python3-flask-restful \
     python3-flask-sockets \
+    python3-flatbuffers \
     python3-matplotlib \
     python3-pip \
     python3-python-flask-jwt-extended \
