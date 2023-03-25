@@ -1,0 +1,14 @@
+struct Pos {
+	x: int;
+	y: int;
+	z: int;
+}
+
+table Data
+{
+    pos: Pos;
+    hp: float = 50;
+    name: string;
+}
+
+root_type Data;
