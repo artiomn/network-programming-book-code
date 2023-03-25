@@ -20,5 +20,5 @@ class Dispatcher:
         return PHONES_THRIFT.Phone(phone_id, str(phone_id), PHONES_THRIFT.PhoneType.OTHER)
 
 
-server = make_server(PHONES_THRIFT.PhoneService, Dispatcher, '127.0.0.1', 5000)
+server = make_server(PHONES_THRIFT.PhoneService, Dispatcher, '127.0.0.1', 9090)
 server.serve()
