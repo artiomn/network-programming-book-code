@@ -2,9 +2,9 @@
 
 
 import flatbuffers
-from MyGame import Color, Monster, Weapon, Vec3
+from MyGame import Color, Monster, Vec3, Weapon
 
-
+# mypy: disable-error-code = attr-defined
 builder = flatbuffers.Builder(0)
 
 sword_name = builder.CreateString('Sword')
@@ -42,4 +42,3 @@ builder.Finish(nessi_id)
 nessi = builder.Output()
 
 print(Monster.Monster.GetRootAsMonster(nessi).Name())
-
