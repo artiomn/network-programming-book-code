@@ -7,6 +7,6 @@ def get_scheme_file() -> Path:
     for _ in range(4):
         scheme_file = scheme_file.parent
 
-    scheme_file = scheme_file / 'cpp' / 'thrift' / 'phones.thrift'
+    scheme_file = scheme_file / 'thrift' / 'phones.thrift'
 
     return scheme_file.resolve()
