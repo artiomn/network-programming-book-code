@@ -21,7 +21,7 @@ add_custom_command(
     gen-cpp/PhoneService.h
     gen-cpp/phones_types.cpp
     gen-cpp/phones_types.h
-    COMMAND ${THRIFT_COMPILER} --gen cpp -r ${PROJECT_SOURCE_DIR}/phones.thrift
+    COMMAND ${THRIFT_COMPILER} --gen cpp -r ${PROJECT_SOURCE_DIR}/../../thrift/phones.thrift
 )
 
 add_executable("${PROJECT_NAME}_server" gen-cpp/PhoneService_server.skeleton.cpp)
