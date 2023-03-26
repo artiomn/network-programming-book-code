@@ -15,9 +15,6 @@ RUN apt-get update \
     capnproto \
     clang \
     cmake \
-    flatbuffers-compiler \
-    flatbuffers-compiler-dev \
-    libflatbuffers-dev \
     gdb \
     gdbserver \
     gosu \
@@ -28,6 +25,7 @@ RUN apt-get update \
     libglib2.0-dev \
     libgtk2.0-dev \
     libgtk-3-dev \
+    libgrpc++-dev \
     libpcap-dev \
     libplack-perl \
     libevent-2\* libevent-dev libev-dev libuv1-dev \
@@ -45,6 +43,7 @@ RUN apt-get update \
     net-tools \
     php-common libapache2-mod-php php-cli \
     protobuf-compiler \
+    protobuf-compiler-grpc \
     python \
     python3-cryptography \
     python3-django \
@@ -55,6 +54,7 @@ RUN apt-get update \
     python3-flask-restful \
     python3-flask-sockets \
     python3-flatbuffers \
+    python3-grpcio \
     python3-matplotlib \
     python3-pip \
     python3-python-flask-jwt-extended \
@@ -77,6 +77,14 @@ RUN apt-get update \
 #    yggdrasil \
   && systemctl disable apache2 \
   && systemctl disable nginx \
+  && git clone --recursive --depth 1 https://github.com/google/flatbuffers \
+  && cd flatbuffers \
+  && cmake \
+    -DCMAKE_BUILD_TYPE=Release -B build \
+  && cmake --build build --parallel \
+  && cmake --install build --prefix "/usr/local" \
+  && cd / \
+  && rm -rf flatbuffers \
   && git clone --recursive --depth 1 https://github.com/pistacheio/pistache \
   && cd pistache \
 #  && cmake \
@@ -142,7 +150,7 @@ RUN apt-get update \
   && cmake --install . --prefix "/usr/local" \
   && cd / \
   && rm -rf tgbot-cpp \
-  && pip3 install thriftpy2 \
+  && pip3 install thriftpy2 flatbuffers \
   && ldconfig \
   && apt-get clean
 
