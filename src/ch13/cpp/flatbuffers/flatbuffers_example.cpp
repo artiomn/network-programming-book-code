@@ -32,7 +32,7 @@ int main(int /*argc*/, const char* /*argv*/[])
     auto inventory = builder.CreateVector(inv_data, 10);
 
     // Shortcut for creating monster with all fields set:
-    auto monster = MyGame::CreateMonster(builder, &position, 150, 80, name, inventory, Color_Red);
+    auto monster = MyGame::CreateMonster(builder, &position, 150, 80, name, inventory, MyGame::Color_Red);
 
     builder.Finish(monster);  // Serialize the root of the object.
 
