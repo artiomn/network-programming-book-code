@@ -8,12 +8,12 @@
 
 // Ensure the included flatbuffers.h is the same version as when this file was
 // generated, otherwise it may not be compatible.
-static_assert(FLATBUFFERS_VERSION_MAJOR == 23 &&
-              FLATBUFFERS_VERSION_MINOR == 3 &&
-              FLATBUFFERS_VERSION_REVISION == 3,
-             "Non-compatible flatbuffers version included");
+static_assert(
+    FLATBUFFERS_VERSION_MAJOR == 23 && FLATBUFFERS_VERSION_MINOR == 3 && FLATBUFFERS_VERSION_REVISION == 3,
+    "Non-compatible flatbuffers version included");
 
-namespace MyGame {
+namespace MyGame
+{
 
 struct Vec3;
 
@@ -23,389 +23,345 @@ struct MonsterBuilder;
 struct Weapon;
 struct WeaponBuilder;
 
-enum Color : int8_t {
-  Color_Red = 1,
-  Color_Green = 2,
-  Color_Blue = 3,
-  Color_MIN = Color_Red,
-  Color_MAX = Color_Blue
+enum Color : int8_t
+{
+    Color_Red = 1,
+    Color_Green = 2,
+    Color_Blue = 3,
+    Color_MIN = Color_Red,
+    Color_MAX = Color_Blue
 };
 
-inline const Color (&EnumValuesColor())[3] {
-  static const Color values[] = {
-    Color_Red,
-    Color_Green,
-    Color_Blue
-  };
-  return values;
+inline const Color (&EnumValuesColor())[3]
+{
+    static const Color values[] = {Color_Red, Color_Green, Color_Blue};
+    return values;
 }
 
-inline const char * const *EnumNamesColor() {
-  static const char * const names[4] = {
-    "Red",
-    "Green",
-    "Blue",
-    nullptr
-  };
-  return names;
+inline const char *const *EnumNamesColor()
+{
+    static const char *const names[4] = {"Red", "Green", "Blue", nullptr};
+    return names;
 }
 
-inline const char *EnumNameColor(Color e) {
-  if (::flatbuffers::IsOutRange(e, Color_Red, Color_Blue)) return "";
-  const size_t index = static_cast<size_t>(e) - static_cast<size_t>(Color_Red);
-  return EnumNamesColor()[index];
+inline const char *EnumNameColor(Color e)
+{
+    if (::flatbuffers::IsOutRange(e, Color_Red, Color_Blue)) return "";
+    const size_t index = static_cast<size_t>(e) - static_cast<size_t>(Color_Red);
+    return EnumNamesColor()[index];
 }
 
-enum Any : uint8_t {
-  Any_NONE = 0,
-  Any_Monster = 1,
-  Any_Weapon = 2,
-  Any_MIN = Any_NONE,
-  Any_MAX = Any_Weapon
+enum Any : uint8_t
+{
+    Any_NONE = 0,
+    Any_Monster = 1,
+    Any_Weapon = 2,
+    Any_MIN = Any_NONE,
+    Any_MAX = Any_Weapon
 };
 
-inline const Any (&EnumValuesAny())[3] {
-  static const Any values[] = {
-    Any_NONE,
-    Any_Monster,
-    Any_Weapon
-  };
-  return values;
+inline const Any (&EnumValuesAny())[3]
+{
+    static const Any values[] = {Any_NONE, Any_Monster, Any_Weapon};
+    return values;
 }
 
-inline const char * const *EnumNamesAny() {
-  static const char * const names[4] = {
-    "NONE",
-    "Monster",
-    "Weapon",
-    nullptr
-  };
-  return names;
+inline const char *const *EnumNamesAny()
+{
+    static const char *const names[4] = {"NONE", "Monster", "Weapon", nullptr};
+    return names;
 }
 
-inline const char *EnumNameAny(Any e) {
-  if (::flatbuffers::IsOutRange(e, Any_NONE, Any_Weapon)) return "";
-  const size_t index = static_cast<size_t>(e);
-  return EnumNamesAny()[index];
+inline const char *EnumNameAny(Any e)
+{
+    if (::flatbuffers::IsOutRange(e, Any_NONE, Any_Weapon)) return "";
+    const size_t index = static_cast<size_t>(e);
+    return EnumNamesAny()[index];
 }
 
-template<typename T> struct AnyTraits {
-  static const Any enum_value = Any_NONE;
+template <typename T>
+struct AnyTraits
+{
+    static const Any enum_value = Any_NONE;
 };
 
-template<> struct AnyTraits<MyGame::Monster> {
-  static const Any enum_value = Any_Monster;
+template <>
+struct AnyTraits<MyGame::Monster>
+{
+    static const Any enum_value = Any_Monster;
 };
 
-template<> struct AnyTraits<MyGame::Weapon> {
-  static const Any enum_value = Any_Weapon;
+template <>
+struct AnyTraits<MyGame::Weapon>
+{
+    static const Any enum_value = Any_Weapon;
 };
 
 bool VerifyAny(::flatbuffers::Verifier &verifier, const void *obj, Any type);
-bool VerifyAnyVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
+bool VerifyAnyVector(
+    ::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values,
+    const ::flatbuffers::Vector<uint8_t> *types);
 
-FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Vec3 FLATBUFFERS_FINAL_CLASS {
- private:
-  float x_;
-  float y_;
-  float z_;
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Vec3 FLATBUFFERS_FINAL_CLASS
+{
+private:
+    float x_;
+    float y_;
+    float z_;
 
- public:
-  Vec3()
-      : x_(0),
-        y_(0),
-        z_(0) {
-  }
-  Vec3(float _x, float _y, float _z)
-      : x_(::flatbuffers::EndianScalar(_x)),
-        y_(::flatbuffers::EndianScalar(_y)),
-        z_(::flatbuffers::EndianScalar(_z)) {
-  }
-  float x() const {
-    return ::flatbuffers::EndianScalar(x_);
-  }
-  float y() const {
-    return ::flatbuffers::EndianScalar(y_);
-  }
-  float z() const {
-    return ::flatbuffers::EndianScalar(z_);
-  }
+public:
+    Vec3() : x_(0), y_(0), z_(0) {}
+    Vec3(float _x, float _y, float _z)
+        : x_(::flatbuffers::EndianScalar(_x)), y_(::flatbuffers::EndianScalar(_y)), z_(::flatbuffers::EndianScalar(_z))
+    {
+    }
+    float x() const
+    {
+        return ::flatbuffers::EndianScalar(x_);
+    }
+    float y() const
+    {
+        return ::flatbuffers::EndianScalar(y_);
+    }
+    float z() const
+    {
+        return ::flatbuffers::EndianScalar(z_);
+    }
 };
 FLATBUFFERS_STRUCT_END(Vec3, 12);
 
-struct Monster FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef MonsterBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_POS = 4,
-    VT_MANA = 6,
-    VT_HP = 8,
-    VT_NAME = 10,
-    VT_INVENTORY = 14,
-    VT_COLOR = 16,
-    VT_TEST_TYPE = 18,
-    VT_TEST = 20
-  };
-  const MyGame::Vec3 *pos() const {
-    return GetStruct<const MyGame::Vec3 *>(VT_POS);
-  }
-  int16_t mana() const {
-    return GetField<int16_t>(VT_MANA, 150);
-  }
-  int16_t hp() const {
-    return GetField<int16_t>(VT_HP, 100);
-  }
-  const ::flatbuffers::String *name() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
-  }
-  const ::flatbuffers::Vector<uint8_t> *inventory() const {
-    return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_INVENTORY);
-  }
-  MyGame::Color color() const {
-    return static_cast<MyGame::Color>(GetField<int8_t>(VT_COLOR, 3));
-  }
-  MyGame::Any test_type() const {
-    return static_cast<MyGame::Any>(GetField<uint8_t>(VT_TEST_TYPE, 0));
-  }
-  const void *test() const {
-    return GetPointer<const void *>(VT_TEST);
-  }
-  template<typename T> const T *test_as() const;
-  const MyGame::Monster *test_as_Monster() const {
-    return test_type() == MyGame::Any_Monster ? static_cast<const MyGame::Monster *>(test()) : nullptr;
-  }
-  const MyGame::Weapon *test_as_Weapon() const {
-    return test_type() == MyGame::Any_Weapon ? static_cast<const MyGame::Weapon *>(test()) : nullptr;
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<MyGame::Vec3>(verifier, VT_POS, 4) &&
-           VerifyField<int16_t>(verifier, VT_MANA, 2) &&
-           VerifyField<int16_t>(verifier, VT_HP, 2) &&
-           VerifyOffset(verifier, VT_NAME) &&
-           verifier.VerifyString(name()) &&
-           VerifyOffset(verifier, VT_INVENTORY) &&
-           verifier.VerifyVector(inventory()) &&
-           VerifyField<int8_t>(verifier, VT_COLOR, 1) &&
-           VerifyField<uint8_t>(verifier, VT_TEST_TYPE, 1) &&
-           VerifyOffset(verifier, VT_TEST) &&
-           VerifyAny(verifier, test(), test_type()) &&
-           verifier.EndTable();
-  }
+struct Monster FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table
+{
+    typedef MonsterBuilder Builder;
+    enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE
+    {
+        VT_POS = 4,
+        VT_MANA = 6,
+        VT_HP = 8,
+        VT_NAME = 10,
+        VT_INVENTORY = 14,
+        VT_COLOR = 16,
+        VT_TEST_TYPE = 18,
+        VT_TEST = 20
+    };
+    const MyGame::Vec3 *pos() const { return GetStruct<const MyGame::Vec3 *>(VT_POS); }
+    int16_t mana() const { return GetField<int16_t>(VT_MANA, 150); }
+    int16_t hp() const { return GetField<int16_t>(VT_HP, 100); }
+    const ::flatbuffers::String *name() const { return GetPointer<const ::flatbuffers::String *>(VT_NAME); }
+    const ::flatbuffers::Vector<uint8_t> *inventory() const
+    {
+        return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_INVENTORY);
+    }
+    MyGame::Color color() const { return static_cast<MyGame::Color>(GetField<int8_t>(VT_COLOR, 3)); }
+    MyGame::Any test_type() const { return static_cast<MyGame::Any>(GetField<uint8_t>(VT_TEST_TYPE, 0)); }
+    const void *test() const { return GetPointer<const void *>(VT_TEST); }
+    template <typename T>
+    const T *test_as() const;
+    const MyGame::Monster *test_as_Monster() const
+    {
+        return test_type() == MyGame::Any_Monster ? static_cast<const MyGame::Monster *>(test()) : nullptr;
+    }
+    const MyGame::Weapon *test_as_Weapon() const
+    {
+        return test_type() == MyGame::Any_Weapon ? static_cast<const MyGame::Weapon *>(test()) : nullptr;
+    }
+    bool Verify(::flatbuffers::Verifier &verifier) const
+    {
+        return VerifyTableStart(verifier) && VerifyField<MyGame::Vec3>(verifier, VT_POS, 4) &&
+               VerifyField<int16_t>(verifier, VT_MANA, 2) && VerifyField<int16_t>(verifier, VT_HP, 2) &&
+               VerifyOffset(verifier, VT_NAME) && verifier.VerifyString(name()) &&
+               VerifyOffset(verifier, VT_INVENTORY) && verifier.VerifyVector(inventory()) &&
+               VerifyField<int8_t>(verifier, VT_COLOR, 1) && VerifyField<uint8_t>(verifier, VT_TEST_TYPE, 1) &&
+               VerifyOffset(verifier, VT_TEST) && VerifyAny(verifier, test(), test_type()) && verifier.EndTable();
+    }
 };
 
-template<> inline const MyGame::Monster *Monster::test_as<MyGame::Monster>() const {
-  return test_as_Monster();
+template <>
+inline const MyGame::Monster *Monster::test_as<MyGame::Monster>() const
+{
+    return test_as_Monster();
 }
 
-template<> inline const MyGame::Weapon *Monster::test_as<MyGame::Weapon>() const {
-  return test_as_Weapon();
+template <>
+inline const MyGame::Weapon *Monster::test_as<MyGame::Weapon>() const
+{
+    return test_as_Weapon();
 }
 
-struct MonsterBuilder {
-  typedef Monster Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_pos(const MyGame::Vec3 *pos) {
-    fbb_.AddStruct(Monster::VT_POS, pos);
-  }
-  void add_mana(int16_t mana) {
-    fbb_.AddElement<int16_t>(Monster::VT_MANA, mana, 150);
-  }
-  void add_hp(int16_t hp) {
-    fbb_.AddElement<int16_t>(Monster::VT_HP, hp, 100);
-  }
-  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
-    fbb_.AddOffset(Monster::VT_NAME, name);
-  }
-  void add_inventory(::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> inventory) {
-    fbb_.AddOffset(Monster::VT_INVENTORY, inventory);
-  }
-  void add_color(MyGame::Color color) {
-    fbb_.AddElement<int8_t>(Monster::VT_COLOR, static_cast<int8_t>(color), 3);
-  }
-  void add_test_type(MyGame::Any test_type) {
-    fbb_.AddElement<uint8_t>(Monster::VT_TEST_TYPE, static_cast<uint8_t>(test_type), 0);
-  }
-  void add_test(::flatbuffers::Offset<void> test) {
-    fbb_.AddOffset(Monster::VT_TEST, test);
-  }
-  explicit MonsterBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<Monster> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<Monster>(end);
-    return o;
-  }
+struct MonsterBuilder
+{
+    typedef Monster Table;
+    ::flatbuffers::FlatBufferBuilder &fbb_;
+    ::flatbuffers::uoffset_t start_;
+    void add_pos(const MyGame::Vec3 *pos) { fbb_.AddStruct(Monster::VT_POS, pos); }
+    void add_mana(int16_t mana) { fbb_.AddElement<int16_t>(Monster::VT_MANA, mana, 150); }
+    void add_hp(int16_t hp) { fbb_.AddElement<int16_t>(Monster::VT_HP, hp, 100); }
+    void add_name(::flatbuffers::Offset<::flatbuffers::String> name) { fbb_.AddOffset(Monster::VT_NAME, name); }
+    void add_inventory(::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> inventory)
+    {
+        fbb_.AddOffset(Monster::VT_INVENTORY, inventory);
+    }
+    void add_color(MyGame::Color color) { fbb_.AddElement<int8_t>(Monster::VT_COLOR, static_cast<int8_t>(color), 3); }
+    void add_test_type(MyGame::Any test_type)
+    {
+        fbb_.AddElement<uint8_t>(Monster::VT_TEST_TYPE, static_cast<uint8_t>(test_type), 0);
+    }
+    void add_test(::flatbuffers::Offset<void> test) { fbb_.AddOffset(Monster::VT_TEST, test); }
+    explicit MonsterBuilder(::flatbuffers::FlatBufferBuilder &_fbb) : fbb_(_fbb) { start_ = fbb_.StartTable(); }
+    ::flatbuffers::Offset<Monster> Finish()
+    {
+        const auto end = fbb_.EndTable(start_);
+        auto o = ::flatbuffers::Offset<Monster>(end);
+        return o;
+    }
 };
 
 inline ::flatbuffers::Offset<Monster> CreateMonster(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    const MyGame::Vec3 *pos = nullptr,
-    int16_t mana = 150,
-    int16_t hp = 100,
+    ::flatbuffers::FlatBufferBuilder &_fbb, const MyGame::Vec3 *pos = nullptr, int16_t mana = 150, int16_t hp = 100,
     ::flatbuffers::Offset<::flatbuffers::String> name = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> inventory = 0,
-    MyGame::Color color = MyGame::Color_Blue,
-    MyGame::Any test_type = MyGame::Any_NONE,
-    ::flatbuffers::Offset<void> test = 0) {
-  MonsterBuilder builder_(_fbb);
-  builder_.add_test(test);
-  builder_.add_inventory(inventory);
-  builder_.add_name(name);
-  builder_.add_pos(pos);
-  builder_.add_hp(hp);
-  builder_.add_mana(mana);
-  builder_.add_test_type(test_type);
-  builder_.add_color(color);
-  return builder_.Finish();
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> inventory = 0, MyGame::Color color = MyGame::Color_Blue,
+    MyGame::Any test_type = MyGame::Any_NONE, ::flatbuffers::Offset<void> test = 0)
+{
+    MonsterBuilder builder_(_fbb);
+    builder_.add_test(test);
+    builder_.add_inventory(inventory);
+    builder_.add_name(name);
+    builder_.add_pos(pos);
+    builder_.add_hp(hp);
+    builder_.add_mana(mana);
+    builder_.add_test_type(test_type);
+    builder_.add_color(color);
+    return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<Monster> CreateMonsterDirect(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    const MyGame::Vec3 *pos = nullptr,
-    int16_t mana = 150,
-    int16_t hp = 100,
-    const char *name = nullptr,
-    const std::vector<uint8_t> *inventory = nullptr,
-    MyGame::Color color = MyGame::Color_Blue,
-    MyGame::Any test_type = MyGame::Any_NONE,
-    ::flatbuffers::Offset<void> test = 0) {
-  auto name__ = name ? _fbb.CreateString(name) : 0;
-  auto inventory__ = inventory ? _fbb.CreateVector<uint8_t>(*inventory) : 0;
-  return MyGame::CreateMonster(
-      _fbb,
-      pos,
-      mana,
-      hp,
-      name__,
-      inventory__,
-      color,
-      test_type,
-      test);
+    ::flatbuffers::FlatBufferBuilder &_fbb, const MyGame::Vec3 *pos = nullptr, int16_t mana = 150, int16_t hp = 100,
+    const char *name = nullptr, const std::vector<uint8_t> *inventory = nullptr,
+    MyGame::Color color = MyGame::Color_Blue, MyGame::Any test_type = MyGame::Any_NONE,
+    ::flatbuffers::Offset<void> test = 0)
+{
+    auto name__ = name ? _fbb.CreateString(name) : 0;
+    auto inventory__ = inventory ? _fbb.CreateVector<uint8_t>(*inventory) : 0;
+    return MyGame::CreateMonster(_fbb, pos, mana, hp, name__, inventory__, color, test_type, test);
 }
 
-struct Weapon FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef WeaponBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_NAME = 4,
-    VT_DAMAGE = 6
-  };
-  const ::flatbuffers::String *name() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
-  }
-  int16_t damage() const {
-    return GetField<int16_t>(VT_DAMAGE, 0);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_NAME) &&
-           verifier.VerifyString(name()) &&
-           VerifyField<int16_t>(verifier, VT_DAMAGE, 2) &&
-           verifier.EndTable();
-  }
+struct Weapon FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table
+{
+    typedef WeaponBuilder Builder;
+    enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE
+    {
+        VT_NAME = 4,
+        VT_DAMAGE = 6
+    };
+    const ::flatbuffers::String *name() const { return GetPointer<const ::flatbuffers::String *>(VT_NAME); }
+    int16_t damage() const { return GetField<int16_t>(VT_DAMAGE, 0); }
+    bool Verify(::flatbuffers::Verifier &verifier) const
+    {
+        return VerifyTableStart(verifier) && VerifyOffset(verifier, VT_NAME) && verifier.VerifyString(name()) &&
+               VerifyField<int16_t>(verifier, VT_DAMAGE, 2) && verifier.EndTable();
+    }
 };
 
-struct WeaponBuilder {
-  typedef Weapon Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
-    fbb_.AddOffset(Weapon::VT_NAME, name);
-  }
-  void add_damage(int16_t damage) {
-    fbb_.AddElement<int16_t>(Weapon::VT_DAMAGE, damage, 0);
-  }
-  explicit WeaponBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<Weapon> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<Weapon>(end);
-    return o;
-  }
+struct WeaponBuilder
+{
+    typedef Weapon Table;
+    ::flatbuffers::FlatBufferBuilder &fbb_;
+    ::flatbuffers::uoffset_t start_;
+    void add_name(::flatbuffers::Offset<::flatbuffers::String> name) { fbb_.AddOffset(Weapon::VT_NAME, name); }
+    void add_damage(int16_t damage) { fbb_.AddElement<int16_t>(Weapon::VT_DAMAGE, damage, 0); }
+    explicit WeaponBuilder(::flatbuffers::FlatBufferBuilder &_fbb) : fbb_(_fbb) { start_ = fbb_.StartTable(); }
+    ::flatbuffers::Offset<Weapon> Finish()
+    {
+        const auto end = fbb_.EndTable(start_);
+        auto o = ::flatbuffers::Offset<Weapon>(end);
+        return o;
+    }
 };
 
 inline ::flatbuffers::Offset<Weapon> CreateWeapon(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
-    int16_t damage = 0) {
-  WeaponBuilder builder_(_fbb);
-  builder_.add_name(name);
-  builder_.add_damage(damage);
-  return builder_.Finish();
+    ::flatbuffers::FlatBufferBuilder &_fbb, ::flatbuffers::Offset<::flatbuffers::String> name = 0, int16_t damage = 0)
+{
+    WeaponBuilder builder_(_fbb);
+    builder_.add_name(name);
+    builder_.add_damage(damage);
+    return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<Weapon> CreateWeaponDirect(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    const char *name = nullptr,
-    int16_t damage = 0) {
-  auto name__ = name ? _fbb.CreateString(name) : 0;
-  return MyGame::CreateWeapon(
-      _fbb,
-      name__,
-      damage);
+    ::flatbuffers::FlatBufferBuilder &_fbb, const char *name = nullptr, int16_t damage = 0)
+{
+    auto name__ = name ? _fbb.CreateString(name) : 0;
+    return MyGame::CreateWeapon(_fbb, name__, damage);
 }
 
-inline bool VerifyAny(::flatbuffers::Verifier &verifier, const void *obj, Any type) {
-  switch (type) {
-    case Any_NONE: {
-      return true;
+inline bool VerifyAny(::flatbuffers::Verifier &verifier, const void *obj, Any type)
+{
+    switch (type)
+    {
+        case Any_NONE:
+        {
+            return true;
+        }
+        case Any_Monster:
+        {
+            auto ptr = reinterpret_cast<const MyGame::Monster *>(obj);
+            return verifier.VerifyTable(ptr);
+        }
+        case Any_Weapon:
+        {
+            auto ptr = reinterpret_cast<const MyGame::Weapon *>(obj);
+            return verifier.VerifyTable(ptr);
+        }
+        default:
+            return true;
     }
-    case Any_Monster: {
-      auto ptr = reinterpret_cast<const MyGame::Monster *>(obj);
-      return verifier.VerifyTable(ptr);
+}
+
+inline bool VerifyAnyVector(
+    ::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values,
+    const ::flatbuffers::Vector<uint8_t> *types)
+{
+    if (!values || !types) return !values && !types;
+    if (values->size() != types->size()) return false;
+    for (::flatbuffers::uoffset_t i = 0; i < values->size(); ++i)
+    {
+        if (!VerifyAny(verifier, values->Get(i), types->GetEnum<Any>(i)))
+        {
+            return false;
+        }
     }
-    case Any_Weapon: {
-      auto ptr = reinterpret_cast<const MyGame::Weapon *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    default: return true;
-  }
+    return true;
 }
 
-inline bool VerifyAnyVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
-  if (!values || !types) return !values && !types;
-  if (values->size() != types->size()) return false;
-  for (::flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
-    if (!VerifyAny(
-        verifier,  values->Get(i), types->GetEnum<Any>(i))) {
-      return false;
-    }
-  }
-  return true;
+inline const MyGame::Monster *GetMonster(const void *buf)
+{
+    return ::flatbuffers::GetRoot<MyGame::Monster>(buf);
 }
 
-inline const MyGame::Monster *GetMonster(const void *buf) {
-  return ::flatbuffers::GetRoot<MyGame::Monster>(buf);
+inline const MyGame::Monster *GetSizePrefixedMonster(const void *buf)
+{
+    return ::flatbuffers::GetSizePrefixedRoot<MyGame::Monster>(buf);
 }
 
-inline const MyGame::Monster *GetSizePrefixedMonster(const void *buf) {
-  return ::flatbuffers::GetSizePrefixedRoot<MyGame::Monster>(buf);
+inline bool VerifyMonsterBuffer(::flatbuffers::Verifier &verifier)
+{
+    return verifier.VerifyBuffer<MyGame::Monster>(nullptr);
 }
 
-inline bool VerifyMonsterBuffer(
-    ::flatbuffers::Verifier &verifier) {
-  return verifier.VerifyBuffer<MyGame::Monster>(nullptr);
+inline bool VerifySizePrefixedMonsterBuffer(::flatbuffers::Verifier &verifier)
+{
+    return verifier.VerifySizePrefixedBuffer<MyGame::Monster>(nullptr);
 }
 
-inline bool VerifySizePrefixedMonsterBuffer(
-    ::flatbuffers::Verifier &verifier) {
-  return verifier.VerifySizePrefixedBuffer<MyGame::Monster>(nullptr);
-}
-
-inline void FinishMonsterBuffer(
-    ::flatbuffers::FlatBufferBuilder &fbb,
-    ::flatbuffers::Offset<MyGame::Monster> root) {
-  fbb.Finish(root);
+inline void FinishMonsterBuffer(::flatbuffers::FlatBufferBuilder &fbb, ::flatbuffers::Offset<MyGame::Monster> root)
+{
+    fbb.Finish(root);
 }
 
 inline void FinishSizePrefixedMonsterBuffer(
-    ::flatbuffers::FlatBufferBuilder &fbb,
-    ::flatbuffers::Offset<MyGame::Monster> root) {
-  fbb.FinishSizePrefixed(root);
+    ::flatbuffers::FlatBufferBuilder &fbb, ::flatbuffers::Offset<MyGame::Monster> root)
+{
+    fbb.FinishSizePrefixed(root);
 }
 
 }  // namespace MyGame
