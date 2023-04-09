@@ -12,4 +12,3 @@ if(WIN32)
 else()
     target_link_libraries("${PROJECT_NAME}" PRIVATE pthread)
 endif()
-

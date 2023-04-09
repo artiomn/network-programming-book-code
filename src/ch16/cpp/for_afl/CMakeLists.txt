@@ -13,7 +13,6 @@ endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_subdirectory(../../socket_wrapper socket_wrapper)
-add_subdirectory(../../l2/incorrect_udp_client udp_client)
-add_subdirectory(../../l3/tcp_client tcp_client)
-
+add_subdirectory(../../../socket_wrapper socket_wrapper)
+add_subdirectory(../../../ch08/cpp/incorrect_udp_client udp_client)
+add_subdirectory(../../../ch03/cpp/tcp_client tcp_client)
