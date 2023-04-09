@@ -39,4 +39,3 @@ target_link_libraries("${PROJECT_NAME}" PRIVATE
     OpenSSL::SSL OpenSSL::Crypto
     "${TG_BOT}" ${CMAKE_THREAD_LIBS_INIT}
     ${Boost_LIBRARIES} ${CURL_LIBRARIES})
-

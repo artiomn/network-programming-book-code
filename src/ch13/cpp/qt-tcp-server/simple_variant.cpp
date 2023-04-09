@@ -1,11 +1,10 @@
+#include <QDebug>
+#include <QObject>
+#include <QTcpServer>
+#include <QTcpSocket>
 #include <iostream>
 #include <memory>
 #include <string>
-
-#include <QObject>
-#include <QDebug>
-#include <QTcpSocket>
-#include <QTcpServer>
 
 
 int main(int argc, char *argv[])
@@ -21,34 +20,27 @@ int main(int argc, char *argv[])
     auto server{std::make_unique<QTcpServer>()};
 
     // When user connects, signal will be emitted.
-    QObject::connect(server.get(), &QTcpServer::newConnection, [&server]()
-    {
-        QTcpSocket *client_socket = server->nextPendingConnection();
-
-        qDebug()
-            << "New connection from"
-            << client_socket->peerAddress() << ":"
-            << client_socket->peerPort();
-
-        client_socket->write("Qt TCP server\r\n");
-        client_socket->flush();
-
-        QObject::connect(client_socket, &QTcpSocket::readyRead, [client_socket]()
+    QObject::connect(
+        server.get(), &QTcpServer::newConnection,
+        [&server]()
         {
-            qDebug()
-               << "Client send data:"
-               << client_socket->readLine();
+            QTcpSocket *client_socket = server->nextPendingConnection();
+
+            qDebug() << "New connection from" << client_socket->peerAddress() << ":" << client_socket->peerPort();
+
+            client_socket->write("Qt TCP server\r\n");
+            client_socket->flush();
+
+            QObject::connect(
+                client_socket, &QTcpSocket::readyRead,
+                [client_socket]() { qDebug() << "Client send data:" << client_socket->readLine(); });
+
+            client_socket->waitForReadyRead(10000);
+
+            qDebug() << "Close connection" << client_socket->peerAddress() << ":" << client_socket->peerPort();
+
+            client_socket->close();
         });
-
-        client_socket->waitForReadyRead(10000);
-
-        qDebug()
-            << "Close connection"
-            << client_socket->peerAddress() << ":"
-            << client_socket->peerPort();
-
-        client_socket->close();
-    });
 
     if (!server->listen(QHostAddress::Any, port))
     {

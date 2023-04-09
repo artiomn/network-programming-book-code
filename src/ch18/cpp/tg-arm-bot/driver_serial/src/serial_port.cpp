@@ -1,13 +1,13 @@
 #include "serial_port.hpp"
 
- #include <oatpp/core/base/Environment.hpp>
-
 #include <algorithm>
 #include <cerrno>
 #include <chrono>
 #include <cstring>
 #include <stdexcept>
 #include <thread>
+
+#include <oatpp/core/base/Environment.hpp>
 
 extern "C"
 {
@@ -26,7 +26,7 @@ void SerialPort::open()
     OATPP_LOGD(TAG, "Opening port...");
     // Open the serial port.
     port_descriptor_ = ::open(port_path_.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
-    //std::this_thread::sleep_for(123ms);
+    // std::this_thread::sleep_for(123ms);
 
     if (port_descriptor_ < 0)
     {
@@ -124,19 +124,19 @@ void SerialPort::set_parameters()
     tty.c_lflag &= ~XCASE;
     tty.c_lflag &= ~TOSTOP;
 
-/*
+    /*
 
-    // Prevent conversion of newline to carriage return/line feed.
-    tty.c_oflag &= ~ONLCR;
-    // Prevent conversion of tabs to spaces (NOT PRESENT ON LINUX).
-    // tty.c_oflag &= ~OXTABS;
-    // Prevent removal of C-d chars (0x004) in output (NOT PRESENT ON LINUX).
-    // tty.c_oflag &= ~ONOEOT;
+        // Prevent conversion of newline to carriage return/line feed.
+        tty.c_oflag &= ~ONLCR;
+        // Prevent conversion of tabs to spaces (NOT PRESENT ON LINUX).
+        // tty.c_oflag &= ~OXTABS;
+        // Prevent removal of C-d chars (0x004) in output (NOT PRESENT ON LINUX).
+        // tty.c_oflag &= ~ONOEOT;
 
-    // Wait for up to 1s (10 deciseconds), returning as soon as any data is received.
-    tty.c_cc[VTIME] = 10;
-    tty.c_cc[VMIN] = 0;
-*/
+        // Wait for up to 1s (10 deciseconds), returning as soon as any data is received.
+        tty.c_cc[VTIME] = 10;
+        tty.c_cc[VMIN] = 0;
+    */
     // Set in/out baud rate.
     cfsetispeed(&tty, B9600);
     cfsetospeed(&tty, B9600);
@@ -175,7 +175,7 @@ int SerialPort::write(const std::string &s)
     {
         if ((bytes_count = ::write(port_descriptor_, req_buffer + req_pos, req_length - req_pos)) < 0)
         {
-//            if (EINTR == errno) continue;
+            //            if (EINTR == errno) continue;
             throw std::runtime_error(std::string("write: ") + strerror(errno));
         }
         else
@@ -223,4 +223,3 @@ std::string SerialPort::read()
 
     return read_buf;
 }
-

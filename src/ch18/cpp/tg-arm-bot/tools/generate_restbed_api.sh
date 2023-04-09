@@ -15,4 +15,3 @@ if [ ! -d "${OUTPUT_DIR}" ]; then
 fi
 
 java -jar "${SCRIPT_PATH}/openapi-generator-cli.jar" generate -i "${API_FILE}" -g cpp-restbed-server -o "${OUTPUT_DIR}"
-

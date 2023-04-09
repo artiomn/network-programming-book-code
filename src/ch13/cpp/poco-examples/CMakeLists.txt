@@ -19,4 +19,3 @@ target_link_libraries("${PROJECT_NAME}-dns-resolver" PRIVATE Poco::Net)
 target_link_libraries("${PROJECT_NAME}-server" PRIVATE Poco::Net)
 target_link_libraries("${PROJECT_NAME}-client" PRIVATE Poco::Net)
 target_link_libraries("${PROJECT_NAME}-http-client" PRIVATE Poco::Net)
-

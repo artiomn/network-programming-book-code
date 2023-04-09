@@ -8,4 +8,3 @@ SOURCES       = receiver.cpp \
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/network/broadcastreceiver
 INSTALLS += target
-

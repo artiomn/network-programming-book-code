@@ -113,4 +113,3 @@ void run_web_server(int port,
                     std::shared_ptr<DevicesResource> devices,
                     std::shared_ptr<DeviceInfoResource> device_info,
                     std::shared_ptr<DeviceStateResource> device_state);
-

@@ -13,4 +13,3 @@ target_link_libraries("${PROJECT_NAME}" GTK2::gio)
 if(WIN32)
   target_link_libraries("${PROJECT_NAME}" PRIVATE wsock32 ws2_32)
 endif()
-

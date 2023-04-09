@@ -12,7 +12,7 @@ std::vector<std::string> split_string(std::string str, std::string delimeter)
     {
         std::string token = str.substr(0, pos);
         // Blank lines also needed as an attribute of the HTTP headers end.
-        //if (token.length() > 0)
+        // if (token.length() > 0)
         strings.push_back(token);
         str.erase(0, pos + delimeter.length());
     }
@@ -131,7 +131,7 @@ void WSListener::readMessage(const WebSocket& socket, v_uint8 opcode, p_char8 da
         socket.sendOneFrameText("200 OK");
     }
     else if (size > 0)
-    { // message frame received
+    {  // message frame received
         message_buffer_.writeSimple(data, size);
     }
 }
@@ -146,25 +146,32 @@ std::string WSListener::state_command_process(const std::string& method, const s
 
     std::string command = "!";
 
-    if ("rebooting" == parameter) command += "reboot!";
-    else return "";
+    if ("rebooting" == parameter)
+        command += "reboot!";
+    else
+        return "";
 
     return command;
 }
 
 
-std::string WSListener::shoulder_command_process(const std::string& method, const std::string& action, const std::string& parameter)
+std::string WSListener::shoulder_command_process(
+    const std::string& method, const std::string& action, const std::string& parameter)
 {
-    OATPP_LOGD(TAG, "Shoulder processor: method = %s, action = %s, parameter = %s",
-               method.c_str(), action.c_str(), parameter.c_str());
+    OATPP_LOGD(
+        TAG, "Shoulder processor: method = %s, action = %s, parameter = %s", method.c_str(), action.c_str(),
+        parameter.c_str());
 
     // Only changing device state was implemented.
     if (method != "PUT") return "";
     std::string command("!");
 
-    if ("rotate_angle" == action) command += "r";
-    else if ("lift_angle" == action) command += "l";
-    else return "";
+    if ("rotate_angle" == action)
+        command += "r";
+    else if ("lift_angle" == action)
+        command += "l";
+    else
+        return "";
 
     command += "s" + parameter + "!";
 
@@ -172,19 +179,24 @@ std::string WSListener::shoulder_command_process(const std::string& method, cons
 }
 
 
-std::string WSListener::forearm_command_process(const std::string& method, const std::string& action, const std::string& parameter)
+std::string WSListener::forearm_command_process(
+    const std::string& method, const std::string& action, const std::string& parameter)
 {
-    OATPP_LOGD(TAG, "Forearm processor: method = %s, action = %s, parameter = %s",
-               method.c_str(), action.c_str(), parameter.c_str());
+    OATPP_LOGD(
+        TAG, "Forearm processor: method = %s, action = %s, parameter = %s", method.c_str(), action.c_str(),
+        parameter.c_str());
 
     // Only changing device state was implemented.
     if (method != "PUT") return "";
 
     std::string command("!");
 
-    if ("rotate_angle" == action) command += "r";
-    else if ("lift_angle" == action) command += "l";
-    else return "";
+    if ("rotate_angle" == action)
+        command += "r";
+    else if ("lift_angle" == action)
+        command += "l";
+    else
+        return "";
 
     command += "f" + parameter + "!";
 
@@ -192,22 +204,26 @@ std::string WSListener::forearm_command_process(const std::string& method, const
 }
 
 
-std::string WSListener::manipulator_command_process(const std::string& method, const std::string& action, const std::string& parameter)
+std::string WSListener::manipulator_command_process(
+    const std::string& method, const std::string& action, const std::string& parameter)
 {
-    OATPP_LOGD(TAG, "Manipulator processor: method = %s, action = %s, parameter = %s",
-               method.c_str(), action.c_str(), parameter.c_str());
+    OATPP_LOGD(
+        TAG, "Manipulator processor: method = %s, action = %s, parameter = %s", method.c_str(), action.c_str(),
+        parameter.c_str());
 
     // Only changing device state was implemented.
     if (method != "PUT") return "";
 
     std::string command("!");
 
-    if ("lift_angle" == action) command += "l";
-    else if ("open_angle" == action) command += "r";
-    else return "";
+    if ("lift_angle" == action)
+        command += "l";
+    else if ("open_angle" == action)
+        command += "r";
+    else
+        return "";
 
     command += "m" + parameter + "!";
 
     return command;
 }
-

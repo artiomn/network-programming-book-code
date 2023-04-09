@@ -1,13 +1,13 @@
+#include <curl/curl.h>
+
 #include <iomanip>
 #include <iostream>
 #include <string>
 
-#include <curl/curl.h>
-
 
 static size_t write_cb(void *contents, size_t size, size_t nmemb, void *userp)
 {
-    reinterpret_cast<std::string*>(userp)->append((char*)contents, size * nmemb);
+    reinterpret_cast<std::string *>(userp)->append((char *)contents, size * nmemb);
     return size * nmemb;
 }
 
@@ -38,4 +38,3 @@ int main(int argc, const char *const argv[])
 
     return EXIT_SUCCESS;
 }
-

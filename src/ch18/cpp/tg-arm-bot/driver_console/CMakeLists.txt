@@ -36,4 +36,3 @@ set_target_properties(${project_name}-lib ${project_name} PROPERTIES
     CXX_STANDARD_REQUIRED ON
     LINKER_LANGUAGE CXX
 )
-

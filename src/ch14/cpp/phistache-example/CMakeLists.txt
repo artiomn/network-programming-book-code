@@ -17,4 +17,3 @@ target_link_libraries("${PROJECT_NAME}-client" ${Pistache_LIBRARIES} pthread)
 if(WIN32)
   target_link_libraries("${PROJECT_NAME}" PRIVATE wsock32 ws2_32)
 endif()
-

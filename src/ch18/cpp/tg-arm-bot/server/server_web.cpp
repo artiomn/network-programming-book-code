@@ -1,12 +1,12 @@
 #include "server_web.h"
-#include "web_socket.h"
 
-#include <memory>
 #include <iostream>
+#include <memory>
+#include <restbed>
 #include <type_traits>
 #include <utility>
 
-#include <restbed>
+#include "web_socket.h"
 
 
 using namespace org::openapitools::server;
@@ -39,7 +39,7 @@ DeviceStateEnum StateStringConverter::to_state(const std::string &s) const
 }
 
 
-template<typename H, typename... Ts>
+template <typename H, typename... Ts>
 typename std::invoke_result<H, Ts...>::type execute_handler(H handler, Ts... args)
 {
     if (handler)
@@ -48,15 +48,15 @@ typename std::invoke_result<H, Ts...>::type execute_handler(H handler, Ts... arg
         {
             return handler(args...);
         }
-        catch(const api::DeviceApiException& e)
+        catch (const api::DeviceApiException &e)
         {
             throw e;
         }
-        catch(const std::exception &e)
+        catch (const std::exception &e)
         {
             throw api::DeviceApiException(500, std::string("Internal Server Error: ") + e.what());
         }
-        catch(...)
+        catch (...)
         {
             throw api::DeviceApiException(500, "Internal Server Error");
         }
@@ -68,22 +68,19 @@ typename std::invoke_result<H, Ts...>::type execute_handler(H handler, Ts... arg
 }
 
 
-std::pair<int, std::vector<std::string>> DevicesResource::handler_GET(
-        int32_t const & skip, int32_t const & limit)
+std::pair<int, std::vector<std::string>> DevicesResource::handler_GET(int32_t const &skip, int32_t const &limit)
 {
     return execute_handler(get_handler_, skip, limit);
 }
 
 
-int DevicesResource::handler_POST(
-        std::shared_ptr<api::DeviceRegistrationInfo> const & deviceRegistrationInfo)
+int DevicesResource::handler_POST(std::shared_ptr<api::DeviceRegistrationInfo> const &deviceRegistrationInfo)
 {
     return execute_handler(post_handler_, deviceRegistrationInfo->getId(), deviceRegistrationInfo->getName());
 }
 
 
-std::pair<int, std::shared_ptr<api::DeviceInfo>> DeviceInfoResource::handler_GET(
-    std::string const & deviceId)
+std::pair<int, std::shared_ptr<api::DeviceInfo>> DeviceInfoResource::handler_GET(std::string const &deviceId)
 {
     auto di = std::make_shared<api::DeviceInfo>();
 
@@ -98,25 +95,24 @@ std::pair<int, std::shared_ptr<api::DeviceInfo>> DeviceInfoResource::handler_GET
 }
 
 
-int DeviceInfoResource::handler_DELETE(
-    std::string const & deviceId)
+int DeviceInfoResource::handler_DELETE(std::string const &deviceId)
 {
     return execute_handler<>(delete_handler_, deviceId);
 }
 
 
-int DeviceStateResource::handler_PUT(
-    std::string const & deviceId, std::string const & body)
+int DeviceStateResource::handler_PUT(std::string const &deviceId, std::string const &body)
 {
     api::DeviceState ds;
     ds.fromJsonString(body);
 
-    return execute_handler(put_handler_, deviceId, StateStringConverter::get_instance().to_state(ds.toPropertyTree().get("state", "unknown")));
+    return execute_handler(
+        put_handler_, deviceId,
+        StateStringConverter::get_instance().to_state(ds.toPropertyTree().get("state", "unknown")));
 }
 
 
-std::pair<int, std::shared_ptr<api::DeviceState>> DeviceStateResource::handler_GET(
-        std::string const & deviceId)
+std::pair<int, std::shared_ptr<api::DeviceState>> DeviceStateResource::handler_GET(std::string const &deviceId)
 {
     auto res = execute_handler(get_handler_, deviceId);
     boost::property_tree::ptree pt;
@@ -126,10 +122,9 @@ std::pair<int, std::shared_ptr<api::DeviceState>> DeviceStateResource::handler_G
 }
 
 
-void run_web_server(int port,
-                    std::shared_ptr<DevicesResource> devices,
-                    std::shared_ptr<DeviceInfoResource> device_info,
-                    std::shared_ptr<DeviceStateResource> device_state)
+void run_web_server(
+    int port, std::shared_ptr<DevicesResource> devices, std::shared_ptr<DeviceInfoResource> device_info,
+    std::shared_ptr<DeviceStateResource> device_state)
 {
     using namespace org::openapitools::server;
 
@@ -154,4 +149,3 @@ void run_web_server(int port,
 
     service->start(settings);
 }
-

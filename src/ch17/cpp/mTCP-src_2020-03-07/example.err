@@ -1,0 +1,21 @@
+example.cpp(6): Error! E059: col(19) unable to open 'stdlib.h'
+example.cpp(7): Error! E059: col(19) unable to open 'string.h'
+example.cpp(9): Error! E059: col(10) unable to open 'types.h'
+example.cpp(10): Error! E059: col(10) unable to open 'trace.h'
+example.cpp(11): Error! E059: col(10) unable to open 'utils.h'
+example.cpp(12): Error! E059: col(10) unable to open 'packet.h'
+example.cpp(13): Error! E059: col(10) unable to open 'arp.h'
+example.cpp(14): Error! E059: col(10) unable to open 'udp.h'
+example.cpp(15): Error! E059: col(10) unable to open 'dns.h'
+example.cpp(16): Error! E059: col(10) unable to open 'tcp.h'
+example.cpp(17): Error! E059: col(10) unable to open 'tcpsockm.h'
+example.cpp(21): Error! E498: col(10) syntax error before 'ServerPort'; probable cause: incorrectly spelled type name
+example.cpp(23): Error! E498: col(10) syntax error before 'LclPort'; probable cause: incorrectly spelled type name
+example.cpp(25): Error! E498: col(8) syntax error before 'Listening'; probable cause: incorrectly spelled type name
+example.cpp(28): Error! E498: col(9) syntax error before 'recvBuffer'; probable cause: incorrectly spelled type name
+example.cpp(32): Error! E336: col(36) declaration specifiers are required to declare 'uint8_t'
+example.cpp(32): Error! E006: col(18) syntax error; probable cause: missing ';'
+example.cpp(36): Error! E029: col(21) symbol 'CtrlBreakDetected' has not been declared
+example.cpp(49): Error! E241: col(12) class or namespace 'Utils' has not been declared
+example.cpp(49): Error! E926: col(12) syntax error: 'Utils::endStack' has not been declared as a member
+example.cpp(50): Error! E133: col(12) too many errors: compilation aborted

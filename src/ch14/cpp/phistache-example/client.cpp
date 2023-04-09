@@ -9,11 +9,11 @@
  * Http client example
 */
 
-#include <atomic>
-
 #include <pistache/client.h>
 #include <pistache/http.h>
 #include <pistache/net.h>
+
+#include <atomic>
 
 using namespace Pistache;
 
@@ -50,8 +50,7 @@ int main(int argc, char* argv[])
                 ++completedRequests;
                 std::cout << "Response code = " << response.code() << std::endl;
                 auto body = response.body();
-                if (!body.empty())
-                    std::cout << "Response body = " << body << std::endl;
+                if (!body.empty()) std::cout << "Response body = " << body << std::endl;
             },
             [&](std::exception_ptr exc)
             {
@@ -69,15 +68,10 @@ int main(int argc, char* argv[])
     auto end = std::chrono::system_clock::now();
     std::cout << "Summary of execution\n"
               << "Total number of requests sent     : " << count << '\n'
-              << "Total number of responses received: "
-              << completedRequests.load() << '\n'
-              << "Total number of requests failed   : " << failedRequests.load()
-              << '\n'
+              << "Total number of responses received: " << completedRequests.load() << '\n'
+              << "Total number of requests failed   : " << failedRequests.load() << '\n'
               << "Total time of execution           : "
-              << std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
-                     .count()
-              << "ms" << std::endl;
+              << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
 
     client.shutdown();
 }
-

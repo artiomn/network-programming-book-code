@@ -1,10 +1,10 @@
-#include <iostream>
-#include <memory>
-#include <vector>
-
 #include <thrift/protocol/TBinaryProtocol.h>
 #include <thrift/transport/TSocket.h>
 #include <thrift/transport/TTransportUtils.h>
+
+#include <iostream>
+#include <memory>
+#include <vector>
 
 #include "gen-cpp/PhoneService.h"
 
@@ -29,7 +29,7 @@ int main()
         client.findAll(numbers);
 
         std::cout << "Numbers: " << std::endl;
-        for (const auto &n : numbers) std::cout << n << "\n";
+        for (const auto& n : numbers) std::cout << n << "\n";
         std::cout << std::endl;
         transport->close();
     }

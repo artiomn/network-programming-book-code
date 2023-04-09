@@ -20,15 +20,15 @@ See more:
 |    |- WSListener.hpp                    // WebSocket listeners are defined here
 |    |- App.cpp                           // main() is here
 |
-|- utility/install-oatpp-modules.sh       // utility script to install required oatpp-modules.  
+|- utility/install-oatpp-modules.sh       // utility script to install required oatpp-modules.
 ```
 
 ## Build and Run
 
 ### Using CMake
 
-**Requires:** [oatpp](https://github.com/oatpp/oatpp), and [oatpp-websocket](https://github.com/oatpp/oatpp-websocket) 
-modules installed. You may run `utility/install-oatpp-modules.sh` 
+**Requires:** [oatpp](https://github.com/oatpp/oatpp), and [oatpp-websocket](https://github.com/oatpp/oatpp-websocket)
+modules installed. You may run `utility/install-oatpp-modules.sh`
 script to install required oatpp modules.
 
 After all dependencies satisfied:
@@ -36,7 +36,6 @@ After all dependencies satisfied:
 ```
 $ mkdir build && cd build
 $ cmake ..
-$ make 
+$ make
 $ ./websocket-client-exe       # - run application.
 ```
-
