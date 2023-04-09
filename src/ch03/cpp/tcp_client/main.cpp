@@ -8,30 +8,31 @@
 #include <vector>
 
 #ifdef _WIN32
-#   define ioctl ioctlsocket
+#    define ioctl ioctlsocket
 #else
 extern "C"
 {
-#   include <netinet/tcp.h>
-#   include <sys/ioctl.h>
-// #   include <fcntl.h>
+#    include <netinet/tcp.h>
+#    include <sys/ioctl.h>
+    // #   include <fcntl.h>
 }
 #endif
 
+#include <socket_wrapper/socket_class.h>
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
-#include <socket_wrapper/socket_class.h>
 
 
-using namespace std::chrono_literals;
+using std::chrono_literals::operator""ms;
 
 const auto MAX_RECV_BUFFER_SIZE = 256;
 
 
 bool send_request(socket_wrapper::Socket &sock, const std::string &request)
 {
-    ssize_t bytes_count = 0;
     size_t req_pos = 0;
+    // cppcheck-suppress variableScope
+    ssize_t bytes_count;
     auto const req_buffer = &(request.c_str()[0]);
     auto const req_length = request.length();
 
@@ -40,6 +41,7 @@ bool send_request(socket_wrapper::Socket &sock, const std::string &request)
         if ((bytes_count = send(sock, req_buffer + req_pos, req_length - req_pos, 0)) < 0)
         {
             if (EINTR == errno) continue;
+            return false;
         }
         else
         {
@@ -58,7 +60,7 @@ bool send_request(socket_wrapper::Socket &sock, const std::string &request)
 }
 
 
-int main(int argc, const char * const argv[])
+int main(int argc, const char *const argv[])
 {
     if (argc != 3)
     {
@@ -75,18 +77,14 @@ int main(int argc, const char * const argv[])
         return EXIT_FAILURE;
     }
 
-    const std::string host_name = { argv[1] };
-    const struct hostent *remote_host { gethostbyname(host_name.c_str()) };
+    const std::string host_name = {argv[1]};
+    const struct hostent *remote_host{gethostbyname(host_name.c_str())};
 
-    struct sockaddr_in server_addr =
-    {
-        .sin_family = AF_INET,
-        .sin_port = htons(std::stoi(argv[2]))
-    };
+    struct sockaddr_in server_addr = {.sin_family = AF_INET, .sin_port = htons(std::stoi(argv[2]))};
 
-    server_addr.sin_addr.s_addr = *reinterpret_cast<const in_addr_t*>(remote_host->h_addr);
+    server_addr.sin_addr.s_addr = *reinterpret_cast<const in_addr_t *>(remote_host->h_addr);
 
-    if (connect(sock, reinterpret_cast<const sockaddr* const>(&server_addr), sizeof(server_addr)) != 0)
+    if (connect(sock, reinterpret_cast<const sockaddr *const>(&server_addr), sizeof(server_addr)) != 0)
     {
         std::cerr << sock_wrap.get_last_error_string() << std::endl;
         return EXIT_FAILURE;
@@ -101,11 +99,7 @@ int main(int argc, const char * const argv[])
     const IoctlType flag = 1;
 
     // Put the socket in non-blocking mode:
-//#if !defined(_WIN32)
-//    if (fcntl(sock, F_SETFL, fcntl(sock, F_GETFL) | O_NONBLOCK) < 0)
-//#else
-    if (ioctl(sock, FIONBIO, const_cast<IoctlType*>(&flag)) < 0)
-//#endif
+    if (ioctl(sock, FIONBIO, const_cast<IoctlType *>(&flag)) < 0)
     {
         std::cerr << sock_wrap.get_last_error_string() << std::endl;
         return EXIT_FAILURE;
@@ -125,9 +119,7 @@ int main(int argc, const char * const argv[])
         std::cout << "> " << std::flush;
         if (!std::getline(std::cin, request)) break;
 
-        std::cout
-            << "Sending request: \"" << request << "\"..."
-            << std::endl;
+        std::cout << "Sending request: \"" << request << "\"..." << std::endl;
 
         request += "\r\n";
 
@@ -137,9 +129,7 @@ int main(int argc, const char * const argv[])
             return EXIT_FAILURE;
         }
 
-        std::cout
-            << "Request was sent, reading response..."
-            << std::endl;
+        std::cout << "Request was sent, reading response..." << std::endl;
 
         std::this_thread::sleep_for(2ms);
 
@@ -147,23 +137,21 @@ int main(int argc, const char * const argv[])
         {
             auto recv_bytes = recv(sock, buffer.data(), buffer.size() - 1, 0);
 
-            std::cout
-                << recv_bytes
-                << " was received..."
-                << std::endl;
+            std::cout << recv_bytes << " was received..." << std::endl;
 
             if (recv_bytes > 0)
             {
                 buffer[recv_bytes] = '\0';
-                std::cout << "------------\n" << std::string(buffer.begin(), std::next(buffer.begin(), recv_bytes)) << std::endl;
+                std::cout << "------------\n"
+                          << std::string(buffer.begin(), std::next(buffer.begin(), recv_bytes)) << std::endl;
                 continue;
             }
             else if (-1 == recv_bytes)
             {
                 if (EINTR == errno) continue;
                 if (0 == errno) break;
+                if (EAGAIN == errno) break;
                 throw std::system_error(errno, std::system_category(), "recv");
-                break;
             }
 
             break;
@@ -172,4 +160,3 @@ int main(int argc, const char * const argv[])
 
     return EXIT_SUCCESS;
 }
-
