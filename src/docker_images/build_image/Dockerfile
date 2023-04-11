@@ -150,7 +150,8 @@ RUN apt-get update \
   && cmake --install . --prefix "/usr/local" \
   && cd / \
   && rm -rf tgbot-cpp \
-  && pip3 install thriftpy2 flatbuffers \
+  && pip3 install atheris thriftpy2 flatbuffers \
+  && pip3 install --extra-index-url "https://gitlab.com/api/v4/projects/19904939/packages/pypi/simple" pythonfuzz \
   && ldconfig \
   && apt-get clean
 
