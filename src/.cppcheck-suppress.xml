@@ -5,4 +5,9 @@
     <id>unusedStructMember</id>
     <fileName>src/include/*</fileName>
   </suppress>
+  <suppress>
+    <fileName>src/ch17/lwip_example/*</fileName>
+    <fileName>src/ch17/mTCP-src_2020-03-07/*</fileName>
+    <fileName>src/ch17/TurboC-source/*</fileName>
+  </suppress>
 </suppressions>
