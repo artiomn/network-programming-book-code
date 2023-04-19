@@ -1,11 +1,12 @@
 import tempfile
 import logging
+import asyncio
 
 from oct2py import Oct2Py, Oct2PyError
-import telebot
 import config
+from telebot.async_telebot import AsyncTeleBot
 
-TELEBOT = telebot.TeleBot(config.token)
+TELEBOT = AsyncTeleBot(config.token)
 FORBIDDEN_COMMANDS = ["system"]
 OCT_SESS_DICT = {}  # octave sessions storage
 OCTAVE_TIMEOUT = 30  # Octave command evaluation timeout
@@ -23,12 +24,12 @@ def get_octave_session(chat_id):
 
 
 @TELEBOT.message_handler(commands=['start', 'help'])
-def handle_start_help(message):
+async def handle_start_help(message):
     help_message = f"A simple Octave interpreter bot. \n" \
                    f"Octave syntax - https://docs.octave.org/v6.3.0/Command-Syntax-and-Function-Syntax.html \n" \
                    f"The following commands are prohibited - '{', '.join(FORBIDDEN_COMMANDS)}' \n" \
                    f"Type 'help' to get octave help."
-    TELEBOT.send_message(message.chat.id, help_message)
+    await TELEBOT.send_message(message.chat.id, help_message)
 
 
 def _octave_eval(octave_session, command):
@@ -42,7 +43,7 @@ def _octave_eval(octave_session, command):
 
 
 @TELEBOT.message_handler(content_types=["text"])
-def text_handler(message):
+async def text_handler(message):
     command = message.text
     chat_id = message.chat.id
     octave_session = get_octave_session(chat_id)
@@ -51,7 +52,7 @@ def text_handler(message):
     for forbidden_word in FORBIDDEN_COMMANDS:
         if forbidden_word in command.lower():
             logging.info(f"Prohibited word detected {forbidden_word}")
-            TELEBOT.send_message(message.chat.id, f"The use of '{forbidden_word}' is prohibited.")
+            await TELEBOT.send_message(message.chat.id, f"The use of '{forbidden_word}' is prohibited.")
             return
 
     if "plot" in command or "mesh" in command:
@@ -61,19 +62,19 @@ def text_handler(message):
             logging.info(f"Modified command: {command}")
             output = _octave_eval(octave_session, command)
             if output:
-                TELEBOT.send_message(message.chat.id, output)
+                await TELEBOT.send_message(message.chat.id, output)
             with open(tmp_image_file.name, 'rb') as photo:
-                TELEBOT.send_photo(chat_id, photo)
+                await TELEBOT.send_photo(chat_id, photo)
     else:
         output = _octave_eval(octave_session, command)
         if output:
-            TELEBOT.send_message(message.chat.id, output)
+            await TELEBOT.send_message(message.chat.id, output)
 
 
-def main():
-    TELEBOT.polling(none_stop=True)
+async def main():
+    await TELEBOT.polling(none_stop=True)
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    main()
+    asyncio.run(main())
