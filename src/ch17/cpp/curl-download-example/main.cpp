@@ -1,4 +1,7 @@
+extern "C"
+{
 #include <curl/curl.h>
+}
 
 #include <iomanip>
 #include <iostream>
@@ -7,8 +10,9 @@
 
 static size_t write_cb(void *contents, size_t size, size_t nmemb, void *userp)
 {
-    reinterpret_cast<std::string *>(userp)->append((char *)contents, size * nmemb);
-    return size * nmemb;
+    auto res = size * nmemb;
+    reinterpret_cast<std::string *>(userp)->append(static_cast<char *>(contents), res);
+    return res;
 }
 
 
