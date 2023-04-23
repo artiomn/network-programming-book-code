@@ -26,6 +26,7 @@ RUN apt-get update \
     libgtk2.0-dev \
     libgtk-3-dev \
     libgrpc++-dev \
+    libmicrohttpd-dev \
     libpcap-dev \
     libplack-perl \
     libevent-2\* libevent-dev libev-dev libuv1-dev \
@@ -87,11 +88,6 @@ RUN apt-get update \
   && rm -rf flatbuffers \
   && git clone --recursive --depth 1 https://github.com/pistacheio/pistache \
   && cd pistache \
-#  && cmake \
-#    -DPISTACHE_USE_SSL=true \
-#    -DPISTACHE_BUILD_TESTS=false \
-#    -DCMAKE_INSTALL_PREFIX=/usr/local \
-#    . \
   && meson setup build \
     --buildtype=debug \
     -DPISTACHE_USE_SSL=true \
@@ -101,6 +97,16 @@ RUN apt-get update \
   && meson install -C build \
   && cd / \
   && rm -rf pistache \
+  && git clone --recursive --depth 1 https://github.com/etr/libhttpserver \
+  && cd libhttpserver \
+  && ./bootstrap \
+  && mkdir build \
+  && cd build \
+  && ../configure \
+  && make -j16 \
+  && make install \
+  && cd /
+  && rm -rf libhttpserver \
   && git clone --recursive --depth 1 https://github.com/corvusoft/restbed.git \
   && cd restbed \
   && cmake -B build -DBUILD_SSL=YES -DBUILD_TESTS=NO -DCMAKE_INSTALL_PREFIX=/usr/local . \
