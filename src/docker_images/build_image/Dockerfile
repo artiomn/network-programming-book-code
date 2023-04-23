@@ -105,7 +105,7 @@ RUN apt-get update \
   && ../configure \
   && make -j16 \
   && make install \
-  && cd /
+  && cd / \
   && rm -rf libhttpserver \
   && git clone --recursive --depth 1 https://github.com/corvusoft/restbed.git \
   && cd restbed \
