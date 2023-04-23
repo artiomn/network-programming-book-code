@@ -58,6 +58,7 @@ RUN apt-get update \
     python3-grpcio \
     python3-matplotlib \
     python3-pip \
+    python3-pycurl \
     python3-python-flask-jwt-extended \
     python3-pyx \
     python3-scapy \
