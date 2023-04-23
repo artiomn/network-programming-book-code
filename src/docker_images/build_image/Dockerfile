@@ -14,7 +14,6 @@ RUN apt-get update \
     apache2 \
     capnproto \
     clang \
-    cmake \
     gdb \
     gdbserver \
     gosu \
@@ -79,6 +78,13 @@ RUN apt-get update \
 #    yggdrasil \
   && systemctl disable apache2 \
   && systemctl disable nginx \
+  && git clone --recursive --depth 1 https://github.com/Kitware/CMake \
+  && cd CMake \
+  && ./bootstrap \
+  && make -j 16 \
+  && make install \
+  && cd / \
+  && rm -rf CMake \
   && git clone --recursive --depth 1 https://github.com/google/flatbuffers \
   && cd flatbuffers \
   && cmake \
