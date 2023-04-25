@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.10)
 
 set(project_name "${CHAPTER_NAME}tg-arm-bot-driver-console")
 
