@@ -78,14 +78,19 @@ RUN apt-get update \
 #    yggdrasil \
   && systemctl disable apache2 \
   && systemctl disable nginx \
-  && git clone --recursive --depth 1 https://github.com/Kitware/CMake \
+  && apt-get clean
+
+RUN \
+  git clone --recursive --depth 1 https://github.com/Kitware/CMake \
   && cd CMake \
   && ./bootstrap \
   && make -j 16 \
   && make install \
   && cd / \
-  && rm -rf CMake \
-  && git clone --recursive --depth 1 https://github.com/google/flatbuffers \
+  && rm -rf CMake
+
+RUN \
+  git clone --recursive --depth 1 https://github.com/google/flatbuffers \
   && cd flatbuffers \
   && cmake \
     -DCMAKE_BUILD_TYPE=Release -B build \
@@ -174,8 +179,7 @@ RUN apt-get update \
   && cmake --install ../temp \
   && cd / \
   && rm -rf CppServer \
-  && ldconfig \
-  && apt-get clean
+  && ldconfig
 
 COPY ./entry.sh /
 RUN chmod +x /entry.sh
