@@ -171,6 +171,7 @@ RUN apt-get update \
   && gil update \
   && cd build \
   && ./unix.sh \
+  && cmake --install . \
   && cd / \
   && rm -rf CppServer \
   && ldconfig \
