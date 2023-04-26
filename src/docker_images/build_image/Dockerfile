@@ -179,6 +179,13 @@ RUN \
   && cmake --install build_linux --prefix "/usr/local" \
   && cd / \
   && rm -rf CppServer \
+  && git clone --depth 1 https://github.com/matt-42/lithium.git \
+  && cd lithium \
+  && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local . \
+  && cmake --build build --parallel \
+  && cmake --install buid --prefix "/usr/local" \
+  && cd / \
+  && rm -rf lithium \
   && ldconfig
 
 COPY ./entry.sh /
