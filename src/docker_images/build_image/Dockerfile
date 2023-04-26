@@ -176,7 +176,7 @@ RUN \
   && gil update \
   && cd build \
   && ./unix.sh \
-  && cmake --install ../temp \
+  && cmake --install ../temp --prefix "/usr/local" \
   && cd / \
   && rm -rf CppServer \
   && ldconfig
