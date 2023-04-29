@@ -19,7 +19,7 @@ def index():
 
 @app.route('/about')
 def about():
-    return '<h1>Network programming book Flask example</h1>'
+    return '<h1>Welcome flask!</h1>'
 
 
 if '__main__' == __name__:
