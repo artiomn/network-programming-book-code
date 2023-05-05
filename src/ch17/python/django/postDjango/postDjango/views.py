@@ -1,17 +1,12 @@
-from django.http import HttpResponse
 from django.shortcuts import render
 
 
 def index(request):
-      return render(request, 'index.html')
+    return render(request, 'index.html')
 
 
 def validate(request):
-   if request.method == 'POST':
-      username= request.POST["user"]
-      password = request.POST["pass"]
-      dict = {
-         'username': username,
-         'password': password
-      }
-      return render(request, 'validate.html', dict)
+    if 'POST' == request.method:
+        ret_dict = {'username': request.POST['user'], 'password': request.POST['pass']}
+        return render(request, 'validate.html', ret_dict)
+    return None

@@ -1,4 +1,4 @@
-"""postDjango URL Configuration
+"""PostDjango URL Configuration.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.1/topics/http/urls/
@@ -15,11 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from . import views
 
+from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.index, name = 'index'),
-    path('validate', views.validate, name = 'validate')
+    path('', views.index, name='index'),
+    path('validate', views.validate, name='validate'),
 ]
