@@ -128,7 +128,7 @@ RUN \
   && rm -rf restbed \
   && git clone --recursive --depth 1 https://github.com/oatpp/oatpp.git \
   && cd oatpp \
-  && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local . \
+  && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local -DOATPP_BUILD_TESTS=OFF . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
@@ -168,7 +168,7 @@ RUN \
   && cmake --install . --prefix "/usr/local" \
   && cd / \
   && rm -rf tgbot-cpp \
-  && pip3 install atheris flatbuffers gil thriftpy2 \
+  && pip3 install atheris flatbuffers gil thriftpy2 mrjob \
   && pip3 install --extra-index-url "https://gitlab.com/api/v4/projects/19904939/packages/pypi/simple" pythonfuzz \
   && cd / \
   && git clone --depth 1 https://github.com/chronoxor/CppServer.git \
