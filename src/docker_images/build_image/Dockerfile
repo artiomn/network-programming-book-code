@@ -56,6 +56,7 @@ RUN apt-get update \
     python3-flatbuffers \
     python3-grpcio \
     python3-matplotlib \
+    python3-mpi4py \
     python3-pip \
     python3-pycurl \
     python3-python-flask-jwt-extended \
