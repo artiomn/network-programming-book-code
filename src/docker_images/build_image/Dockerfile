@@ -25,6 +25,7 @@ RUN apt-get update \
     libgtk2.0-dev \
     libgtk-3-dev \
     libgrpc++-dev \
+    libmariadb-dev \
     libmicrohttpd-dev \
     libpcap-dev \
     libplack-perl \
