@@ -195,13 +195,13 @@ RUN \
   && make install \
   && cd / \
   && rm -rf CppServer \
-  && git clone --depth 1 https://github.com/matt-42/lithium.git \
-  && cd lithium \
-  && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local . \
-  && cmake --build build --parallel \
-  && cmake --install build --prefix "/usr/local" \
-  && cd / \
-  && rm -rf lithium \
+#  && git clone --depth 1 https://github.com/matt-42/lithium.git \
+#  && cd lithium \
+#  && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local . \
+#  && cmake --build build --parallel \
+#  && cmake --install build --prefix "/usr/local" \
+#  && cd / \
+#  && rm -rf lithium \
   && git clone --depth 1 https://github.com/libp2p/cpp-libp2p.git \
   && cd cpp-libp2p \
   && cmake -DCLANG_TIDY=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -G "Ninja" -B build . \
