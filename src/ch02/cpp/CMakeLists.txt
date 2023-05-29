@@ -5,4 +5,5 @@ add_subdirectory(ping)
 
 if (UNIX)
     add_subdirectory("socket_pair_test")
+    add_subdirectory("unix_socket_server")
 endif()
