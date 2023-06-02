@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 
-project("${CHAPTER_NAME}oob-example" C CXX)
+project("${CHAPTER_NAME}oob-server" C CXX)
 
-set(${PROJECT_NAME}_SRC oob_server.cpp)
-
-source_group(source FILES ${${PROJECT_NAME}_SRC}})
-
-add_executable("${PROJECT_NAME}" "${${PROJECT_NAME}_SRC}")
+add_executable("${PROJECT_NAME}" oob_server.cpp)
 target_link_libraries("${PROJECT_NAME}" socket-wrapper)
+
+add_executable("${PROJECT_NAME}-async" oob_server_async.cpp)
+target_link_libraries("${PROJECT_NAME}-async" socket-wrapper)

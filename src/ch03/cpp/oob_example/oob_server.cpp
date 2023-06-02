@@ -1,3 +1,13 @@
+extern "C"
+{
+#include <fcntl.h>
+}
+
+#include <socket_wrapper/socket_class.h>
+#include <socket_wrapper/socket_functions.h>
+#include <socket_wrapper/socket_headers.h>
+#include <socket_wrapper/socket_wrapper.h>
+
 #include <csignal>
 #include <fstream>
 #include <functional>
@@ -7,16 +17,6 @@
 #include <string>
 #include <vector>
 
-extern "C"
-{
-#include <fcntl.h>
-}
-
-#include <socket_wrapper/socket_functions.h>
-#include <socket_wrapper/socket_headers.h>
-#include <socket_wrapper/socket_wrapper.h>
-#include <socket_wrapper/socket_class.h>
-
 
 namespace
 {
@@ -24,17 +24,10 @@ namespace
 const size_t clients_count = 10;
 const size_t buffer_size = 255;
 
-std::function<void(int)> sig_handler;
-
-void signal_handler_wrapper(int signal)
-{
-    sig_handler(signal);
-}
-
-} // namespace
+}  // namespace
 
 
-int main(int argc, const char * const argv[])
+int main(int argc, const char *const argv[])
 {
     if (argc != 2)
     {
@@ -65,7 +58,7 @@ int main(int argc, const char * const argv[])
             throw std::logic_error("listen");
         }
 
-		socket_wrapper::Socket client_sock(accept(server_sock, nullptr, nullptr));
+        socket_wrapper::Socket client_sock(accept(server_sock, nullptr, nullptr));
 
         if (!client_sock)
         {
@@ -73,61 +66,59 @@ int main(int argc, const char * const argv[])
         }
 
         std::vector<char> data_buff;
+
         data_buff.resize(buffer_size);
+
         auto data_buff_iterator = data_buff.begin();
+        char oob_data;
+        bool oob_printed = false;
 
-        sig_handler = [&client_sock, &data_buff_iterator, &data_buff](int sig_num)
+        while (true)
         {
-            std::vector<char> oob_buff;
-            oob_buff.resize(buffer_size);
+            int at_mark = sockatmark(client_sock);
 
-            std::cout << "SIGURG received" << std::endl;
-
-            while (!sockatmark(client_sock))
+            switch (at_mark)
             {
-                auto buf_free_size = data_buff.size() -
-                                     (data_buff_iterator - data_buff.cbegin()) - 1;
+                case -1:
+                    perror("sockatmark");
+                    break;
+                case 1:
+                    if (oob_printed) continue;
+                    std::cout << "OOB data received..." << std::endl;
+                    if (recv(client_sock, &oob_data, 1, MSG_OOB) == -1)
+                    {
+                        perror("recv oob");
+                    }
+                    std::cout << "OOB data = " << oob_data << std::endl;
+                    oob_printed = true;
+                    break;
+                case 0:
+                {
+                    ssize_t n = recv(
+                        client_sock, &(*data_buff_iterator),
+                        data_buff.size() - (data_buff_iterator - data_buff.cbegin()) - 1, 0);
+                    if (n < 0)
+                    {
+                        throw std::logic_error("recv data");
+                    }
 
-                ssize_t n = recv(client_sock, &(*data_buff_iterator), buf_free_size, 0);
+                    std::cout << "Ordinary data received..." << std::endl;
+                    data_buff_iterator += n;
+                    *data_buff_iterator = '\0';
+                    std::cout << n << " bytes was read: " << std::string(data_buff.begin(), data_buff.begin() + n)
+                              << std::endl;
+                    oob_printed = false;
+                    break;
+                }
+                default:
+                {
+                }
             }
-
-            auto n = recv(client_sock, &oob_buff[0], oob_buff.size() - 1, MSG_OOB);
-            oob_buff[n] = '\0';
-            std::cout
-                << n << " OOB bytes was read: "
-                << std::string(oob_buff.begin(), oob_buff.begin() + n)
-                << std::endl;
-        };
-
-        std::signal(SIGURG, signal_handler_wrapper);
-
-        fcntl(client_sock, F_SETOWN, getpid());
-
-        for (ssize_t n = recv(client_sock, &(*data_buff_iterator),
-                              data_buff.size() - (data_buff_iterator - data_buff.cbegin()) - 1, 0);
-             n;
-             n = recv(client_sock, &data_buff[0], data_buff.size() - 1, 0))
-        {
-            if (n < 0)
-            {
-                throw std::logic_error("recvmsg");
-            }
-
-			data_buff_iterator += n;
-            *data_buff_iterator = '\0';
-            std::cout
-                << n
-                << " bytes was read: " << std::string(data_buff.begin(), data_buff.begin() + n)
-                << std::endl;
         }
-
     }
     catch (const std::logic_error &e)
     {
-        std::cerr
-            << e.what()
-            << ": " << sock_wrap.get_last_error_string() << "!"
-            << std::endl;
+        std::cerr << e.what() << ": " << sock_wrap.get_last_error_string() << "!" << std::endl;
         return EXIT_FAILURE;
     }
     catch (const std::exception &e)
@@ -143,4 +134,3 @@ int main(int argc, const char * const argv[])
 
     return EXIT_SUCCESS;
 }
-
