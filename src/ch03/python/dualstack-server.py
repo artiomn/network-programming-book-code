@@ -10,3 +10,7 @@ with socket.socket(socket.AF_INET6, socket.SOCK_STREAM, socket.IPPROTO_TCP) as s
     while True:
         s, addr = sock.accept()
         print(f'Client socket = {s}\nClient address = {addr}')
+
+        with s:
+            while data := s.recv(15):
+                print(data)
