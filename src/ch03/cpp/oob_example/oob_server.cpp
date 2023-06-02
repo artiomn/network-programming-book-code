@@ -45,24 +45,24 @@ int main(int argc, const char *const argv[])
 
         if (!socket)
         {
-            throw std::logic_error("socket");
+            throw std::system_error(errno, std::system_category(), "socket");
         }
 
         if (bind(server_sock, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
         {
-            throw std::logic_error("bind");
+            throw std::system_error(errno, std::system_category(), "bind");
         }
 
         if (listen(server_sock, clients_count) < 0)
         {
-            throw std::logic_error("listen");
+            throw std::system_error(errno, std::system_category(), "listen");
         }
 
         socket_wrapper::Socket client_sock(accept(server_sock, nullptr, nullptr));
 
         if (!client_sock)
         {
-            throw std::logic_error("accept");
+            throw std::system_error(errno, std::system_category(), "accept");
         }
 
         std::vector<char> data_buff;
@@ -99,7 +99,7 @@ int main(int argc, const char *const argv[])
                         data_buff.size() - (data_buff_iterator - data_buff.cbegin()) - 1, 0);
                     if (n < 0)
                     {
-                        throw std::logic_error("recv data");
+                        throw std::system_error(errno, std::system_category(), "recv data");
                     }
 
                     std::cout << "Ordinary data received..." << std::endl;
