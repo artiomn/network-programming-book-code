@@ -8,16 +8,11 @@ extern "C"
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
 
-#include <chrono>
 #include <csignal>
-#include <fstream>
 #include <functional>
 #include <iostream>
-#include <memory>
 #include <stdexcept>
 #include <string>
-#include <thread>
-#include <tuple>
 #include <vector>
 
 
@@ -81,11 +76,12 @@ int main(int argc, const char *const argv[])
         // cppcheck-suppress danglingLifetime
         sig_handler = [&client_sock, &data_buff](int sig_num)
         {
-            std::cout << "SIGURG received" << std::endl;
+            std::cout << "SIGURG [" << sig_num << "] received" << std::endl;
 
             char data;
+            int sa_result;
 
-            for (int sa_result = sockatmark(client_sock); sa_result; sa_result = sockatmark(client_sock))
+            while ((sa_result = sockatmark(client_sock)))
             {
                 if (-1 == sa_result)
                 {
@@ -96,28 +92,33 @@ int main(int argc, const char *const argv[])
                 auto res = recv(client_sock, &data, sizeof(data), 0);
                 if (-1 == res)
                 {
-                    perror("recv ordinary in handler");
+                    perror("recv ordinary data in handler");
                     return;
                 }
 
                 data_buff.push_back(data);
-                std::cout << data << " byte received in handler" << std::endl;
+                std::cout << data << " ordinary data received in handler" << std::endl;
             }
 
             auto res = recv(client_sock, &data, sizeof(data), MSG_OOB);
 
             if (-1 == res)
             {
-                perror("recv ordinary in handler");
+                perror("recv ordinary data in handler");
                 return;
             }
 
-            std::cout << data << " OOB byte was read" << std::endl;
+            std::cout << data << " OOB was read" << std::endl;
         };
 
-        std::signal(SIGURG, signal_handler_wrapper);
-
-        fcntl(client_sock, F_SETOWN, getpid());
+        if (SIG_ERR == std::signal(SIGURG, signal_handler_wrapper))
+        {
+            throw std::system_error(errno, std::system_category(), "signal");
+        }
+        if (-1 == fcntl(client_sock, F_SETOWN, getpid()))
+        {
+            throw std::system_error(errno, std::system_category(), "fcntl");
+        }
 
         char data;
 
@@ -129,9 +130,7 @@ int main(int argc, const char *const argv[])
             }
 
             data_buff.push_back(data);
-            std::cout << data << " byte was read in the working cycle" << std::endl;
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::cout << "'" << data << "' was read in the working cycle" << std::endl;
         }
 
         std::cout << "Result: " << std::string(data_buff.begin(), data_buff.end()) << std::endl;
