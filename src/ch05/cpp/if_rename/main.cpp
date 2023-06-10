@@ -1,18 +1,16 @@
+extern "C"
+{
+#include <linux/if.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+}
+
 #include <algorithm>
 #include <exception>
 #include <iostream>
 #include <string>
-
-extern "C"
-{
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <unistd.h>
-
-#include <linux/if.h>
-
-}
 
 
 std::string set_interface_name(const std::string &old_name, const std::string &new_name)
@@ -31,8 +29,8 @@ std::string set_interface_name(const std::string &old_name, const std::string &n
 
     ifreq ifr = {0};
 
-    std::copy(old_name.begin(), old_name.end(), ifr.ifr_name);
-    std::copy(new_name.begin(), new_name.end(), ifr.ifr_newname);
+    std::copy_n(old_name.begin(), std::min(old_name.size(), static_cast<size_t>(IFNAMSIZ)), ifr.ifr_name);
+    std::copy_n(new_name.begin(), std::min(new_name.size(), static_cast<size_t>(IFNAMSIZ)), ifr.ifr_newname);
 
     if (ioctl(sock, SIOCSIFNAME, &ifr) != 0)
     {
@@ -45,30 +43,23 @@ std::string set_interface_name(const std::string &old_name, const std::string &n
 }
 
 
-int main(int argc, const char * const argv[])
+int main(int argc, const char *const argv[])
 {
     if (argc != 3)
     {
-        std::cerr
-            << argv[0] << " <old_name> <new_name>"
-            << std::endl;
+        std::cerr << argv[0] << " <old_name> <new_name>" << std::endl;
         return EXIT_FAILURE;
     }
 
     try
     {
-        std::cout
-            << set_interface_name(argv[1], argv[2])
-            << std::endl;
+        std::cout << set_interface_name(argv[1], argv[2]) << std::endl;
     }
-    catch(const std::system_error &e)
+    catch (const std::system_error &e)
     {
-        std::cerr
-            << e.what()
-            << std::endl;
+        std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
     }
 
-   return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
-
