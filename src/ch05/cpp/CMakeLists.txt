@@ -7,6 +7,7 @@ if (UNIX)
     add_subdirectory("netlink")
     add_subdirectory("sockdiag")
     add_subdirectory("ethtool")
+    add_subdirectory("mii_example")
 endif()
 
 if (APPLE)
