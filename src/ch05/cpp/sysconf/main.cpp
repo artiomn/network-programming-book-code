@@ -10,7 +10,7 @@ extern "C"
 }
 
 
-int main(int argc, const char* const argv[])
+int main()
 {
     auto buf_count = sysconf(_SC_IOV_MAX);
 
@@ -19,23 +19,18 @@ int main(int argc, const char* const argv[])
         perror("sysconf");
 #if defined(IOV_MAX)
         buf_count = IOV_MAX;
-        std::cout
-            << "Buffers count got via IOV_MAX\n";
+        std::cout << "Buffers count got via IOV_MAX\n";
 #endif
     }
     else
     {
-        std::cout
-            << "Buffers count got via sysconf()\n";
+        std::cout << "Buffers count got via sysconf()\n";
     }
 
 #if defined(IOV_MAX)
-    std::cout
-        << "IOV_MAX = " << IOV_MAX << "\n";
+    std::cout << "IOV_MAX = " << IOV_MAX << "\n";
 #endif
-    std::cout
-        << "Buffers count = "
-        << buf_count << std::endl;
+    std::cout << "Buffers count = " << buf_count << std::endl;
 
     return EXIT_SUCCESS;
 }

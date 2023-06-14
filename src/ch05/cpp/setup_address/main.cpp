@@ -1,11 +1,9 @@
 void set_ip_address()
 {
-    struct ifreq ifr;
-    struct sockaddr_in addr;
+    struct ifreq ifr = {0};
+    struct sockaddr_in addr = {0};
 
-    memset(&ifr, 0, sizeof(ifr));
-    memset(&addr, 0, sizeof(addr));
-    strncpy(ifr.ifr_name, in.dev.device, IFNAMSIZ);
+    std::copy_n(ifr.ifr_name, std::min(IFNAMSIZ, strlen(ifr.ifr_name)), in.dev.device);
 
     addr.sin_family = AF_INET;
     int s = socket(addr.sin_family, SOCK_DGRAM, 0);
@@ -27,7 +25,9 @@ void set_ip_address()
     char buff[BUFF_SIZE];
     char *foo = inet_ntop(AF_INET, &addr.sin_addr, buff, BUFF_SIZE);
     if (!foo)
+    {
         raise_error("inet_ntop()");
+    }
     else
     {
         std::cout << "main = " << in.dev.ip_addr << "addr = " << buff << std::endl;
