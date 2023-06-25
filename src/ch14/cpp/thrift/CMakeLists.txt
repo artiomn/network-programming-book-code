@@ -1,7 +1,13 @@
 project("${CHAPTER_NAME}thrift-example" C CXX)
 
-find_program(THRIFT_COMPILER thrift REQUIRED)
-find_package(ZLIB)
+find_program(THRIFT_COMPILER thrift)
+
+if (NOT THRIFT_COMPILER)
+	message(WARNING "Please, install Apache Thrift!")
+	return()
+endif()
+
+find_package(ZLIB REQUIRED)
 
 # Make sure gen-cpp files can be included
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")

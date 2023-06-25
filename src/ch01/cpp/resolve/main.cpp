@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <thread>
 
@@ -31,16 +32,21 @@ int print_ips_with_getaddrinfo(const std::string &host_name)
     };
 
     // Results.
-    addrinfo *servinfo = nullptr;
+    
+
+    addrinfo *s_i = nullptr;
+
     int status = 0;
 
-    if ((status = getaddrinfo(host_name.c_str(), nullptr, &hints, &servinfo)) != 0)
+    if ((status = getaddrinfo(host_name.c_str(), nullptr, &hints, &s_i)) != 0)
     {
         std::cerr << "getaddrinfo error: " << gai_strerror(status) << std::endl;
         return EXIT_FAILURE;
     }
 
-    for (auto const *s = servinfo; s != nullptr; s = s->ai_next)
+    std::unique_ptr<addrinfo, decltype(&freeaddrinfo)> servinfo(s_i, freeaddrinfo);
+
+    for (auto const *s = servinfo.get(); s != nullptr; s = s->ai_next)
     {
         std::cout << "Canonical name: ";
         if (s->ai_canonname)
@@ -74,8 +80,6 @@ int print_ips_with_getaddrinfo(const std::string &host_name)
         std::cout << std::endl;
     }
     std::cout << std::endl;
-
-    freeaddrinfo(servinfo);
 
     return EXIT_SUCCESS;
 }
