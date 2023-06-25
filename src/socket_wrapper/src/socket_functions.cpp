@@ -33,12 +33,12 @@ AddrInfoResult get_serv_info(const char *port, int sock_type)
 }
 
 
-AddrInfoResult get_client_info(const std::string &host, unsigned short port, int sock_type)
+AddrInfoResult get_client_info(const std::string &host, unsigned short port, int sock_type, int sock_family)
 {
     struct addrinfo hints =
     {
         .ai_flags = AI_CANONNAME | AI_NUMERICSERV,
-        .ai_family = AF_UNSPEC,
+        .ai_family = sock_family,
         .ai_socktype = sock_type,
         .ai_protocol = (sock_type == SOCK_STREAM ? IPPROTO_TCP : IPPROTO_UDP)
     };

@@ -7,7 +7,7 @@
 #include <iphlpapi.h>
 
 
-// This peace of code is from MS repo: https://github.com/microsoft/Windows-classic-samples/blob/main/Samples/Win7Samples/netds/winsock/rcvall/rcvall.c
+// This piece of code is from MS repo: https://github.com/microsoft/Windows-classic-samples/blob/main/Samples/Win7Samples/netds/winsock/rcvall/rcvall.c
 
 
 int FormatAddress(SOCKADDR* sa, int salen, char* addrbuf, int addrbuflen)
