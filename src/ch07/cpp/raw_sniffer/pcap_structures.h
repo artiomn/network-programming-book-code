@@ -12,28 +12,33 @@ const auto BUFFER_SIZE_PKT = 256 * 256 - 1;
 
 struct pcap_timeval
 {
-	int32_t tv_sec;
-	int32_t tv_usec;
+    // cppcheck-suppress unusedStructMember
+    int32_t tv_sec;
+    // cppcheck-suppress unusedStructMember
+    int32_t tv_usec;
 };
 
 
 struct pcap_file_header
 {
-	const uint32_t magic = 0xa1b2c3d4;
-	const uint16_t version_major = PCAP_VERSION_MAJOR;
-	const uint16_t version_minor = PCAP_VERSION_MINOR;
-	int32_t thiszone = 0;
-	uint32_t sigfigs = 0;
-	uint32_t snaplen = BUFFER_SIZE_PKT;
-	uint32_t linktype = DLT_EN10MB;
+    // cppcheck-suppress unusedStructMember
+    const uint32_t magic = 0xa1b2c3d4;
+    // cppcheck-suppress unusedStructMember
+    const uint16_t version_major = PCAP_VERSION_MAJOR;
+    // cppcheck-suppress unusedStructMember
+    const uint16_t version_minor = PCAP_VERSION_MINOR;
+    int32_t thiszone = 0;
+    uint32_t sigfigs = 0;
+    uint32_t snaplen = BUFFER_SIZE_PKT;
+    uint32_t linktype = DLT_EN10MB;
 };
 
 
 struct pcap_sf_pkthdr
 {
-	struct pcap_timeval ts;
-	uint32_t caplen;
-	uint32_t len;
+    pcap_timeval ts;
+    uint32_t caplen;
+    uint32_t len;
 };
 
 

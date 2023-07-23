@@ -1,5 +1,5 @@
-#include <exception>
 #include <cstdlib>
+#include <exception>
 #include <iomanip>
 #include <iostream>
 
@@ -16,26 +16,25 @@
 
 int main(int argc, const char* const argv[])
 {
-	if (argc != 3)
+    if (argc != 3)
     {
-		std::cerr << "Usage: " << argv[0] << " <interface-ip> <capture-file>" << std::endl;
-		return EXIT_FAILURE;
-	}
+        std::cerr << "Usage: " << argv[0] << " <interface-ip> <capture-file>" << std::endl;
+        return EXIT_FAILURE;
+    }
 
     try
     {
         // Create a raw socket which supports IPv4 only.
         socket_wrapper::SocketWrapper sock_wrap;
 
-		Sniffer sniffer(argv[1], argv[2], sock_wrap);
+        Sniffer sniffer(argv[1], argv[2], sock_wrap);
         sniffer.start_capture();
     }
-    catch(...)
+    catch (...)
     {
         std::cerr << "Unknown exception!" << std::endl;
-		return EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
-	// Our socket and file will be closed automatically.
-	return EXIT_SUCCESS;
+    // Our socket and file will be closed automatically.
+    return EXIT_SUCCESS;
 }
-
