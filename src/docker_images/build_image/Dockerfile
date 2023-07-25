@@ -62,7 +62,6 @@ RUN apt-get update \
     python3-pycurl \
     python3-python-flask-jwt-extended \
     python3-pyx \
-    python3-scapy \
     python3-thrift \
     qt6-base-dev \
     rapidjson-dev \
@@ -170,7 +169,7 @@ RUN \
   && cmake --install . --prefix "/usr/local" \
   && cd / \
   && rm -rf tgbot-cpp \
-  && pip3 install pythonping ping3 atheris flatbuffers gil thriftpy2 mrjob libp2p \
+  && pip3 install scapy pythonping ping3 atheris flatbuffers gil thriftpy2 mrjob libp2p \
   && pip3 install --extra-index-url "https://gitlab.com/api/v4/projects/19904939/packages/pypi/simple" pythonfuzz \
   && cd / \
   && git clone --depth 1 https://github.com/chronoxor/CppServer.git \
