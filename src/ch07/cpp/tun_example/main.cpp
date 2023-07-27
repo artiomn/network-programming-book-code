@@ -1,11 +1,3 @@
-#include <algorithm>
-#include <iostream>
-#include <cassert>
-#include <exception>
-#include <optional>
-#include <string>
-#include <vector>
-
 extern "C"
 {
 // O_RDWR.
@@ -14,14 +6,22 @@ extern "C"
 #include <unistd.h>
 
 // Includes for struct ifreq, etc.
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <linux/if.h>
 #include <linux/if_tun.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 
 // Interface types.
 #include <linux/if_arp.h>
 }
+
+#include <algorithm>
+#include <cassert>
+#include <exception>
+#include <iostream>
+#include <optional>
+#include <string>
+#include <vector>
 
 
 int perform_ioctl(int fd, const int call_id, void *result, const std::string &msg)
@@ -29,12 +29,11 @@ int perform_ioctl(int fd, const int call_id, void *result, const std::string &ms
     auto ioctl_res = ioctl(fd, call_id, result);
     if (-1 == ioctl_res)
     {
-        throw std::system_error(errno, std::generic_category(), msg);
+        throw std::system_error(errno, std::system_category(), msg);
     }
 
     return ioctl_res;
 }
-
 
 
 class TunTapNetworkInterface
@@ -43,17 +42,11 @@ public:
     static const auto mac_size = 6;
 
 public:
-    TunTapNetworkInterface(int ni_desc) :
-        fd_(ni_desc)
-    {
-    }
+    explicit TunTapNetworkInterface(int ni_desc) : fd_(ni_desc) {}
 
-    TunTapNetworkInterface(TunTapNetworkInterface &&other)
-    {
-        fd_ = other.reset();
-    }
+    TunTapNetworkInterface(TunTapNetworkInterface &&other) { fd_ = other.reset(); }
 
-    TunTapNetworkInterface& operator=(TunTapNetworkInterface &&other)
+    TunTapNetworkInterface &operator=(TunTapNetworkInterface &&other)
     {
         fd_ = other.reset();
         return *this;
@@ -70,10 +63,7 @@ public:
     TunTapNetworkInterface(const TunTapNetworkInterface &) = delete;
 
 public:
-    operator int() const
-    {
-        return fd_;
-    }
+    operator int() const { return fd_; }
 
     int reset()
     {
@@ -101,7 +91,7 @@ public:
 
         if (sock < 0)
         {
-            throw std::system_error(errno, std::generic_category(), "Opening socket");
+            throw std::system_error(errno, std::system_category(), "Opening socket");
         }
 
         const auto old_name = std::move(get_name());
@@ -115,7 +105,7 @@ public:
         {
             perform_ioctl(sock, SIOCSIFNAME, &ifr, "SIOCSIFNAME ioctl failed");
         }
-        catch(...)
+        catch (...)
         {
             close(sock);
             throw;
@@ -148,28 +138,28 @@ private:
 class Tun : public TunTapNetworkInterface
 {
 public:
-    Tun(int ni_desc, ifreq &ifr) :
-        TunTapNetworkInterface::TunTapNetworkInterface(ni_desc)
+    Tun(int ni_desc, ifreq &ifr) : TunTapNetworkInterface::TunTapNetworkInterface(ni_desc)
     {
         ifr.ifr_flags = IFF_TUN | IFF_NO_PI;
 
         if (!set_if_features(ifr))
         {
-            throw std::system_error(errno, std::generic_category(), "Can't set interface features");
+            throw std::system_error(errno, std::system_category(), "Can't set interface features");
         }
 
         perform_ioctl(*this, TUNSETIFF, &ifr, "TUNSETIFF ioctl failed");
     }
     Tun(Tun &&other) : TunTapNetworkInterface::TunTapNetworkInterface(std::move(other)) {}
 
-    virtual const std::string type() const override { return "tun"; }
+    const std::string type() const override { return "tun"; }
 
-    Tun &operator=(const Tun&) = delete;
-    Tun& operator=(Tun &&other)
+    Tun &operator=(const Tun &) = delete;
+    Tun &operator=(Tun &&other)
     {
         TunTapNetworkInterface::operator=(std::move(other));
         return *this;
     }
+
 protected:
     bool set_if_features(ifreq &ifr)
     {
@@ -193,17 +183,16 @@ protected:
 class Tap : public TunTapNetworkInterface
 {
 public:
-    Tap(int ni_desc, ifreq &ifr) :
-        TunTapNetworkInterface::TunTapNetworkInterface(ni_desc)
+    Tap(int ni_desc, ifreq &ifr) : TunTapNetworkInterface::TunTapNetworkInterface(ni_desc)
     {
         ifr.ifr_flags = IFF_TAP;
         perform_ioctl(*this, TUNSETIFF, &ifr, "TUNSETIFF ioctl failed");
     }
     Tap(Tap &&other) : TunTapNetworkInterface::TunTapNetworkInterface(std::move(other)) {}
 
-    virtual const std::string type() const override { return "tap"; }
+    const std::string type() const override { return "tap"; }
 
-    Tap& operator=(Tap &&other)
+    Tap &operator=(Tap &&other)
     {
         TunTapNetworkInterface::operator=(std::move(other));
         return *this;
@@ -227,32 +216,25 @@ public:
         ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
         perform_ioctl(sock, SIOCSIFHWADDR, &ifr, "Can't set interface address");
     }
-
 };
 
 
 class TunTapController
 {
 public:
-    Tap open_tap(const std::optional<std::string> &dev_name = std::nullopt)
-    {
-        return internal_open<Tap>(dev_name);
-    }
+    Tap open_tap(const std::optional<std::string> &dev_name = std::nullopt) { return internal_open<Tap>(dev_name); }
 
-    Tun open_tun(const std::optional<std::string> &dev_name = std::nullopt)
-    {
-        return internal_open<Tun>(dev_name);
-    }
+    Tun open_tun(const std::optional<std::string> &dev_name = std::nullopt) { return internal_open<Tun>(dev_name); }
 
 private:
-    template<class T>
+    template <class T>
     T internal_open(const std::optional<std::string> &dev_name)
     {
         int dev_fd = open("/dev/net/tun", O_RDWR);
 
         if (dev_fd < 0)
         {
-            throw std::system_error(errno, std::generic_category(), "Opening interface");
+            throw std::system_error(errno, std::system_category(), "Opening interface");
         }
 
         ifreq ifr = {0};
@@ -269,11 +251,10 @@ private:
 
         return std::move(T(dev_fd, ifr));
     }
-
 };
 
 
-int main(int argc, const char * const argv[])
+int main(int argc, const char *const argv[])
 {
     const auto buffer_size = 1600;
     TunTapController controller;
@@ -283,12 +264,9 @@ int main(int argc, const char * const argv[])
         Tap tt_iface{std::move((argc > 1) ? controller.open_tap(std::string(argv[1])) : controller.open_tap())};
         auto &&dev_name = std::move(tt_iface.get_name());
 
-        std::cout
-            << "Device " << dev_name
-            << " was opened." << std::endl;
+        std::cout << "Device " << dev_name << " was opened." << std::endl;
 
         std::vector<char> buf(buffer_size);
-        int bytes_count;
 
         uint8_t mac_addr[] = {0x12, 0x10, 0x20, 0x30, 0x40, 0x50};
 
@@ -296,17 +274,12 @@ int main(int argc, const char * const argv[])
 
         while (true)
         {
-            std::cout
-                << "Waiting for data..."
-                << std::endl;
+            int bytes_count;
+            std::cout << "Waiting for data..." << std::endl;
             bytes_count = read(tt_iface, &buf[0], buf.size());
-            std::cout
-                << "Read "
-                << bytes_count << " bytes "
-                << "from " << dev_name << "."
-                << std::endl;
+            std::cout << "Read " << bytes_count << " bytes "
+                      << "from " << dev_name << "." << std::endl;
         }
-
     }
     catch (const std::exception &e)
     {
@@ -316,4 +289,3 @@ int main(int argc, const char * const argv[])
 
     return EXIT_SUCCESS;
 }
-
