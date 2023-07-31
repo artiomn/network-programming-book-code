@@ -1,13 +1,11 @@
-FROM gcc:12
+FROM gcc:13
 
 MAINTAINER artiomn
 
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update \
-  && gpg --fetch-keys https://neilalexander.s3.eu-west-2.amazonaws.com/deb/key.txt \
-  && gpg --export 569130E8CA20FBC4CB3FDE555898470A764B32C9 | apt-key add - \
-  && echo 'deb https://deb.debian.org/debian bullseye-backports main contrib non-free' >> /etc/apt/sources.list.d/backports.list \
+#  && echo 'deb https://deb.debian.org/debian bullseye-backports main contrib non-free' >> /etc/apt/sources.list.d/backports.list \
 #  && echo 'deb http://neilalexander.s3.eu-west-2.amazonaws.com/deb/ debian yggdrasil' >> /etc/apt/sources.list.d/yggdrasil.list \
   && apt-get update \
   && apt-get -y --no-install-recommends --show-progress install \
@@ -32,20 +30,20 @@ RUN apt-get update \
     libevent-2\* libevent-dev libev-dev libuv1-dev \
     libc-ares-dev \
     libpoco-dev \
-    libthrift-0.13.0 \
+    libthrift-0.17.0 \
     libthrift-dev \
     libtorrent-dev \
     libtorrent-rasterbar-dev \
     less \
     meson \
     mpi-default-dev \
-    netcat \
+    netcat-openbsd \
     nginx \
     net-tools \
     php-common libapache2-mod-php php-cli \
     protobuf-compiler \
     protobuf-compiler-grpc \
-    python \
+    python3 \
     python3-cryptography \
     python3-django \
     python3-fastapi \
