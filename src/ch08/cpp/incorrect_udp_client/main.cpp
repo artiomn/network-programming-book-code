@@ -1,4 +1,8 @@
-#define  _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <socket_wrapper/socket_class.h>
+#include <socket_wrapper/socket_headers.h>
+#include <socket_wrapper/socket_wrapper.h>
 
 #include <cassert>
 #include <cstring>
@@ -8,10 +12,6 @@
 #include <iterator>
 #include <string>
 #include <vector>
-
-#include <socket_wrapper/socket_headers.h>
-#include <socket_wrapper/socket_wrapper.h>
-#include <socket_wrapper/socket_class.h>
 
 
 const size_t command_size = 5;
@@ -34,14 +34,10 @@ int main(int argc, const char* argv[])
         return EXIT_FAILURE;
     }
 
-    const std::string host_name = { argv[1] };
-    const struct hostent *remote_host { gethostbyname(host_name.c_str()) };
+    const std::string host_name = {argv[1]};
+    const struct hostent* remote_host{gethostbyname(host_name.c_str())};
 
-    struct sockaddr_in server_addr =
-    {
-        .sin_family = AF_INET,
-        .sin_port = htons(std::stoi(argv[2]))
-    };
+    struct sockaddr_in server_addr = {.sin_family = AF_INET, .sin_port = htons(std::stoi(argv[2]))};
 
     server_addr.sin_addr.s_addr = *reinterpret_cast<const in_addr_t*>(remote_host->h_addr);
 
@@ -64,13 +60,10 @@ int main(int argc, const char* argv[])
                 return EXIT_FAILURE;
             }
         }
-
     }
     else
     {
         std::cerr << sock_wrap.get_last_error_string() << std::endl;
         return EXIT_FAILURE;
     }
-
 }
-
