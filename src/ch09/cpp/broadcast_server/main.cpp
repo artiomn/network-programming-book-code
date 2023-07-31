@@ -1,19 +1,19 @@
-#include <cstdlib>
+#include <socket_wrapper/socket_class.h>
+#include <socket_wrapper/socket_headers.h>
+#include <socket_wrapper/socket_wrapper.h>
+
 #include <chrono>
+#include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <string>
 #include <thread>
 
-#include <socket_wrapper/socket_headers.h>
-#include <socket_wrapper/socket_wrapper.h>
-#include <socket_wrapper/socket_class.h>
-
 
 const size_t buffer_size = 256;
 
 
-int main(int argc, char const * const argv[])
+int main(int argc, char const* const argv[])
 {
     using namespace std::chrono_literals;
 
@@ -25,7 +25,7 @@ int main(int argc, char const * const argv[])
 
     socket_wrapper::SocketWrapper sock_wrap;
 
-    const int port { std::stoi(argv[1]) };
+    const int port{std::stoi(argv[1])};
 
     std::cout << "Receiving messages on the port " << port << "...\n";
 
@@ -53,7 +53,6 @@ int main(int argc, char const * const argv[])
 
     while (true)
     {
-
         if (recv(sock, buffer, sizeof(buffer) - 1, 0) < 0)
         {
             std::cerr << sock_wrap.get_last_error_string() << std::endl;

@@ -1,16 +1,16 @@
-#include <cstdlib>
+#include <socket_wrapper/socket_class.h>
+#include <socket_wrapper/socket_headers.h>
+#include <socket_wrapper/socket_wrapper.h>
+
 #include <chrono>
+#include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <string>
 #include <thread>
 
-#include <socket_wrapper/socket_headers.h>
-#include <socket_wrapper/socket_wrapper.h>
-#include <socket_wrapper/socket_class.h>
 
-
-int main(int argc, const char * const argv[])
+int main(int argc, const char* const argv[])
 {
     using namespace std::chrono_literals;
 
@@ -22,7 +22,7 @@ int main(int argc, const char * const argv[])
 
     socket_wrapper::SocketWrapper sock_wrap;
 
-    const int port { std::stoi(argv[1]) };
+    const int port{std::stoi(argv[1])};
 
     std::cout << "Running sending on the port " << port << "...\n";
 
@@ -49,7 +49,8 @@ int main(int argc, const char * const argv[])
     while (true)
     {
         std::cout << "Sending message to broadcast..." << std::endl;
-        sendto(sock, message.c_str(), message.length(), 0, reinterpret_cast<const sockaddr*>(&addr), sizeof(sockaddr_in));
+        sendto(
+            sock, message.c_str(), message.length(), 0, reinterpret_cast<const sockaddr*>(&addr), sizeof(sockaddr_in));
         std::cout << "Message was sent..." << std::endl;
         std::this_thread::sleep_for(1s);
     }
