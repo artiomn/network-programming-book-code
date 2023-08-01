@@ -3,6 +3,7 @@
 import socket
 import sys
 
+# pylint: disable=C0412(ungrouped-imports)
 from os import path
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
@@ -11,9 +12,10 @@ from typing import Optional
 
 try:
     from os import pathconf
+
     MAX_PATH = pathconf('/', 'PC_PATH_MAX')
 except ImportError:
-    MAX_PATH=250
+    MAX_PATH = 250
 
 
 BUFFER_SIZE = 4096
@@ -24,20 +26,20 @@ class Client:
         print(f'Client [{client_sock.fileno()}] was created...')
         self._sock_file = client_sock.makefile('rwb')
 
-    def recv_file_path(self):
+    def recv_file_path(self) -> Optional[Path]:
         print('Reading user request...')
-        request_data = self._sock_file.readline()
-        if not request_data:
-            return
+        request_data_bin = self._sock_file.readline()
+        if not request_data_bin:
+            return None
 
-        request_data = request_data.decode().rstrip()
+        request_data = request_data_bin.decode().rstrip()
         print(f'Request = "{request_data}"')
 
         file_path = path.normpath(Path(request_data))
 
         cwd = str(Path.cwd())
         if str(file_path).find(cwd) == 0:
-            file_path = request_data[len(cwd):]
+            file_path = request_data[len(cwd) :]
 
         return Path(cwd) / file_path.lstrip('/\\')
 
@@ -85,8 +87,7 @@ def send_file_to_the_client(c_sock: socket.socket):
 
 def need_to_remove_task(task):
     if not task.running():
-        print(f'Request completed with a result = {task.result()}...\n'
-              'Removing from list.')
+        print(f'Request completed with a result = {task.result()}...\n' 'Removing from list.')
         return False
 
     return True
@@ -98,17 +99,20 @@ if '__main__' == __name__:
         sys.exit(1)
     port = sys.argv[1]
 
-    address = socket.getaddrinfo(host=None, port=port,
-                                 family=socket.AF_INET, type=socket.SOCK_STREAM, proto=socket.IPPROTO_TCP,
-                                 flags=socket.AI_PASSIVE)
+    address_a = socket.getaddrinfo(
+        host=None,
+        port=port,
+        family=socket.AF_INET,
+        type=socket.SOCK_STREAM,
+        proto=socket.IPPROTO_TCP,
+        flags=socket.AI_PASSIVE,
+    )
 
-    address = address[0][-1]
+    address = address_a[0][-1]
     pending_tasks = []
 
-    with ThreadPoolExecutor(max_workers=10) as thread_pool,\
-            socket.create_server(address, reuse_port=True) as server:
-        print(f'Listening on port {port}...\n'
-              f'Server path: {Path.cwd()}')
+    with ThreadPoolExecutor(max_workers=10) as thread_pool, socket.create_server(address, reuse_port=True) as server:
+        print(f'Listening on port {port}...\n' f'Server path: {Path.cwd()}')
 
         while True:
             sock, client_addr = server.accept()

@@ -1,27 +1,26 @@
+extern "C"
+{
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/uio.h>
+}
+
+#include <socket_wrapper/socket_class.h>
+#include <socket_wrapper/socket_functions.h>
+#include <socket_wrapper/socket_headers.h>
+#include <socket_wrapper/socket_wrapper.h>
+
+#include <cerrno>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-#include <cerrno>
-
-extern "C"
-{
-#   include <signal.h>
-#   include <sys/types.h>
-#   include <sys/uio.h>
-}
-
-#include <socket_wrapper/socket_headers.h>
-#include <socket_wrapper/socket_functions.h>
-#include <socket_wrapper/socket_wrapper.h>
-#include <socket_wrapper/socket_class.h>
-
 
 const auto clients_count = 3;
 
 
-int main(int argc, const char * const argv[])
+int main(int argc, const char *const argv[])
 {
     if (argc != 2)
     {
@@ -56,14 +55,10 @@ int main(int argc, const char * const argv[])
             throw std::system_error(errno, std::system_category(), "listen");
         }
 
-        std::cout
-            << "Listening on port " << argv[1] << "...\n"
-            << std::endl;
+        std::cout << "Listening on port " << argv[1] << "...\n" << std::endl;
 
         auto client_sock = socket_wrapper::accept_client(server_sock);
-        std::cout
-            << "Accepted client..."
-            << std::endl;
+        std::cout << "Accepted client..." << std::endl;
 
         std::vector<char> data_buffer(256);
 
@@ -101,13 +96,9 @@ int main(int argc, const char * const argv[])
     }
     catch (const std::exception &e)
     {
-        std::cerr
-            << e.what()
-            << ": " << sock_wrap.get_last_error_string() << "!"
-            << std::endl;
+        std::cerr << e.what() << ": " << sock_wrap.get_last_error_string() << "!" << std::endl;
         return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;
 }
-

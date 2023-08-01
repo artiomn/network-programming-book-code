@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <cerrno>
 #include <filesystem>
 #include <fstream>
 #include <future>
@@ -12,25 +13,23 @@
 #include <thread>
 #include <vector>
 
-#include <cerrno>
-
 #if !defined(_WIN32)
 extern "C"
 {
-#   include <signal.h>
+#    include <signal.h>
 }
 #else
-#   include <cwctype>
+#    include <cwctype>
 #endif
 
-#include <socket_wrapper/socket_headers.h>
-#include <socket_wrapper/socket_functions.h>
-#include <socket_wrapper/socket_wrapper.h>
 #include <socket_wrapper/socket_class.h>
+#include <socket_wrapper/socket_functions.h>
+#include <socket_wrapper/socket_headers.h>
+#include <socket_wrapper/socket_wrapper.h>
 
 
 #if !defined(MAX_PATH)
-#   define MAX_PATH (256)
+#    define MAX_PATH (256)
 #endif
 
 
@@ -42,15 +41,15 @@ namespace fs = std::filesystem;
 #if defined(_WIN32)
 const wchar_t separ = fs::path::preferred_separator;
 #else
-const wchar_t separ = *reinterpret_cast<const wchar_t*>(&fs::path::preferred_separator);
+const wchar_t separ = *reinterpret_cast<const wchar_t *>(&fs::path::preferred_separator);
 #endif
 
 
 class Transceiver
 {
 public:
-    Transceiver(socket_wrapper::Socket &&client_sock) : client_sock_(std::move(client_sock)) {}
-    Transceiver(const Transceiver&) = delete;
+    explicit Transceiver(socket_wrapper::Socket &&client_sock) : client_sock_(std::move(client_sock)) {}
+    explicit Transceiver(const Transceiver &) = delete;
     Transceiver() = delete;
 
 public:
@@ -64,7 +63,8 @@ public:
 
         while (transmit_bytes_count != size)
         {
-            auto result = send(client_sock_, &(buffer.data()[0]) + transmit_bytes_count, size - transmit_bytes_count, 0);
+            auto result =
+                send(client_sock_, &(buffer.data()[0]) + transmit_bytes_count, size - transmit_bytes_count, 0);
             if (-1 == result)
             {
                 if (need_to_repeat()) continue;
@@ -77,7 +77,7 @@ public:
         return true;
     }
 
-    bool send_file(fs::path const& file_path)
+    bool send_file(fs::path const &file_path)
     {
         std::vector<char> buffer(buffer_size);
         std::ifstream file_stream(file_path, std::ifstream::binary);
@@ -114,8 +114,8 @@ public:
             }
 
             auto fragment_begin = buffer.begin() + recv_bytes;
-            auto ret_iter = std::find_if(fragment_begin, fragment_begin + result,
-                                         [](char sym) { return '\n' == sym || '\r' == sym;  });
+            auto ret_iter = std::find_if(
+                fragment_begin, fragment_begin + result, [](char sym) { return '\n' == sym || '\r' == sym; });
             if (ret_iter != buffer.end())
             {
                 *ret_iter = '\0';
@@ -148,9 +148,9 @@ private:
 #    endif
 #endif
                 return true;
-       }
+        }
 
-       return false;
+        return false;
     };
 
 private:
@@ -161,13 +161,10 @@ private:
 class Client
 {
 public:
-    Client(socket_wrapper::Socket &&sock) :
-        tsr_(std::move(sock))
+    explicit Client(socket_wrapper::Socket &&sock) : tsr_(std::move(sock))
     {
-        std::cout
-            << "Client ["<< static_cast<int>(tsr_.ts_socket()) << "] "
-            << "was created..."
-            << std::endl;
+        std::cout << "Client [" << static_cast<int>(tsr_.ts_socket()) << "] "
+                  << "was created..." << std::endl;
     }
 
     std::optional<fs::path> recv_file_path()
@@ -179,12 +176,9 @@ public:
         auto file_path = fs::weakly_canonical(request_data).wstring();
 
 #if defined(_WIN32)
-        std::transform(cur_path.begin(), cur_path.end(), cur_path.begin(),
-            [](wchar_t c) { return std::towlower(c); }
-        );
-        std::transform(file_path.begin(), file_path.end(), file_path.begin(),
-            [](wchar_t c) { return std::towlower(c); }
-        );
+        std::transform(cur_path.begin(), cur_path.end(), cur_path.begin(), [](wchar_t c) { return std::towlower(c); });
+        std::transform(
+            file_path.begin(), file_path.end(), file_path.begin(), [](wchar_t c) { return std::towlower(c); });
 #endif
         if (file_path.find(cur_path) == 0)
         {
@@ -228,7 +222,7 @@ private:
 };
 
 
-int main(int argc, const char * const argv[])
+int main(int argc, const char *const argv[])
 {
     if (argc != 2)
     {
@@ -250,47 +244,42 @@ int main(int argc, const char * const argv[])
 
         if (!server_sock)
         {
-            throw std::system_error(errno, std::system_category(),
-                                    "Socket creation error");
+            throw std::system_error(errno, std::system_category(), "Socket creation error");
         }
 
         socket_wrapper::set_reuse_addr(server_sock);
 
         if (bind(server_sock, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
         {
-            throw std::system_error(errno, std::system_category(),
-                                    "Bind error");
+            throw std::system_error(errno, std::system_category(), "Bind error");
         }
 
         std::list<std::future<bool>> pending_tasks;
 
         if (listen(server_sock, clients_count) < 0)
         {
-            throw std::system_error(errno, std::system_category(),
-                                    "Listen error");
+            throw std::system_error(errno, std::system_category(), "Listen error");
         }
 
-        std::cout
-            << "Listening on port " << argv[1] << "...\n"
-            << "Server path: " << fs::current_path()
-            << std::endl;
+        std::cout << "Listening on port " << argv[1] << "...\n"
+                  << "Server path: " << fs::current_path() << std::endl;
 
         while (true)
         {
             auto client_sock = socket_wrapper::accept_client(server_sock);
 
-            pending_tasks.push_back(std::async(std::launch::async, [&](socket_wrapper::Socket &&sock)
-            {
-                Client client(std::move(sock));
-                std::cout << "Client tid = " << std::this_thread::get_id() << std::endl;
-                auto result = client.process();
-                std::cout
-                    << "Client with tid = " << std::this_thread::get_id()
-                    << " exiting..."
-                    << std::endl;
+            pending_tasks.push_back(std::async(
+                std::launch::async,
+                [&](socket_wrapper::Socket &&sock)
+                {
+                    Client client(std::move(sock));
+                    std::cout << "Client tid = " << std::this_thread::get_id() << std::endl;
+                    auto result = client.process();
+                    std::cout << "Client with tid = " << std::this_thread::get_id() << " exiting..." << std::endl;
 
-                return result;
-            }, std::move(client_sock)));
+                    return result;
+                },
+                std::move(client_sock)));
 
             std::cout << "Cleaning tasks..." << std::endl;
             for (auto task = pending_tasks.begin(); task != pending_tasks.end();)
@@ -298,24 +287,20 @@ int main(int argc, const char * const argv[])
                 if (std::future_status::ready == task->wait_for(1ms))
                 {
                     auto fu = task++;
-                    std::cout
-                        << "Request completed with a result = " << fu->get() << "...\n"
-                        << "Removing from list." << std::endl;
+                    std::cout << "Request completed with a result = " << fu->get() << "...\n"
+                              << "Removing from list." << std::endl;
                     pending_tasks.erase(fu);
                 }
-                else ++task;
+                else
+                    ++task;
             }
         }
     }
     catch (const std::exception &e)
     {
-        std::cerr
-            << e.what()
-            << ": " << sock_wrap.get_last_error_string() << "!"
-            << std::endl;
+        std::cerr << e.what() << ": " << sock_wrap.get_last_error_string() << "!" << std::endl;
         return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;
 }
-
