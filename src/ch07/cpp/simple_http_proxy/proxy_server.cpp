@@ -65,7 +65,7 @@ std::string ProxyServer::read_line(socket_wrapper::Socket &s) const
                 continue;
             else
 #endif
-                throw std::logic_error(sock_wrap_.get_last_error_string());
+                throw std::system_error(errno, std::system_category(), "recv");
         }
         // EOF.
         else if (0 == read_bytes)
@@ -226,7 +226,7 @@ socket_wrapper::Socket ProxyServer::connect_to_target_server(const std::string &
         }
     }  // for
 
-    throw std::runtime_error("Connection error: " + sock_wrap_.get_last_error_string());
+    throw std::system_error(errno, std::system_category(), "Connection error");
 }
 
 
@@ -358,7 +358,7 @@ void ProxyServer::start()
 
     if (bind(sock_, reinterpret_cast<const sockaddr *>(&addr), sizeof(addr)) != 0)
     {
-        throw std::logic_error(sock_wrap_.get_last_error_string());
+        throw std::system_error(errno, std::system_category(), "bind()");
     }
 
     // Start listening on port 'port' for incoming requests and serve them.
@@ -381,7 +381,7 @@ void ProxyServer::start()
 
         if (!client_sock)
         {
-            throw std::logic_error(sock_wrap_.get_last_error_string());
+            throw std::system_error(errno, std::system_category(), "Accept connection");
         }
 
         // Start a new thread for every new request.

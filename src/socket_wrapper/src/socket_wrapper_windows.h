@@ -1,9 +1,11 @@
 #pragma once
 
+#include <windows.h>
+
 #include <cerrno>
 #include <cstring>
 #include <stdexcept>
-#include <windows.h>
+#include <string>
 
 #include "socket_wrapper_impl.h"
 
@@ -16,38 +18,31 @@ class SocketWrapperImpl : ISocketWrapperImpl
 public:
     SocketWrapperImpl() : initialized_(false) {}
 
-    void initialize()
+    void initialize() override
     {
         WSADATA wsaData;
         // Initialize Winsock
         auto result = WSAStartup(MAKEWORD(2, 2), &wsaData);
         if (result != 0)
         {
-            throw std::runtime_error(get_last_error_string());
+            throw std::system_error(errno, std::system_category(), "WSAStartup()");
         }
     }
 
-    bool initialized() const
-    {
-        return initialized_;
-    }
+    bool initialized() const override { return initialized_; }
 
-    void deinitialize()
-    {
-        WSACleanup();
-    }
+    void deinitialize() override { WSACleanup(); }
 
-    int get_last_error_code() const
-    {
-        return WSAGetLastError();
-    }
+    int get_last_error_code() const override { return WSAGetLastError(); }
 
-    std::string get_last_error_string() const
+    std::string get_last_error_string() override const
     {
         // return std::strerror(std::errno);
         char *s = NULL;
-        FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL, get_last_error_code(), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), reinterpret_cast<LPSTR>(&s), 0, nullptr);
+        FormatMessage(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
+            get_last_error_code(), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), reinterpret_cast<LPSTR>(&s), 0,
+            nullptr);
         std::string result{s};
         LocalFree(s);
 
@@ -58,4 +53,4 @@ private:
     bool initialized_;
 };
 
-}
+}  // namespace socket_wrapper
