@@ -1,7 +1,8 @@
+#include "packet_printer.h"
+
 #include <iomanip>
 #include <iostream>
-
-#include "packet_printer.h"
+#include <string>
 
 // Ethernet headers are always exactly 14 bytes.
 const auto SIZE_ETHERNET = 14;
@@ -9,32 +10,53 @@ const auto SIZE_ETHERNET = 14;
 // Ethernet addresses are 6 bytes.
 const auto ETHER_ADDR_LEN = 6;
 
+// IP header size in bytes.
+const auto ip_header_size = 20;
+
 // Ethernet header.
 struct sniff_ethernet
 {
-    u_char  ether_dhost[ETHER_ADDR_LEN];    /* destination host address */
-    u_char  ether_shost[ETHER_ADDR_LEN];    /* source host address */
-    u_short ether_type;                     /* IP? ARP? RARP? etc */
+    u_char ether_dhost[ETHER_ADDR_LEN]; /* destination host address */
+    u_char ether_shost[ETHER_ADDR_LEN]; /* source host address */
+    u_short ether_type;                 /* IP? ARP? RARP? etc */
 };
 
+// Reserved fragment flag.
+const u_short ip_rf = 0x8000;
+// don't fragment flag.
+const u_short ip_df = 0x4000;
+// more fragments flag.
+const u_short ip_mf = 0x2000;
+// mask for fragmenting bits.
+const u_short ip_offmask = 0x1fff;
 
 // IP header.
 struct sniff_ip
 {
-    u_char  ip_vhl;         // Version << 4 | header length >> 2.
-    u_char  ip_tos;         // Type of service.
-    u_short ip_len;         // Total length.
-    u_short ip_id;          // Identification.
-    u_short ip_off;         /* fragment offset field */
-    const u_short ip_rf = 0x8000;        /* reserved fragment flag */
-    const u_short ip_df = 0x4000;        /* don't fragment flag */
-    const u_short ip_mf = 0x2000;        /* more fragments flag */
-    const u_short ip_offmask = 0x1fff;       /* mask for fragmenting bits */
-    u_char  ip_ttl;         /* time to live */
-    u_char  ip_p;           /* protocol */
-    u_short ip_sum;         /* checksum */
+    // Version << 4 | header length >> 2.
+    u_char ip_vhl;
+    // Type of service.
+    u_char ip_tos;
+    // Total length.
+    u_short ip_len;
+    u_short ip_id;  // Identification.
+    u_short ip_off; /* fragment offset field */
+    u_char ip_ttl;  /* time to live */
+    u_char ip_p;    /* protocol */
+    u_short ip_sum; /* checksum */
     in_addr ip_src;
-    in_addr ip_dst;  /* source and dest address */
+    in_addr ip_dst; /* source and dest address */
+};
+
+
+struct sniff_ipv6
+{
+    u_int version_class_flow;
+    u_short payload_len;
+    u_char next_header;
+    u_char hop_limit;
+    struct in6_addr src;
+    struct in6_addr dest;
 };
 
 
@@ -63,8 +85,8 @@ struct sniff_tcp
     // Acknowledgement number.
     tcp_seq th_ack;
     // Data offset, rsvd.
-    u_char  th_offx2;
-    u_char  th_flags;
+    u_char th_offx2;
+    u_char th_flags;
     const u_char th_fin = 0x01;
     const u_char th_syn = 0x02;
     const u_char th_rst = 0x04;
@@ -73,7 +95,7 @@ struct sniff_tcp
     const u_char th_urg = 0x20;
     const u_char th_ece = 0x40;
     const u_char th_cwr = 0x80;
-    const u_char th_flags2 = (th_fin|th_syn|th_rst|th_ack_f|th_urg|th_ece|th_cwr);
+    const u_char th_flags2 = (th_fin | th_syn | th_rst | th_ack_f | th_urg | th_ece | th_cwr);
     u_short th_win;
     u_short th_sum;
     u_short th_urp;
@@ -88,42 +110,37 @@ constexpr u_char th_off(const sniff_tcp *th)
 
 void PacketPrinter::print_hex_ascii_line(const u_char *payload, int len, int offset)
 {
-
-    int i;
-    int gap;
-    const u_char *ch;
-
-    /* offset */
+    // Offset.
     std::cout << std::setw(5) << offset << std::endl;
 
-    /* hex */
-    ch = payload;
-    for(i = 0; i < len; ++i)
+    // Hex.
+    const u_char *ch = payload;
+    for (int i = 0; i < len; ++i)
     {
         std::cout << std::setw(2) << std::hex << *ch++ << " ";
-        /* print extra space after 8th byte for visual aid */
+        // Print extra space after 8th byte for visual aid.
         if (7 == i) std::cout << " ";
     }
 
     std::cout << std::resetiosflags(std::ios_base::basefield);
 
-    /* print space to handle line less than 8 bytes */
+    // Print space to handle line less than 8 bytes.
     if (len < 8) std::cout << " ";
 
-    /* fill hex gap with spaces if not full line */
+    // Fill hex gap with spaces if not full line.
     if (len < 16)
     {
-        gap = 16 - len;
-        for (i = 0; i < gap; ++i)
+        int gap = 16 - len;
+        for (int i = 0; i < gap; ++i)
         {
             std::cout << "   ";
         }
     }
     std::cout << "   ";
 
-    /* ascii (if printable) */
+    // ASCII (if printable).
     ch = payload;
-    for(i = 0; i < len; ++i)
+    for (int i = 0; i < len; ++i)
     {
         if (isprint(*ch))
             std::cout << *ch++;
@@ -134,13 +151,15 @@ void PacketPrinter::print_hex_ascii_line(const u_char *payload, int len, int off
     std::cout << std::endl;
 }
 
+
 // Print packet payload data (avoid printing binary data).
 void PacketPrinter::print_payload(const u_char *payload, int len)
 {
     int len_rem = len;
-    int line_width = 16;            /* number of bytes per line */
-    int line_len;
-    int offset = 0;                    /* zero-based offset counter */
+    // number of bytes per line.
+    int line_width = 16;
+    // zero-based offset counter.
+    int offset = 0;
     const u_char *ch = payload;
 
     if (len <= 0) return;
@@ -155,16 +174,16 @@ void PacketPrinter::print_payload(const u_char *payload, int len)
     // Data spans multiple lines.
     for (;;)
     {
-        /* compute current line length */
-        line_len = line_width % len_rem;
-        /* print line */
+        // Compute current line length.
+        int line_len = line_width % len_rem;
+        // Print line.
         print_hex_ascii_line(ch, line_len, offset);
-        /* compute total remaining */
+        // Compute total remaining.
         len_rem = len_rem - line_len;
-        /* shift pointer to remaining bytes to print */
+        // Shift pointer to remaining bytes to print.
         ch = ch + line_len;
         offset = offset + line_width;
-        /* check if we have line width chars or less */
+        // Check if we have line width chars or less.
         if (len_rem <= line_width)
         {
             /* print last line and get out */
@@ -174,85 +193,135 @@ void PacketPrinter::print_payload(const u_char *payload, int len)
     }
 }
 
+
 // Dissect/print packet
 void PacketPrinter::got_packet(u_char *args, const pcap_pkthdr *header, const u_char *packet)
 {
     (void)args;
     (void)header;
 
-    const sniff_ethernet *ethernet = reinterpret_cast<const sniff_ethernet*>(packet);
-    const sniff_ip *ip = reinterpret_cast<const sniff_ip*>(packet + SIZE_ETHERNET);
+    std::cout << "\nPacket number: " << packet_count_++ << std::endl;
+    const sniff_ethernet *ethernet = reinterpret_cast<const sniff_ethernet *>(packet);
+
+    std::string proto_addr;
+    int network_proto_type;
+    int transport_proto_type;
+    const void *src, *dst;
+    size_t size_ip;
+    size_t ip_len;
+
+
+    switch (ntohs(ethernet->ether_type))
+    {
+        case 0x0800:
+        {
+            std::cout << "  IPv4 protocol" << std::endl;
+            proto_addr.resize(INET_ADDRSTRLEN);
+            network_proto_type = AF_INET;
+
+            const sniff_ip *ip = reinterpret_cast<const sniff_ip *>(packet + SIZE_ETHERNET);
+
+            size_ip = ip_hl(ip) * 4;
+            ip_len = ntohs(ip->ip_len);
+
+            if (size_ip < ip_header_size)
+            {
+                std::cout << "   * Invalid IP header length: " << size_ip << " bytes" << std::endl;
+                return;
+            }
+
+            transport_proto_type = ip->ip_p;
+            src = &ip->ip_src;
+            dst = &ip->ip_dst;
+            break;
+        }
+        case 0x86DD:
+        {
+            std::cout << "  IPv6 protocol" << std::endl;
+            proto_addr.resize(INET6_ADDRSTRLEN);
+            network_proto_type = AF_INET6;
+
+            const sniff_ipv6 *ip = reinterpret_cast<const sniff_ipv6 *>(packet + SIZE_ETHERNET);
+
+            size_ip = sizeof(sniff_ipv6);
+            ip_len = ntohs(ip->payload_len);
+
+            transport_proto_type = ip->next_header;
+            src = &ip->src;
+            dst = &ip->dest;
+            break;
+        }
+        default:
+        {
+            std::cout << "  Unknown EtherType = 0x" << std::hex << ntohs(ethernet->ether_type) << std::endl;
+            return;
+        }
+    }
+
+    std::cout << std::dec << "    From: " << inet_ntop(network_proto_type, src, &proto_addr[0], proto_addr.size())
+              << "\n";
+    std::cout << "    To: " << inet_ntop(network_proto_type, dst, &proto_addr[0], proto_addr.size()) << std::endl;
+
     const sniff_tcp *tcp;
     // Packet payload.
     const char *payload;
 
-    /* define/compute ip header offset */
-    int size_ip = ip_hl(ip) * 4;
+    // Define/compute ip header offset.
     int size_tcp;
     int size_payload;
 
-    std::cout << "\nPacket number: " << packet_count_++ << std::endl;
-
-    if (size_ip < 20)
-    {
-        std::cout << "   * Invalid IP header length: " << size_ip <<  " bytes" << std::endl;
-        return;
-    }
-
-    /* print source and destination IP addresses */
-    std::cout << "       From: " << inet_ntoa(ip->ip_src) << std::endl;
-    std::cout << "       To: " << inet_ntoa(ip->ip_dst) << std::endl;
-
-    /* determine protocol */
-    switch(ip->ip_p)
+    // Determine protocol.
+    switch (transport_proto_type)
     {
         case IPPROTO_TCP:
-            std::cout << "   Protocol: TCP" << std::endl;
-        break;
+            std::cout << "    Protocol: TCP" << std::endl;
+            break;
         case IPPROTO_UDP:
-            std::cout << "   Protocol: UDP" << std::endl;
-        return;
+            std::cout << "    Protocol: UDP" << std::endl;
+            return;
         case IPPROTO_ICMP:
-            std::cout << "   Protocol: ICMP" << std::endl;
-        return;
+            std::cout << "    Protocol: ICMP" << std::endl;
+            return;
+        case IPPROTO_ICMPV6:
+            std::cout << "    Protocol: ICMPv6" << std::endl;
+            return;
         case IPPROTO_IP:
-            std::cout << "   Protocol: IP" << std::endl;
-        return;
+            std::cout << "    Protocol: IP" << std::endl;
+            return;
+        case IPPROTO_IPV6:
+            std::cout << "    Protocol: IPv6" << std::endl;
+            return;
         default:
-            std::cout << "   Protocol: unknown" << std::endl;
-        return;
+            std::cout << "    Protocol: unknown [" << transport_proto_type << "]" << std::endl;
+            return;
     }
 
     // OK, this packet is TCP.
 
-    /* define/compute tcp header offset */
-    tcp = reinterpret_cast<const sniff_tcp*>(packet + SIZE_ETHERNET + size_ip);
+    // Define/compute tcp header offset.
+    tcp = reinterpret_cast<const sniff_tcp *>(packet + SIZE_ETHERNET + size_ip);
     size_tcp = th_off(tcp) * 4;
-    if (size_tcp < 20)
+    if (size_tcp < ip_header_size)
     {
-        std::cerr << "   * Invalid TCP header length: " << size_tcp << " bytes"  << std::endl;
+        std::cerr << "    * Invalid TCP header length: " << size_tcp << " bytes" << std::endl;
         return;
     }
 
-    std::cout
-        << "   Src port: " <<  ntohs(tcp->th_sport) << "\n"
-        << "   Dst port: " << ntohs(tcp->th_dport)
-        << std::endl;
+    std::cout << "    Src port: " << ntohs(tcp->th_sport) << "\n"
+              << "    Dst port: " << ntohs(tcp->th_dport) << std::endl;
 
-    /* define/compute tcp payload (segment) offset */
-    payload = (const char *)(packet + SIZE_ETHERNET + size_ip + size_tcp);
+    // Define/compute tcp payload (segment) offset.
+    payload = static_cast<const char *>(packet + SIZE_ETHERNET + size_ip + size_tcp);
 
-    /* compute tcp payload (segment) size */
-    size_payload = ntohs(ip->ip_len) - (size_ip + size_tcp);
+    // Compute tcp payload (segment) size.
+    size_payload = ip_len - (size_ip + size_tcp);
 
-    /*
-     * Print payload data; it might be binary, so don't just
-     * treat it as a string.
-     */
+    // Print payload data; it's usually binary, so don't just
+    // treat it as a string.
     if (size_payload > 0)
     {
-        std::cout << "   Payload (" << size_payload << " bytes):\n";
-        print_payload(reinterpret_cast<const unsigned char*>(payload), size_payload);
+        std::cout << "    Payload (" << size_payload << " bytes):\n";
+        print_payload(reinterpret_cast<const unsigned char *>(payload), size_payload);
         std::cout << std::endl;
     }
 }

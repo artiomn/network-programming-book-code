@@ -1,9 +1,10 @@
-#include <iostream>
-#include <string>
+#include <pcap.h>
+
 #include <cctype>
 #include <cerrno>
-
-#include <pcap.h>
+#include <iostream>
+#include <sstream>
+#include <string>
 
 #include "packet_printer.h"
 
@@ -19,7 +20,7 @@ static void pcap_callback(u_char *args, const pcap_pkthdr *header, const u_char 
 };
 
 
-int main(int argc, const char * const argv[])
+int main(int argc, const char *const argv[])
 {
     std::string dev;
     // Pcap error buffer.
@@ -27,7 +28,7 @@ int main(int argc, const char * const argv[])
     // Packet capture handle.
     pcap_t *handle;
 
-    std::string filter_exp = "ip";
+    std::string filter_exp = "ip or ip6";
     // Compiled filter program (expression).
     bpf_program fp;
     bpf_u_int32 mask;
@@ -43,11 +44,10 @@ int main(int argc, const char * const argv[])
     else if (argc > 2)
     {
         std::cerr << "error: unrecognized command-line options\n" << std::endl;
-        std::cout
-            << "Usage: " << argv[0] << " [interface]\n\n"
-            << "Options:\n"
-            << "    interface    Listen on <interface> for packets.\n"
-            << std::endl;
+        std::cout << "Usage: " << argv[0] << " [interface]\n\n"
+                  << "Options:\n"
+                  << "    interface    Listen on <interface> for packets.\n"
+                  << std::endl;
 
         exit(EXIT_FAILURE);
     }
@@ -74,12 +74,11 @@ int main(int argc, const char * const argv[])
     }
 
     // Print capture info.
-    std::cout
-        << "Device: " << dev << "\n"
-        << "Network mask: " << mask << "\n"
-        << "Network: " << net << "\n"
-        << "Number of packets: " << num_packets << "\n"
-        << "Filter expression: " << filter_exp << std::endl;
+    std::cout << "Device: " << dev << "\n"
+              << "Network mask: " << mask << "\n"
+              << "Network: " << net << "\n"
+              << "Number of packets: " << num_packets << "\n"
+              << "Filter expression: " << filter_exp << std::endl;
 
     // Open capture device.
     handle = pcap_open_live(dev.c_str(), SNAP_LEN, 1, 1000, errbuf);
@@ -89,34 +88,43 @@ int main(int argc, const char * const argv[])
         exit(EXIT_FAILURE);
     }
 
-    // Make sure we're capturing on an Ethernet device.
-    if (pcap_datalink(handle) != DLT_EN10MB)
+    int exit_code = EXIT_SUCCESS;
+
+    try
     {
-        std::cerr << "\"" << dev << "\" is not an Ethernet!" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+        std::stringstream ss;
+        // Make sure we're capturing on an Ethernet device.
+        if (pcap_datalink(handle) != DLT_EN10MB)
+        {
+            ss << "\"" << dev << "\" is not an Ethernet!" << std::endl;
+            throw std::logic_error(ss.str());
+        }
 
-    // Compile the filter expression.
-    if (pcap_compile(handle, &fp, filter_exp.c_str(), 0, net) == -1)
+        // Compile the filter expression.
+        if (pcap_compile(handle, &fp, filter_exp.c_str(), 0, net) == -1)
+        {
+            ss << "Couldn't parse filter \"" << filter_exp << "\": " << pcap_geterr(handle) << "!" << std::endl;
+            throw std::logic_error(ss.str());
+        }
+
+        // Apply the compiled filter.
+        if (-1 == pcap_setfilter(handle, &fp))
+        {
+            ss << "Couldn't install filter \"" << filter_exp << "\": " << pcap_geterr(handle) << "!" << std::endl;
+            throw std::logic_error(ss.str());
+        }
+
+        pcap_loop(handle, num_packets, pcap_callback, nullptr);
+    }
+    catch (const std::exception &e)
     {
-        std::cerr << "Couldn't parse filter \"" << filter_exp << "\": " << pcap_geterr(handle) << "!" << std::endl;
-        exit(EXIT_FAILURE);
+        std::cerr << e.what() << std::endl;
+        exit_code = EXIT_FAILURE;
     }
-
-    // Apply the compiled filter.
-    if (-1 == pcap_setfilter(handle, &fp))
-    {
-        std::cerr << "Couldn't install filter \"" << filter_exp << "\": " << pcap_geterr(handle) << "!" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    pcap_loop(handle, num_packets, pcap_callback, nullptr);
-
     // Cleanup.
     pcap_freecode(&fp);
     pcap_close(handle);
+    if (!exit_code) std::cout << "\nCapture complete." << std::endl;
 
-    std::cout << "\nCapture complete." << std::endl;
-
-    return EXIT_SUCCESS;
+    return exit_code;
 }
