@@ -264,7 +264,7 @@ void PacketPrinter::got_packet(u_char *args, const pcap_pkthdr *header, const u_
 
     const sniff_tcp *tcp;
     // Packet payload.
-    const char *payload;
+    const u_char *payload;
 
     // Define/compute ip header offset.
     int size_tcp;
@@ -311,7 +311,7 @@ void PacketPrinter::got_packet(u_char *args, const pcap_pkthdr *header, const u_
               << "    Dst port: " << ntohs(tcp->th_dport) << std::endl;
 
     // Define/compute tcp payload (segment) offset.
-    payload = static_cast<const char *>(packet + SIZE_ETHERNET + size_ip + size_tcp);
+    payload = static_cast<const u_char *>(packet + SIZE_ETHERNET + size_ip + size_tcp);
 
     // Compute tcp payload (segment) size.
     size_payload = ip_len - (size_ip + size_tcp);

@@ -36,7 +36,7 @@ void bind_sockets(
 
     std::cout << "Binding socket 1..." << std::endl;
     bool bind_ok = true;
-    if (bind(sock1, reinterpret_cast<const sockaddr *>(&addr1), sizeof(sockaddr)) == -1)
+    if (-1 == bind(sock1, reinterpret_cast<const sockaddr *>(&addr1), sizeof(sockaddr)))
     {
         std::cerr << "Bind error: " << sock_wrap.get_last_error_string() << std::endl;
         bind_ok = false;
@@ -53,7 +53,7 @@ void bind_sockets(
     }
 
     std::cout << "Binding socket 2..." << std::endl;
-    if (bind(sock2, reinterpret_cast<const sockaddr *>(&addr2), sizeof(sockaddr)) == -1)
+    if (-1 == bind(sock2, reinterpret_cast<const sockaddr *>(&addr2), sizeof(sockaddr)))
     {
         std::cerr << "Bind error: " << sock_wrap.get_last_error_string() << std::endl;
         bind_ok = false;
@@ -66,7 +66,7 @@ void bind_sockets(
     if (add_listen && bind_ok)
     {
         std::cout << "Listening on socket 2..." << std::endl;
-        if (listen(sock2, 1) == -1)
+        if (-1 == listen(sock2, 1))
         {
             std::cerr << "Listen error: " << sock_wrap.get_last_error_string() << std::endl;
             return;
