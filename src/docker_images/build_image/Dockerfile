@@ -5,7 +5,7 @@ MAINTAINER artiomn
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update \
-#  && echo 'deb https://deb.debian.org/debian bullseye-backports main contrib non-free' >> /etc/apt/sources.list.d/backports.list \
+  && echo 'deb https://deb.debian.org/debian bullseye-backports main contrib non-free' >> /etc/apt/sources.list.d/backports.list \
 #  && echo 'deb http://neilalexander.s3.eu-west-2.amazonaws.com/deb/ debian yggdrasil' >> /etc/apt/sources.list.d/yggdrasil.list \
   && apt-get update \
   && apt-get -y --no-install-recommends --show-progress install \
@@ -30,7 +30,7 @@ RUN apt-get update \
     libevent-2\* libevent-dev libev-dev libuv1-dev \
     libc-ares-dev \
     libpoco-dev \
-    libthrift-0.15.0 \
+    libthrift-[0-9.]\+ \
     libthrift-dev \
     libtorrent-dev \
     libtorrent-rasterbar-dev \
