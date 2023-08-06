@@ -1,4 +1,4 @@
-FROM gcc:12
+FROM gcc:13
 
 MAINTAINER artiomn
 
@@ -120,7 +120,7 @@ RUN \
   && rm -rf libhttpserver \
   && git clone --recursive --depth 1 https://github.com/corvusoft/restbed.git \
   && cd restbed \
-  && cmake -B build -DBUILD_SSL=YES -DBUILD_TESTS=NO -DCMAKE_INSTALL_PREFIX=/usr/local . \
+  && cmake -B build -DBUILD_SSL=NO -DBUILD_TESTS=NO -DCMAKE_INSTALL_PREFIX=/usr/local . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
