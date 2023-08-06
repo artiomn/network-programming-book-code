@@ -1,4 +1,4 @@
-FROM gcc:13
+FROM gcc:12
 
 MAINTAINER artiomn
 
@@ -30,7 +30,7 @@ RUN apt-get update \
     libevent-2\* libevent-dev libev-dev libuv1-dev \
     libc-ares-dev \
     libpoco-dev \
-    libthrift-0.17.0 \
+    libthrift-0.15.0 \
     libthrift-dev \
     libtorrent-dev \
     libtorrent-rasterbar-dev \
