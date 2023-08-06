@@ -5,7 +5,7 @@ MAINTAINER artiomn
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update \
-  && echo 'deb https://deb.debian.org/debian bullseye-backports main contrib non-free' >> /etc/apt/sources.list.d/backports.list \
+  && echo 'deb https://deb.debian.org/debian bookworm-backports main contrib non-free' >> /etc/apt/sources.list.d/backports.list \
 #  && echo 'deb http://neilalexander.s3.eu-west-2.amazonaws.com/deb/ debian yggdrasil' >> /etc/apt/sources.list.d/yggdrasil.list \
   && apt-get update \
   && apt-get -y --no-install-recommends --show-progress install \
@@ -127,9 +127,12 @@ RUN \
   && rm -rf restbed \
   && git clone --recursive --depth 1 https://github.com/oatpp/oatpp.git \
   && cd oatpp \
-  && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local -DOATPP_BUILD_TESTS=OFF . \
-  && cmake --build build --parallel \
-  && cmake --install build --prefix "/usr/local" \
+  # This is necessary to build oatpp \
+  && mkdir build \
+  && cd build \
+  && cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DOATPP_BUILD_TESTS=OFF .. \
+  && cmake --build . --parallel \
+  && cmake --install . --prefix "/usr/local" \
   && cd / \
   && rm -rf oatpp \
   && git clone --recursive --depth 1 https://github.com/oatpp/oatpp-websocket.git \
