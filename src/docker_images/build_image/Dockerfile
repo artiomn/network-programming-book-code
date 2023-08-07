@@ -132,9 +132,9 @@ RUN \
   && mkdir build \
   && cd build \
   && cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DOATPP_BUILD_TESTS=OFF .. \
-  && make \
+  && make -j30 \
   # && cmake --build . --parallel \
-  # && cmake --install . --prefix "/usr/local" \
+  && cmake --install . --prefix "/usr/local" \
   && cd / \
   && rm -rf oatpp \
   && git clone --recursive --depth 1 https://github.com/oatpp/oatpp-websocket.git \
