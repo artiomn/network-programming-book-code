@@ -178,7 +178,7 @@ RUN \
   && git clone --depth 1 https://github.com/chronoxor/CppServer.git \
   && cd CppServer \
   && gil update \
-  && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -G "Ninja" -B build_linux . \
+  && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_POSITION_INDEPENDENT_CODE=ON -G "Ninja" -B build_linux . \
   && cmake --build build_linux --parallel \
   && cmake --install build_linux --prefix "/usr/local" \
   && mkdir /usr/local/include/CppServer \
