@@ -132,7 +132,7 @@ RUN \
   && mkdir build \
   && cd build \
   && cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DOATPP_BUILD_TESTS=OFF .. \
-  && make -j30 \
+  && make -j32 \
   # && cmake --build . --parallel \
   && cmake --install . --prefix "/usr/local" \
   && cd / \
@@ -172,8 +172,8 @@ RUN \
   && cmake --install . --prefix "/usr/local" \
   && cd / \
   && rm -rf tgbot-cpp \
-  && pip3 install scapy pythonping ping3 atheris flatbuffers gil thriftpy2 mrjob libp2p \
-  && pip3 install --extra-index-url "https://gitlab.com/api/v4/projects/19904939/packages/pypi/simple" pythonfuzz \
+  && pip3 install --break-system-packages scapy pythonping ping3 atheris flatbuffers gil thriftpy2 mrjob libp2p \
+  && pip3 install --break-system-packages --extra-index-url "https://gitlab.com/api/v4/projects/19904939/packages/pypi/simple" pythonfuzz \
   && cd / \
   && git clone --depth 1 https://github.com/chronoxor/CppServer.git \
   && cd CppServer \
