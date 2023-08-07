@@ -12,6 +12,7 @@ RUN apt-get update \
     apache2 \
     capnproto \
     clang \
+    cmake \
     gdb \
     gdbserver \
     gosu \
@@ -79,14 +80,14 @@ RUN apt-get update \
   && systemctl disable nginx \
   && apt-get clean
 
-RUN \
-  git clone --recursive --depth 1 https://github.com/Kitware/CMake \
-  && cd CMake \
-  && ./bootstrap \
-  && make -j 16 \
-  && make install \
-  && cd / \
-  && rm -rf CMake
+#RUN \
+#  git clone --recursive --depth 1 https://github.com/Kitware/CMake \
+#  && cd CMake \
+#  && ./bootstrap \
+#  && make -j 16 \
+#  && make install \
+#  && cd / \
+#  && rm -rf CMake
 
 RUN \
   git clone --recursive --depth 1 https://github.com/google/flatbuffers \
@@ -131,8 +132,9 @@ RUN \
   && mkdir build \
   && cd build \
   && cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DOATPP_BUILD_TESTS=OFF .. \
-  && cmake --build . --parallel \
-  && cmake --install . --prefix "/usr/local" \
+  && make \
+  # && cmake --build . --parallel \
+  # && cmake --install . --prefix "/usr/local" \
   && cd / \
   && rm -rf oatpp \
   && git clone --recursive --depth 1 https://github.com/oatpp/oatpp-websocket.git \
