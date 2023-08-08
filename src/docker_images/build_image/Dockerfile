@@ -207,8 +207,8 @@ RUN \
 #  && rm -rf lithium \
   && git clone --depth 1 https://github.com/libp2p/cpp-libp2p.git \
   && cd cpp-libp2p \
-  && LANG=en_US.UTF-8 cmake -DCLANG_TIDY=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -G "Ninja" -B build . \
-  && LANG=en_US.UTF-8 cmake --build build --parallel \
+  && LANG=en_US.UTF-16LE cmake -DCLANG_TIDY=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -G "Ninja" -B build . \
+  && LANG=en_US.UTF-16LE cmake --build build --parallel \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf cpp-libp2p \
