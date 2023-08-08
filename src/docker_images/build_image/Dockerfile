@@ -15,6 +15,7 @@ RUN apt-get update \
     cmake \
     gdb \
     gdbserver \
+    golang-go \
     gosu \
     inetutils-ping \
     iproute2 \
