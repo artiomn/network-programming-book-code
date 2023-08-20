@@ -54,10 +54,6 @@ int main(int argc, const char *const argv[])
         exit(EXIT_FAILURE);
     }
 
-    while (EINPROGRESS == aio_error(&write_cb))
-    {
-    }
-
     if (-1 == aio_read(&read_cb))
     {
         perror("aio_read");
@@ -70,6 +66,8 @@ int main(int argc, const char *const argv[])
 
     ssize_t read_bytes = aio_return(&read_cb);
     std::cout << "Read " << read_bytes << " bytes: " << buffer.data();
+
+    shutdown(sock, SHUT_RDWR);
 
     return EXIT_SUCCESS;
 }
