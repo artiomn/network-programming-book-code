@@ -12,6 +12,7 @@
 #if !defined(_WIN32)
 extern "C"
 {
+#    include <fcntl.h>
 #    include <netinet/tcp.h>
 #    include <signal.h>
 #    include <sys/ioctl.h>
@@ -27,7 +28,6 @@ extern "C"
 
 #endif
 
-#include <fcntl.h>
 #include <socket_wrapper/socket_class.h>
 #include <socket_wrapper/socket_functions.h>
 #include <socket_wrapper/socket_headers.h>

@@ -1,3 +1,6 @@
+#include <socket_wrapper/socket_headers.h>
+#include <socket_wrapper/socket_wrapper.h>
+
 #include <cassert>
 #include <chrono>
 #include <cstdlib>
@@ -7,34 +10,27 @@
 #include <string>
 #include <thread>
 
-#include <socket_wrapper/socket_headers.h>
-#include <socket_wrapper/socket_wrapper.h>
 
-
-int print_ips_with_getaddrinfo(const std::string &host_name)
+int print_ips_with_getaddrinfo(const std::string& host_name)
 {
     // Need for Windows initialization.
     socket_wrapper::SocketWrapper sock_wrap;
 
-    std::cout
-        << "Getting name for \"" << host_name << "\"...\n"
-        << "Using getaddrinfo() function." << std::endl;
+    std::cout << "Getting name for \"" << host_name << "\"...\n"
+              << "Using getaddrinfo() function." << std::endl;
 
-    addrinfo hints =
-    {
-        .ai_flags= AI_CANONNAME,
+    addrinfo hints = {
+        .ai_flags = AI_CANONNAME,
         // Неважно, IPv4 или IPv6.
         .ai_family = AF_UNSPEC,
         // TCP stream-sockets.
         .ai_socktype = SOCK_STREAM,
         // Any protocol.
-        .ai_protocol = 0
-    };
+        .ai_protocol = 0};
 
     // Results.
-    
 
-    addrinfo *s_i = nullptr;
+    addrinfo* s_i = nullptr;
 
     int status = 0;
 
@@ -46,11 +42,10 @@ int print_ips_with_getaddrinfo(const std::string &host_name)
 
     std::unique_ptr<addrinfo, decltype(&freeaddrinfo)> servinfo(s_i, freeaddrinfo);
 
-    for (auto const *s = servinfo.get(); s != nullptr; s = s->ai_next)
+    for (auto const* s = servinfo.get(); s != nullptr; s = s->ai_next)
     {
         std::cout << "Canonical name: ";
-        if (s->ai_canonname)
-             std::cout << s->ai_canonname;
+        if (s->ai_canonname) std::cout << s->ai_canonname;
         std::cout << "\n";
 
         assert(s->ai_family == s->ai_addr->sa_family);
@@ -60,7 +55,7 @@ int print_ips_with_getaddrinfo(const std::string &host_name)
         {
             char ip[INET_ADDRSTRLEN];
             std::cout << "AF_INET\n";
-            sockaddr_in const * const sin = reinterpret_cast<const sockaddr_in* const>(s->ai_addr);
+            sockaddr_in const* const sin = reinterpret_cast<const sockaddr_in* const>(s->ai_addr);
             std::cout << "Address length: " << sizeof(sin->sin_addr) << "\n";
             std::cout << "IP Address: " << inet_ntop(AF_INET, &(sin->sin_addr), ip, INET_ADDRSTRLEN) << "\n";
         }
@@ -85,14 +80,13 @@ int print_ips_with_getaddrinfo(const std::string &host_name)
 }
 
 
-int print_ips_with_gethostbyname(const std::string &host_name)
+int print_ips_with_gethostbyname(const std::string& host_name)
 {
-    std::cout
-        << "Getting name for \"" << host_name << "\"...\n"
-        << "Using gethostbyname() function." << std::endl;
+    std::cout << "Getting name for \"" << host_name << "\"...\n"
+              << "Using gethostbyname() function." << std::endl;
 
     socket_wrapper::SocketWrapper sock_wrap;
-    const hostent *remote_host { gethostbyname(host_name.c_str()) };
+    const hostent* remote_host{gethostbyname(host_name.c_str())};
 
     if (nullptr == remote_host)
     {
@@ -108,7 +102,7 @@ int print_ips_with_gethostbyname(const std::string &host_name)
 
     for (const char* const* p_alias = const_cast<const char* const*>(remote_host->h_aliases); *p_alias; ++p_alias)
     {
-        std::cout << "# Alternate name: \"" <<  *p_alias << "\"\n";
+        std::cout << "# Alternate name: \"" << *p_alias << "\"\n";
     }
 
     std::cout << "Address type: ";
@@ -140,16 +134,15 @@ int print_ips_with_gethostbyname(const std::string &host_name)
 }
 
 
-int main(int argc, const char *argv[])
+int main(int argc, const char* argv[])
 {
-
     if (argc != 2)
     {
         std::cout << "Usage: " << argv[0] << " <hostname>" << std::endl;
         return EXIT_FAILURE;
     }
 
-    const std::string host_name = { argv[1] };
+    const std::string host_name = {argv[1]};
 
     print_ips_with_getaddrinfo(host_name);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -157,4 +150,3 @@ int main(int argc, const char *argv[])
 
     return EXIT_SUCCESS;
 }
-
