@@ -9,9 +9,9 @@ class Socket
 {
 public:
     Socket(int domain, int type, int protocol);
-    Socket(SocketDescriptorType socket_descriptor);
+    explicit Socket(SocketDescriptorType socket_descriptor);
 
-    Socket(const Socket&) = delete;
+    Socket(const Socket &) = delete;
     Socket(Socket &&s);
     Socket &operator=(const Socket &s) = delete;
     Socket &operator=(Socket &&s);
@@ -35,4 +35,4 @@ private:
     SocketDescriptorType socket_descriptor_;
 };
 
-} // socket_wrapper
+}  // namespace socket_wrapper
