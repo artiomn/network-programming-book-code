@@ -411,7 +411,6 @@ public:
             if (FD_ISSET(static_cast<SocketDescriptorType>(*client_iter), &err_descriptors_set_))
             {
                 // Client socket error.
-                // remove_descriptor(*client_iter);
                 std::cerr << "Socket error: " << *client_iter << std::endl;
                 clients_.erase(client_iter++);
                 continue;
@@ -439,11 +438,6 @@ public:
             try
             {
                 auto &client = *client_iter;
-                /*if (!client.file_opened())
-                {
-                    ++client_iter;
-                    continue;
-                }*/
 
                 if (FD_ISSET(static_cast<SocketDescriptorType>(client), &write_descriptors_set_))
                 {
