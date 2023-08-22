@@ -36,7 +36,7 @@ RUN apt-get update \
     libthrift-dev \
     libtorrent-dev \
     libtorrent-rasterbar-dev \
-    liburing \
+    liburing-dev \
     less \
     meson \
     mpi-default-dev \
