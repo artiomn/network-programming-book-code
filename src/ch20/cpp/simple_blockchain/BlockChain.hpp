@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "common.hpp"
 #include "hash.hpp"
 #include "json.hh"
 using json = nlohmann::json;

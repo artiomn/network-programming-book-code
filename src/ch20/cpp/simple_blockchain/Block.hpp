@@ -14,25 +14,25 @@ using json = nlohmann::json;
 class Block
 {
 public:
-    Block(int index, string prevHas, string hash, string nonce, vector<string> data);
-    string getPreviousHash(void);
-    string getHash(void);
+    Block(int index, std::string prevHas, std::string hash, std::string nonce, std::vector<std::string> data);
+    std::string getPreviousHash(void);
+    std::string getHash(void);
     int getIndex(void);
-    vector<string> getData(void);
+    std::vector<std::string> getData(void);
 
     void toString(void);
     json toJSON(void);
 
 private:
     int index;
-    string previousHash;
-    string blockHash;
-    string nonce;
-    vector<string> data;
+    std::string previousHash;
+    std::string blockHash;
+    std::string nonce;
+    std::vector<std::string> data;
     // string getMerkleRoot(const vector<string> &merkle);
 };
 // Constructor
-Block::Block(int index, string prevHash, string hash, string nonce, vector<string> data)
+Block::Block(int index, std::string prevHash, std::string hash, std::string nonce, std::vector<std::string> data)
 {
     printf("\nInitializing Block: %d ---- Hash: %s \n", index, hash.c_str());
     this->previousHash = prevHash;
@@ -47,17 +47,17 @@ int Block::getIndex(void)
     return this->index;
 }
 
-string Block::getPreviousHash(void)
+std::string Block::getPreviousHash(void)
 {
     return this->previousHash;
 }
 
-string Block::getHash(void)
+std::string Block::getHash(void)
 {
     return this->blockHash;
 }
 
-vector<string> Block::getData(void)
+std::vector<std::string> Block::getData(void)
 {
     return this->data;
 }
@@ -65,7 +65,7 @@ vector<string> Block::getData(void)
 // Prints Block data
 void Block::toString(void)
 {
-    string dataString;
+    std::string dataString;
     for (int i = 0; i < data.size(); i++) dataString += data[i] + ", ";
     printf("\n-------------------------------\n");
     printf(

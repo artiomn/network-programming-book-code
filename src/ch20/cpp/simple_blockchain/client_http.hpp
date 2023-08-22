@@ -139,7 +139,7 @@ protected:
                 timer = nullptr;
                 return;
             }
-            timer = std::unique_ptr<asio::steady_timer>(new asio::steady_timer(socket->get_io_service()));
+            timer = std::unique_ptr<asio::steady_timer>(new asio::steady_timer(socket->get_executor()));
             timer->expires_from_now(std::chrono::seconds(seconds));
             auto self = this->shared_from_this();
             timer->async_wait(
