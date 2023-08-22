@@ -13,7 +13,6 @@ RUN \
      qmlscene qt6-qmltooling-plugins qtcreator-doc \
      xterm \
      valgrind \
-     xfonts-cyrillic \
   && apt-get clean
 
 CMD ["/usr/bin/qtcreator"]
