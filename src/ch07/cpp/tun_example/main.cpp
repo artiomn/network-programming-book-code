@@ -17,6 +17,7 @@ extern "C"
 
 #include <algorithm>
 #include <cassert>
+#include <cstdint>
 #include <exception>
 #include <iostream>
 #include <optional>

@@ -46,7 +46,7 @@ repos:
         args: ["-x", "c++", "--inline-suppr", "--suppress-xml=src/.cppcheck-suppress.xml"]
 
       - id: cpplint
-        args: ["--root", "src"]
+        args: ["--exclude=src/ch14/cpp/flatbuffers/*_generated.*", "--root", "src"]
         additional_dependencies:
           [cpplint==1.6.1]
       # - id: include-what-you-use
@@ -73,7 +73,7 @@ repos:
       - id: requirements-txt-fixer
 
   - repo: https://github.com/PyCQA/autoflake
-    rev: v2.0.0
+    rev: v2.2.0
     hooks:
       - id: autoflake
         exclude: &fixtures tests(/\w*)*/functional/|tests/input|doc/data/messages|tests(/\w*)*data/
@@ -85,7 +85,7 @@ repos:
           - --remove-unused-variables
 
   - repo: https://github.com/pycqa/pylint
-    rev: "v2.15.9"  # pylint-2.14.5
+    rev: "v3.0.0a7"  # pylint-2.14.5
     hooks:
       - id: pylint
         args: ["-rn", "-sn", "--rcfile=src/.pylintrc", "--fail-on=I", "--load-plugins=pylint.extensions.docparams"]
@@ -96,7 +96,7 @@ repos:
         exclude: tests(/\w*)*/functional/|tests/input|tests(/\w*)*data/|doc/
         stages: [manual]
   - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
+    rev: 6.1.0
     hooks:
       - id: flake8
         args: ["--config", "src/.flake8"]
@@ -105,12 +105,12 @@ repos:
         exclude: ".*fixtures"
 
   - repo: https://github.com/pre-commit/pre-commit
-    rev: v2.20.0
+    rev: v3.3.3
     hooks:
       - id: validate_manifest
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.991
+    rev: v1.5.1
     hooks:
       - id: mypy
         args: ["--config-file", "src/.mypy.ini", "--install-types"]
@@ -132,25 +132,25 @@ repos:
 #        exclude: tests(/\w*)*/functional/|tests/input|tests(/.*)+/conftest.py|doc/data/messages|tests(/\w*)*data/
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
+    rev: v3.10.1
     hooks:
       - id: pyupgrade
 
   - repo: https://github.com/ambv/black
-    rev: "22.12.0"
+    rev: "23.7.0"
     hooks:
       - id: black
         args: ["-l", "120", "--skip-string-normalization"]
 
   - repo: https://github.com/DanielNoord/pydocstringformatter
-    rev: v0.7.2
+    rev: v0.7.3
     hooks:
       - id: pydocstringformatter
         exclude: *fixtures
         args: ["--max-summary-lines=2", "--linewrap-full-docstring"]
 
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.4
+    rev: 1.7.5
     hooks:
       - id: bandit
         args: ["-r", "-lll", "-c", ".bandit"]
