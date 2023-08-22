@@ -31,6 +31,12 @@ int main(int argc, const char *const argv[])
     socket_wrapper::SocketWrapper sock_wrap;
     socket_wrapper::Socket sock = {AF_INET, SOCK_STREAM, IPPROTO_TCP};
 
+    if (!sock)
+    {
+        std::cerr << sock_wrap.get_last_error_string() << std::endl;
+        return EXIT_FAILURE;
+    }
+
     auto addr = socket_wrapper::get_client_info(argv[1], argv[2], SOCK_STREAM, AF_INET);
     std::string file_path{argv[3]};
     file_path += "\n";
