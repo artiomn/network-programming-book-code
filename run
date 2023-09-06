@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SCRIPT_PATH="$(dirname -- "${BASH_SOURCE[0]}")"
+SCRIPT_PATH="$(dirname -- "${BASH_SOURCE[0]}" 2>/dev/null)"
 SCRIPT_PATH="$(cd -- "$SCRIPT_PATH" && pwd)"
 
 IMAGE_NAME=artiomn/nb-build-image
@@ -29,4 +29,3 @@ docker run -it --rm --network host --cap-add sys_ptrace --privileged \
     -w /usr/src/gb \
     ${ADD_PARAMS} \
     "${IMAGE_NAME}" ${CMD}
-
