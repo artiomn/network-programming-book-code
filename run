@@ -1,10 +1,30 @@
 #!/bin/sh
 
-SCRIPT_PATH="$(dirname -- "${BASH_SOURCE[0]}" 2>/dev/null)"
+SCRIPT_PATH="$(dirname -- "${0}")"
 SCRIPT_PATH="$(cd -- "$SCRIPT_PATH" && pwd)"
+
+if [ "${INSIDE_NB_DOCKER_CONTAINER}" = "1" ]; then
+    echo "Probably you're already inside the Docker container. Don't try run ./run from the container."
+    exit 1
+fi
 
 IMAGE_NAME=artiomn/nb-build-image
 ADD_PARAMS=""
+
+if ! command -v docker &>/dev/null; then
+    echo "Docker binary was not found. You must to install it." >&2
+    if [ -f /etc/debian_version ]; then
+        echo "Try: sudo apt-get install docker.io" >&2
+    elif [ -f /etc/arch-release ]; then
+        echo "Try: sudo pacman -Sy docker" >&2
+    elif [ -f /etc/redhat-release ]; then
+        echo "Try: sudo yum install docker" >&2
+    else
+        echo "Use packaging system for your distributive to install Docker." >&2
+    fi
+    echo "Exiting..." >&2
+    exit 1
+fi
 
 if [ "$1" = "--" ]; then
     shift
