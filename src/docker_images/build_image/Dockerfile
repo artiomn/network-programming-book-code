@@ -2,7 +2,7 @@ FROM gcc:13
 
 MAINTAINER artiomn
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive INSIDE_NB_DOCKER_CONTAINER=1
 
 RUN apt-get update \
   && echo 'deb https://deb.debian.org/debian bookworm-backports main contrib non-free' >> /etc/apt/sources.list.d/backports.list \
@@ -38,6 +38,7 @@ RUN apt-get update \
     libtorrent-rasterbar-dev \
     liburing-dev \
     less \
+    mc \
     meson \
     mpi-default-dev \
     netcat-openbsd \
@@ -75,6 +76,7 @@ RUN apt-get update \
     texlive-latex-base \
     tcpdump \
     thrift-compiler \
+    tmux \
     valgrind \
     vim \
     zip \
@@ -206,7 +208,7 @@ RUN \
   && vcpkg/vcpkg install \
   && cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake . \
   && cmake --build . --parallel \
-  && cmake --install . --prefix "/usr/local" \
+  && cmake --install . --prefix "/usr/local/li" \
   && cd / \
   && rm -rf lithium \
 #  && git clone --depth 1 https://github.com/libp2p/cpp-libp2p.git \
