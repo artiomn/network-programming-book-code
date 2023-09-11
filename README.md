@@ -45,9 +45,9 @@ TODO:
 
 - Если [Docker](https://www.docker.com/) не установлен в системе, [установите его](#как-использовать-docker).
 - Если [Git](https://git-scm.com/) не установлен в системе, [установите его](https://git-scm.com/book/ru/v2/Введение-Установка-Git).
-- Склонируйте репозиторий: `https://github.com/artiomn/network-programming-book-code.git`.  
+- Склонируйте репозиторий: `git clone https://github.com/artiomn/network-programming-book-code.git`.  
   **Внимание: склонируйте репозиторий в каталог, содержащий только латинские символы в пути!**
-- Зайдите в каталог `network-programming-book-code/`.
+- Зайдите в каталог `network-programming-book-code`.
 - Запустите скрипт `./build_dockerized.sh`
 
 Если это первый запуск, пройдёт значительное время перед тем, как вы получите результат.  
