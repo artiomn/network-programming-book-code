@@ -45,15 +45,15 @@ TODO:
 
 - Если [Docker](https://www.docker.com/) не установлен в системе, [установите его](#как-использовать-docker).
 - Если [Git](https://git-scm.com/) не установлен в системе, [установите его](https://git-scm.com/book/ru/v2/Введение-Установка-Git).
-- Склонируйте репозиторий: `git clone https://github.com/artiomn/cpp-network-tasks.git`.  
+- Склонируйте репозиторий: `git clone https://github.com/artiomn/network-programming-book-code.git`.  
   **Внимание: склонируйте репозиторий в каталог, содержащий только латинские символы в пути!**
-- Зайдите в каталог `cpp-network-tasks`.
+- Зайдите в каталог `network-programming-book-code`.
 - Запустите скрипт `./build_dockerized.sh`
 
 Если это первый запуск, пройдёт значительное время перед тем, как вы получите результат.  
 Возможно, что вам потребуется [установить Docker](#docker---что-это).
 
-Для запуска IDE QtCreator выполните из каталога `cpp-network-tasks` следующую команду: `./run -q`.  
+Для запуска IDE QtCreator выполните из каталога `network-programming-book-code` следующую команду: `./run -q`.  
 Будет запущена IDE, в которой необходимо открыть, как проект, файл `CMakeLists.txt` в каталоге `/home/developer/src` или `/usr/src/gb/src` (первый каталог - ссылка).
 
 

@@ -29,6 +29,7 @@ fi
 if [ "$1" = "--" ]; then
     shift
 elif [ "$1" = "-q" ]; then
+    xhost +local:
     IMAGE_NAME=artiomn/nb-qt-creator-image
     shift
     ADD_PARAMS="-v ${SCRIPT_PATH}/user_config:/home/developer/.config"
