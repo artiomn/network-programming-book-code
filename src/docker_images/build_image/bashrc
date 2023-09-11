@@ -80,6 +80,7 @@ fi
 # some more ls aliases
 alias ll='ls -lA'
 alias la='ls -A'
+alias mc='mc --nosubshell'
 #alias l='ls -hCF'
 
 # Alias definitions.

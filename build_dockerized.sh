@@ -8,9 +8,9 @@ if [ "${INSIDE_NB_DOCKER_CONTAINER}" = "1" ]; then
     exec "${SCRIPT_PATH}/build.sh"
 fi
 
-if ! command -v docker &>/dev/null; then
-    echo "Docker binary was not found. You must to install it. Exiting..." >&2
-    exit 1
-fi
+#if ! command -v docker &>/dev/null; then
+#    echo "Docker binary was not found. You must to install it. Exiting..." >&2
+#    exit 1
+#fi
 
 docker run --rm -v "$PWD:/usr/src/gb" -e "EXT_UID=$(id -u)" -e "EXT_GID=$(id -g)" -w /usr/src/gb artiomn/nb-build-image ./build.sh $*
