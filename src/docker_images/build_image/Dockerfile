@@ -209,9 +209,8 @@ RUN \
 #  && cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake . \
 #  && cmake --build . --parallel \
 #  && cmake --install . --prefix "/usr/local/li" \
-  &&  \
   && g++ -O3 -DNDEBUG -std=c++17 libraries/symbol/symbol/symbol_generator.cc -o /usr/local/bin/li_symbol_generator \
-  && find single_headers -name "*.hh" -exec cp {} /usr/local/include \;
+  && find single_headers -name "*.hh" -exec cp {} /usr/local/include \; \
   && cd / \
   && rm -rf lithium \
 #  && git clone --depth 1 https://github.com/libp2p/cpp-libp2p.git \
