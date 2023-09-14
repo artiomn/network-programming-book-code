@@ -202,15 +202,18 @@ RUN \
   && make install \
   && cd / \
   && rm -rf CppServer \
-#  && git clone --recurse-submodules --depth 1 https://github.com/matt-42/lithium.git \
-#  && cd lithium \
+  && git clone --depth 1 https://github.com/matt-42/lithium.git \
+  && cd lithium \
 #  && ./vcpkg/bootstrap-vcpkg.sh \
 #  && vcpkg/vcpkg install \
 #  && cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake . \
 #  && cmake --build . --parallel \
 #  && cmake --install . --prefix "/usr/local/li" \
-#  && cd / \
-#  && rm -rf lithium \
+  &&  \
+  && g++ -O3 -DNDEBUG -std=c++17 libraries/symbol/symbol/symbol_generator.cc -o /usr/local/bin/li_symbol_generator \
+  && find single_headers -name "*.hh" -exec cp {} /usr/local/include \;
+  && cd / \
+  && rm -rf lithium \
 #  && git clone --depth 1 https://github.com/libp2p/cpp-libp2p.git \
 #  && cd cpp-libp2p \
 #  && cmake -DCLANG_TIDY=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -G "Ninja" -B build . \

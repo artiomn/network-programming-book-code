@@ -1,4 +1,4 @@
-// main.cc
+// main.cpp
 #include <lithium_http_server.hh>
 
 
