@@ -13,7 +13,7 @@ int main()
 
     socket.connect(endpoint);
 
-    std::string message = "Hello!";
+    std::string message = "Hello!\n";
     boost::asio::write(socket, boost::asio::buffer(message));
 
     std::array<char, 128> buffer;
