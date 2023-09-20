@@ -2,17 +2,16 @@
 
 extern "C"
 {
-#include <event2/listener.h>
-#include <event2/bufferevent.h>
-#include <event2/buffer.h>
-
 #include <arpa/inet.h>
+#include <event2/buffer.h>
+#include <event2/bufferevent.h>
+#include <event2/listener.h>
 }
 
-#include <iostream>
-#include <cstring>
-#include <cstdlib>
 #include <cerrno>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
 
 
 void echo_read_cb(bufferevent *bev, void *ctx)
@@ -26,7 +25,7 @@ void echo_read_cb(bufferevent *bev, void *ctx)
 }
 
 
-void echo_event_cb(struct bufferevent *bev, short events, void *ctx)
+void echo_event_cb(struct bufferevent *bev, short events, void *ctx)  // NOLINT
 {
     if (events & BEV_EVENT_ERROR) std::cerr << "Error from bufferevent!" << std::endl;
     if (events & (BEV_EVENT_EOF | BEV_EVENT_ERROR))
@@ -36,17 +35,15 @@ void echo_event_cb(struct bufferevent *bev, short events, void *ctx)
 }
 
 
-void accept_conn_cb(struct evconnlistener *listener,
-    evutil_socket_t fd, struct sockaddr *address, int socklen,
-    void *ctx)
+void accept_conn_cb(
+    struct evconnlistener *listener, evutil_socket_t fd, struct sockaddr *address, int socklen, void *ctx)
 {
-    // Установить bufferevent для нового соединения.
     event_base *base = evconnlistener_get_base(listener);
     bufferevent *bev = bufferevent_socket_new(base, fd, BEV_OPT_CLOSE_ON_FREE);
 
     bufferevent_setcb(bev, echo_read_cb, nullptr, echo_event_cb, nullptr);
 
-    bufferevent_enable(bev, EV_READ|EV_WRITE);
+    bufferevent_enable(bev, EV_READ | EV_WRITE);
 }
 
 
@@ -54,11 +51,8 @@ void accept_error_cb(struct evconnlistener *listener, void *ctx)
 {
     struct event_base *base = evconnlistener_get_base(listener);
     int err = EVUTIL_SOCKET_ERROR();
-    std::cerr
-			<< "Got an error " << err << evutil_socket_error_to_string(err)
-			<< " on the listener.\n"
-			<< "Shutting down."
-			<< std::endl;
+    std::cerr << "Got an error " << err << evutil_socket_error_to_string(err) << " on the listener.\n"
+              << "Shutting down." << std::endl;
 
     event_base_loopexit(base, nullptr);
 }
@@ -66,7 +60,7 @@ void accept_error_cb(struct evconnlistener *listener, void *ctx)
 
 int main(int argc, const char *argv[])
 {
-    event_base *base;
+    event_base *base = event_base_new();
     evconnlistener *listener;
     sockaddr_in sin = {0};
 
@@ -83,8 +77,6 @@ int main(int argc, const char *argv[])
         return EXIT_FAILURE;
     }
 
-    base = event_base_new();
-
     if (!base)
     {
         std::cerr << "Couldn't open event base!" << std::endl;
@@ -99,9 +91,9 @@ int main(int argc, const char *argv[])
     // Listen on the given port.
     sin.sin_port = htons(port);
 
-    listener = evconnlistener_new_bind(base, accept_conn_cb, nullptr,
-                                       LEV_OPT_CLOSE_ON_FREE|LEV_OPT_REUSEABLE, -1,
-                                       reinterpret_cast<const sockaddr*>(&sin), sizeof(sin));
+    listener = evconnlistener_new_bind(
+        base, accept_conn_cb, nullptr, LEV_OPT_CLOSE_ON_FREE | LEV_OPT_REUSEABLE, -1,
+        reinterpret_cast<const sockaddr *>(&sin), sizeof(sin));
 
     if (!listener)
     {

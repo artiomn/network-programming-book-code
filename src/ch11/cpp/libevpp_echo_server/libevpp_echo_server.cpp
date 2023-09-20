@@ -1,12 +1,14 @@
 // Simple libev++-based echo server.
 
+#include <ev++.h>
+
 extern "C"
 {
-#include <unistd.h>
 #include <fcntl.h>
 #include <netinet/in.h>
-#include <sys/socket.h>
 #include <resolv.h>
+#include <sys/socket.h>
+#include <unistd.h>
 }
 
 #include <cerrno>
@@ -15,15 +17,14 @@ extern "C"
 #include <tuple>
 #include <vector>
 
-#include <ev++.h>
-
 
 typedef std::vector<char> Buffer;
+
 
 class EchoInstance
 {
 public:
-    EchoInstance(int s) : working_(true), sfd_(s)
+    explicit EchoInstance(int s) : working_(true), sfd_(s)
     {
         fcntl(s, F_SETFL, fcntl(s, F_GETFL, 0) | O_NONBLOCK);
         std::cout << "Got connection..." << std::endl;
@@ -34,10 +35,7 @@ public:
         io_.start(s, ev::READ);
     }
 
-    bool is_working() const
-    {
-        return working_;
-    }
+    bool is_working() const { return working_; }
 
 private:
     // Generic callback
@@ -52,12 +50,12 @@ private:
         if (revents & EV_READ) read_cb(watcher);
         if (revents & EV_WRITE) write_cb(watcher);
         if (write_queue.empty())
-	{
+        {
             io_.set(ev::READ);
         }
-	else
-	{
-            io_.set(ev::READ|ev::WRITE);
+        else
+        {
+            io_.set(ev::READ | ev::WRITE);
         }
     }
 
@@ -65,7 +63,7 @@ private:
     void write_cb(ev::io &watcher)
     {
         if (write_queue.empty())
-	{
+        {
             io_.set(ev::READ);
             return;
         }
@@ -74,8 +72,7 @@ private:
         auto &buffer = std::get<0>(btuple);
         auto buffer_pos = std::get<1>(btuple);
 
-        ssize_t written = write(watcher.fd, buffer.data() + buffer_pos,
-								buffer.size() - buffer_pos);
+        ssize_t written = write(watcher.fd, buffer.data() + buffer_pos, buffer.size() - buffer_pos);
         if (written < 0)
         {
             std::cerr << "Read error!" << std::endl;
@@ -99,25 +96,25 @@ private:
         ssize_t nread = recv(watcher.fd, buffer.data(), buffer.size(), 0);
 
         if (nread < 0)
-		{
+        {
             std::cerr << "Read error!" << std::endl;
             return;
         }
 
-		if (nread)
-		{
+        if (nread)
+        {
             // Send message bach to the client.
-			buffer.resize(nread);
+            buffer.resize(nread);
             write_queue.push_back(std::make_tuple(std::move(buffer), 0));
         }
-		else
-		{
-			working_ = false;
-		}
+        else
+        {
+            working_ = false;
+        }
     }
 
     virtual ~EchoInstance()
-	{
+    {
         // Stop and free watcher if client socket is closing
         io_.stop();
         close(sfd_);
@@ -154,8 +151,7 @@ public:
         struct sockaddr_in client_addr;
         socklen_t client_len = sizeof(client_addr);
 
-        int client_sd = accept(watcher.fd,
-            reinterpret_cast<sockaddr *>(&client_addr), &client_len);
+        int client_sd = accept(watcher.fd, reinterpret_cast<sockaddr *>(&client_addr), &client_len);
 
         if (client_sd < 0)
         {
@@ -163,7 +159,7 @@ public:
             return;
         }
 
-        EchoInstance *client = new EchoInstance(client_sd);
+        /* EchoInstance const *client = */ new EchoInstance(client_sd);
     }
 
     static void signal_cb(ev::sig &signal, int revents)
@@ -173,7 +169,7 @@ public:
         signal.loop.break_loop();
     }
 
-    EchoServer(int port)
+    explicit EchoServer(int port)
     {
         std::cout << "Listening on port " << port << std::endl;
 
@@ -185,7 +181,7 @@ public:
         addr.sin_port = htons(port);
         addr.sin_addr.s_addr = INADDR_ANY;
 
-        if (bind(s_, (struct sockaddr *)&addr, sizeof(addr)) != 0)
+        if (bind(s_, reinterpret_cast<sockaddr *>(&addr), sizeof(addr)) != 0)
         {
             std::cerr << "Bind error!" << std::endl;
         }
@@ -211,14 +207,15 @@ public:
 
 int EchoInstance::total_clients_ = 0;
 
+
 int main(int argc, char **argv)
 {
     int port = 8192;
 
     if (argc > 1) port = atoi(argv[1]);
 
-    ev::default_loop       loop;
-    EchoServer           echo(port);
+    ev::default_loop loop;
+    EchoServer echo(port);
 
     loop.run(0);
 
