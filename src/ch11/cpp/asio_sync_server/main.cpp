@@ -12,22 +12,22 @@ using namespace boost::asio;
 using socket_ptr = std::shared_ptr<ip::tcp::socket>;
 
 
-void client_session(socket_ptr sock)
+void client_session(ip::tcp::socket sock)
 {
     while (true)
     {
         std::string data;
         data.resize(10);
-        size_t len = sock->receive(buffer(data));
+        size_t len = sock.receive(buffer(data));
         if (len > 1)
         {
-            boost::asio::write(*sock, buffer("ok\n", 3));
+            boost::asio::write(sock, buffer("ok\n", 3));
             data.resize(len - 1);
             std::cout << data << std::endl;
         }
         else
         {
-            sock->write_some(buffer("bye\n", 4));
+            sock.write_some(buffer("bye\n", 4));
             break;
         }
     }
@@ -45,9 +45,9 @@ int main()
     {
         try
         {
-            auto sock{std::make_shared<ip::tcp::socket>(context)};
-            acc.accept(*sock);
-            std::thread(client_session, sock).detach();
+            ip::tcp::socket sock(context);
+            acc.accept(sock);
+            std::thread(client_session, std::move(sock)).detach();
         }
         catch (const boost::system::system_error &e)
         {

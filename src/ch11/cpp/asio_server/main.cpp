@@ -61,6 +61,7 @@ public:
     explicit TcpServer(boost::asio::io_context& io_context)
         : io_context_(io_context), acceptor_(io_context, tcp::endpoint(tcp::v4(), echo_port))
     {
+        acceptor_.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true));
         start_accept();
     }
 
