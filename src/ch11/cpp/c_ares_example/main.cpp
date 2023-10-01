@@ -1,17 +1,18 @@
 extern "C"
 {
-#include <time.h>
-#include <netdb.h>
-#include <arpa/inet.h>
 #include <ares.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <time.h>
 }
 
 #include <iostream>
 
 
-void dns_callback (void* arg, int status, int timeouts, struct hostent* host)
+void dns_callback(void* arg, int status, int timeouts, hostent* host)
 {
     (void)arg;
+    (void)host;
 
     if (ARES_SUCCESS == status)
         std::cout << host->h_name << std::endl;
@@ -20,32 +21,29 @@ void dns_callback (void* arg, int status, int timeouts, struct hostent* host)
 }
 
 
-void main_loop(ares_channel &channel)
+void main_loop(ares_channel& channel)
 {
-    int nfds, count;
     fd_set readers, writers;
-    timeval tv, *tvp;
 
     while (true)
     {
         FD_ZERO(&readers);
         FD_ZERO(&writers);
-        nfds = ares_fds(channel, &readers, &writers);
+        auto nfds = ares_fds(channel, &readers, &writers);
 
         if (!nfds) break;
 
-        tvp = ares_timeout(channel, nullptr, &tv);
-        count = select(nfds, &readers, &writers, nullptr, tvp);
+        timeval tv, *tvp = ares_timeout(channel, nullptr, &tv);
+        auto count = select(nfds, &readers, &writers, nullptr, tvp);
 
         if (count < 0) break;
 
         ares_process(channel, &readers, &writers);
-     }
-
+    }
 }
 
 
-int main(int argc, const char *argv[])
+int main(int argc, const char* argv[])
 {
     struct in_addr ip;
     int res;
@@ -70,4 +68,3 @@ int main(int argc, const char *argv[])
 
     return EXIT_SUCCESS;
 }
-

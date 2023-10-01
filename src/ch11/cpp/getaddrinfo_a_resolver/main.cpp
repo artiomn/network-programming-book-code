@@ -5,6 +5,7 @@ extern "C"
 #include <netdb.h>
 }
 
+#include <cstring>
 #include <iostream>
 #include <string>
 #include <system_error>
@@ -16,7 +17,7 @@ int add_request(const std::string &host, std::vector<gaicb *> &reqs)
 {
     int nreqs_base = reqs.size();
 
-    reqs.emplace_back(new gaicb{.ar_name = host.c_str()});
+    reqs.emplace_back(new gaicb{.ar_name = strdup(host.c_str())});
 
     /* Queue nreqs_base..nreqs requests. */
 
