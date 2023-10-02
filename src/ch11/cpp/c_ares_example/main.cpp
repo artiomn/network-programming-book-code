@@ -45,17 +45,17 @@ void main_loop(ares_channel& channel)
 
 int main(int argc, const char* argv[])
 {
-    struct in_addr ip;
-    int res;
-
     if (argc < 2)
     {
         std::cout << "usage: " << argv[0] << " ip.address" << std::endl;
         return EXIT_FAILURE;
     }
 
-    inet_aton(argv[1], &ip);
     ares_channel channel;
+    struct in_addr ip;
+    int res;
+
+    inet_aton(argv[1], &ip);
 
     if ((res = ares_init(&channel)) != ARES_SUCCESS)
     {
