@@ -6,6 +6,7 @@
 #include <cstring>
 #include <stdexcept>
 #include <string>
+#include <system_error>
 
 #include "socket_wrapper_impl.h"
 
@@ -35,13 +36,13 @@ public:
 
     int get_last_error_code() const override { return WSAGetLastError(); }
 
-    std::string get_last_error_string() override const
+    std::string get_last_error_string() const override
     {
         // return std::strerror(std::errno);
         char *s = NULL;
         FormatMessage(
             FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
-            get_last_error_code(), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), reinterpret_cast<LPSTR>(&s), 0,
+            get_last_error_code(), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), reinterpret_cast<LPTSTR>(&s), 0,
             nullptr);
         std::string result{s};
         LocalFree(s);
