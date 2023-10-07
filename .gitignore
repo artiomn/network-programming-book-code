@@ -6,3 +6,4 @@ cmake-build-*
 a.out
 *.ninja
 __pycache__
+.vscode/
