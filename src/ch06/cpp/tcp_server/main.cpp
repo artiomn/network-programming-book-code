@@ -11,7 +11,7 @@ int main()
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
     {
         std::cerr << "Error during initialization Winsock." << std::endl;
-        return 1;
+        return EXIT_FAILURE;
     }
 
     // Creating a TCP socket
@@ -20,7 +20,7 @@ int main()
     {
         std::cerr << "Error creating socket." << std::endl;
         WSACleanup();
-        return 1;
+        return EXIT_FAILURE;
     }
 
     // Setting the address and port for listening
@@ -35,7 +35,7 @@ int main()
         std::cerr << "Error binding socket." << std::endl;
         closesocket(listenSocket);
         WSACleanup();
-        return 1;
+        return EXIT_FAILURE;
     }
 
     // Listening to a socket for incoming connections
@@ -44,7 +44,7 @@ int main()
         std::cerr << "Error while listening on socket." << std::endl;
         closesocket(listenSocket);
         WSACleanup();
-        return 1;
+        return EXIT_FAILURE;
     }
 
     std::cout << "Server is waiting for connection..." << std::endl;
@@ -56,7 +56,7 @@ int main()
         std::cerr << "Server is waiting for connection." << std::endl;
         closesocket(listenSocket);
         WSACleanup();
-        return 1;
+        return EXIT_FAILURE;
     }
 
     std::cout << "Connection established." << std::endl;
@@ -83,5 +83,5 @@ int main()
     closesocket(listenSocket);
     WSACleanup();
 
-    return 0;
+    return EXIT_SUCCESS;
 }
