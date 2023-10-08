@@ -7,3 +7,4 @@ a.out
 *.ninja
 __pycache__
 .vscode/
+setting.json

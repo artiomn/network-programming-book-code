@@ -7,7 +7,7 @@
 
 int main()
 {
-    // Инициализация Winsock версии 2.2
+    // Initializing Winsock version 2.2
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
     {
@@ -15,7 +15,7 @@ int main()
         return EXIT_FAILURE;
     }
 
-    // Создание сокета UDP
+    // Creating a UDP socket
     SOCKET udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (udpSocket == INVALID_SOCKET)
     {
@@ -24,13 +24,13 @@ int main()
         return EXIT_FAILURE;
     }
 
-    // Настройка адреса и порта
+    // Setting the address and port
     sockaddr_in serverAddr;
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(6250);                    // Замените на нужный порт
-    serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");  // Замените на IP-адрес сервера
+    serverAddr.sin_port = htons(6250);                    // Replace with server port
+    serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");  // Replace with server IP address
 
-    // Отправка данных
+    // Sending data
     const char* sendData = "Hi, server!";
     int bytesSent =
         sendto(udpSocket, sendData, strlen(sendData), 0, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr));
@@ -44,7 +44,7 @@ int main()
 
     std::cout << "Data sent successfully." << std::endl;
 
-    // Закрытие сокета и очистка Winsock
+    // Closing sockets and clearing Winsock
     closesocket(udpSocket);
     WSACleanup();
 

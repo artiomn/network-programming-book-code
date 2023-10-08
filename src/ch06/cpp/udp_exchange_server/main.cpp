@@ -7,7 +7,7 @@
 
 int main()
 {
-    // Инициализация Winsock версии 2.2
+    // Initializing Winsock version 2.2
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
     {
@@ -15,7 +15,7 @@ int main()
         return EXIT_FAILURE;
     }
 
-    // Создание сокета UDP
+    // Creating a UDP socket
     SOCKET udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (udpSocket == INVALID_SOCKET)
     {
@@ -24,13 +24,13 @@ int main()
         return EXIT_FAILURE;
     }
 
-    // Настройка адреса и порта для приема данных
+    // Setting the address and port for receiving data
     sockaddr_in serverAddr;
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(6250);  // Замените на нужный порт
+    serverAddr.sin_port = htons(6250);  // Replace with the desired port
     serverAddr.sin_addr.s_addr = INADDR_ANY;
 
-    // Привязка сокета к адресу и порту
+    // Binding a socket to an address and port
     if (bind(udpSocket, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) == SOCKET_ERROR)
     {
         std::cerr << "Error binding socket." << std::endl;
@@ -39,14 +39,14 @@ int main()
         return EXIT_FAILURE;
     }
 
-    // Буфер для приема данных
+    // Buffer for receiving data
     char recvBuffer[1024];
     sockaddr_in clientAddr;
     int clientAddrLen = sizeof(clientAddr);
 
     std::cout << "Waiting for data from the client..." << std::endl;
 
-    // Получение данных от клиента
+    // Receiving data from the client
     int bytesReceived = recvfrom(
         udpSocket, recvBuffer, sizeof(recvBuffer), 0, reinterpret_cast<sockaddr*>(&clientAddr), &clientAddrLen);
     if (bytesReceived == SOCKET_ERROR)
@@ -59,7 +59,7 @@ int main()
         std::cout << "Received data from client: " << recvBuffer << std::endl;
     }
 
-    // Закрытие сокета и очистка Winsock
+    // Closing the socket and clearing Winsock
     closesocket(udpSocket);
     WSACleanup();
 

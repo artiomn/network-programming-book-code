@@ -7,7 +7,7 @@
 
 int main()
 {
-    // Инициализация Winsock версии 2.2
+    // Initializing Winsock version 2.2
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
     {
@@ -15,7 +15,7 @@ int main()
         return EXIT_FAILURE;
     }
 
-    // Создание сокета TCP
+    // Creating a TCP socket
     SOCKET tcpSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (tcpSocket == INVALID_SOCKET)
     {
@@ -24,13 +24,13 @@ int main()
         return EXIT_FAILURE;
     }
 
-    // Настройка адреса и порта сервера
+    // Setting the server address and port
     sockaddr_in serverAddr;
     serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(6250);                      // Замените на нужный порт
-    inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr);  // Замените на IP-адрес сервера
+    serverAddr.sin_port = htons(6250);                      // Replace with server port
+    inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr);  // Replace with server IP address
 
-    // Установка соединения с сервером
+    // Establishing a connection to the server
     if (WSAConnect(tcpSocket, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr), NULL, NULL, NULL, NULL) ==
         SOCKET_ERROR)
     {
@@ -41,10 +41,10 @@ int main()
     }
 
     /*
-        Ваш код
+        Your code
     */
 
-    // Закрытие сокета и отчистка Winsock
+    // Closing sockets and clearing Winsock
     closesocket(tcpSocket);
     WSACleanup();
 
