@@ -7,7 +7,7 @@ async def handle_echo(reader, writer):
     while True:
         data = await reader.read(100)
 
-        if not data.strip():
+        if reader.at_eof():
             break
 
         message = data.decode()
