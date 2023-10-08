@@ -48,6 +48,7 @@ RUN apt-get update \
     protobuf-compiler \
     protobuf-compiler-grpc \
     python3 \
+    python3-anyio \
     python3-cryptography \
     python3-django \
     python3-fastapi \
@@ -57,6 +58,7 @@ RUN apt-get update \
     python3-flask-restful \
     python3-flask-sockets \
     python3-flatbuffers \
+    python3-gevent \
     python3-grpcio \
     python3-matplotlib \
     python3-mpi4py \
@@ -64,7 +66,10 @@ RUN apt-get update \
     python3-pycurl \
     python3-python-flask-jwt-extended \
     python3-pyx \
+    python3-sniffio \
     python3-thrift \
+    python3-trio \
+    python3-uvloop \
     qt6-base-dev \
     rapidjson-dev \
     rsync \
