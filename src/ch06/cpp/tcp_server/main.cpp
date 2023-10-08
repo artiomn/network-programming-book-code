@@ -47,7 +47,7 @@ int main()
         return 1;
     }
 
-    std::cout << "Сервер ожидает подключения..." << std::endl;
+    std::cout << "Server is waiting for connection..." << std::endl;
 
     // Accepting incoming connections
     SOCKET clientSocket = accept(listenSocket, NULL, NULL);
