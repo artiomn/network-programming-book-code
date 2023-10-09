@@ -12,7 +12,9 @@ extern "C"
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
 
+#include <array>
 #include <iostream>
+#include <string>
 
 
 const size_t max_events = 10;
@@ -58,7 +60,7 @@ int main(int argc, const char* const argv[])
         return EXIT_FAILURE;
     }
 
-    struct epoll_event event;
+    epoll_event event;
 
     event.data.fd = server_sock;
     event.events = EPOLLIN | EPOLLET;
@@ -69,11 +71,11 @@ int main(int argc, const char* const argv[])
         return EXIT_FAILURE;
     }
 
-    struct epoll_event events[max_events];
+    std::array<epoll_event, max_events> events;
 
     while (true)
     {
-        int events_count = epoll_wait(epoll_fd, events, max_events, -1);
+        int events_count = epoll_wait(epoll_fd, events.data(), events.size(), -1);
 
         if (-1 == events_count)
         {
@@ -87,8 +89,7 @@ int main(int argc, const char* const argv[])
             {
                 sockaddr_in client_addr = {0};
                 socklen_t cl_a_len = sizeof(client_addr);
-                auto client_sock =
-                    socket_wrapper::Socket(accept(server_sock, reinterpret_cast<sockaddr*>(&client_addr), &cl_a_len));
+                auto client_sock = accept(server_sock, reinterpret_cast<sockaddr*>(&client_addr), &cl_a_len);
                 if (-1 == client_sock)
                 {
                     std::cerr << sock_wrap.get_last_error_string() << std::endl;
@@ -99,12 +100,13 @@ int main(int argc, const char* const argv[])
                 addr.resize(INET_ADDRSTRLEN);
                 std::cout << "Accepted new connection from: "
                           << inet_ntop(AF_INET, &client_addr.sin_addr, &addr[0], addr.size()) << std::endl;
-                send(client_sock, &addr[0], addr.size(), 0);
+                addr.append("\n");
+                send(client_sock, addr.c_str(), addr.size(), 0);
 
                 event.data.fd = client_sock;
                 event.events = EPOLLIN | EPOLLET;
 
-                if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_sock, &event) == -1)
+                if (-1 == epoll_ctl(epoll_fd, EPOLL_CTL_ADD, client_sock, &event))
                 {
                     std::cerr << sock_wrap.get_last_error_string() << std::endl;
                     return EXIT_FAILURE;
@@ -124,6 +126,7 @@ int main(int argc, const char* const argv[])
                 else
                 {
                     std::cout << "Data: " << s_data << std::endl;
+                    send(events[i].data.fd, s_data.c_str(), s_data.size(), 0);
                 }
             }
         }
