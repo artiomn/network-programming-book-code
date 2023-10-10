@@ -1,21 +1,22 @@
-#include <winsock2.h>
+#include <socket_wrapper/socket_functions.h>
+#include <socket_wrapper/socket_headers.h>
+#include <socket_wrapper/socket_wrapper.h>
 
 #include <iostream>
-
-#pragma comment(lib, "ws2_32.lib")
 
 int main()
 {
     // Initializing Winsock version 2.2
-    WSADATA wsaData;
+    socket_wrapper::SocketWrapper sw;
+    /*WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
     {
         std::cerr << "Error during initialization Winsock." << std::endl;
         return EXIT_FAILURE;
-    }
+    }*/
 
     // Creating a TCP socket
-    SOCKET listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    auto listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (listenSocket == INVALID_SOCKET)
     {
         std::cerr << "Error creating socket." << std::endl;
