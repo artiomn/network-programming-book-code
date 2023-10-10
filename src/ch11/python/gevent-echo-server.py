@@ -7,8 +7,7 @@ from gevent.server import StreamServer
 def echo(socket, address):
     print(f'New connection from {address}')
 
-    # using a makefile because we want to use readline()
-
+    # Using a makefile because we want to use readline().
     file_obj = socket.makefile(mode='rb')
 
     while True:
@@ -24,11 +23,9 @@ def echo(socket, address):
 
 
 if '__main__' == __name__:
-    # to make the server use SSL, pass certfile and keyfile arguments to the constructor
-    server = StreamServer(('127.0.0.1', 16000), echo)
+    server = StreamServer(('127.0.0.1', 12345), echo)
 
-    # to start the server asynchronously, use its start() method;
-    # we use blocking serve_forever() here because we have no other jobs
-    print('Starting echo server on port 16000')
-
+    print('Starting echo server')
+    # To start the server asynchronously, use its start() method.
+    # We use blocking serve_forever() here because we have no other jobs
     server.serve_forever()

@@ -1,6 +1,4 @@
-#!/usr/bin/python
-
-"""Spawn multiple workers and wait for them to complete."""
+#!/usr/bin/env python
 
 import gevent
 from gevent import monkey
