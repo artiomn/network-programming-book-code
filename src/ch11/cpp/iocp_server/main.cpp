@@ -33,37 +33,12 @@ int main()
     socket_wrapper::SocketWrapper sw;
 
     // Create a listening socket
-    auto server_socket = socket_wrapper::Socket((AF_INET, SOCK_STREAM, IPPROTO_TCP));
+    auto server_socket = socket_wrapper::Socket(/*socket*/ (AF_INET, SOCK_STREAM, IPPROTO_TCP));
 
     sockaddr_in server_address;
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = INADDR_ANY;
     server_address.sin_port = htons(6250);
-
-    if (bind(server_socket, reinterpret_cast<SOCKADDR*>(&server_address), sizeof(server_address)) == SOCKET_ERROR)
-    {
-        std::cerr << "Bind failed." << std::endl;
-        WSACleanup();
-        return 1;
-    }
-
-    if (listen(server_socket, SOMAXCONN) == SOCKET_ERROR)
-    {
-        std::cerr << "Listen failed." << std::endl;
-        server_socket.close();
-        WSACleanup();
-        return 1;
-    }
-
-    // Create IOCP
-    completionPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
-    if (completionPort == NULL)
-    {
-        std::cerr << "Failed to create IOCP." << std::endl;
-        closesocket(server_socket);
-        WSACleanup();
-        return 1;
-    }
 
     // Start several threads to process completed operations
     for (int i = 0; i < 2; i++)

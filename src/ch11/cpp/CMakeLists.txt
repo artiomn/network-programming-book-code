@@ -16,4 +16,8 @@ if (UNIX)
     add_subdirectory("c_ares_example")
     add_subdirectory("asio_resolver")
 #    add_subdirectory("ioring_server")
+
+endif()
+if(WIN32)
+    add_subdirectory("iocp_server")
 endif()
