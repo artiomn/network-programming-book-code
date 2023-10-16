@@ -69,15 +69,15 @@ jobs:
         with:
           # ninja version to download. Default: 1.10.0
           version: 1.10.0
-      - name: Install vcpkg
-        run: |
-          git clone -q --depth 1 https://github.com/microsoft/vcpkg.git $(VCPKG_INSTALL_ROOT)
-          xcopy ./ports ./vcpkg/ports/ /S
-          Invoke-Expression -Command $(VCPKG_INSTALL_ROOT)/bootstrap-vcpkg.bat
-      - name: Install Apache Thrift
-        run: |
-          $(VCPKG_INSTALL_ROOT)/vcpkg.exe install --recurse --triplet $(VCPKG_ARCH) thrift
-          $(VCPKG_INSTALL_ROOT)/vcpkg.exe integrate install
+#      - name: Install vcpkg
+#        run: |
+#          git clone -q --depth 1 https://github.com/microsoft/vcpkg.git $(VCPKG_INSTALL_ROOT)
+#          xcopy ./ports ./vcpkg/ports/ /S
+#          Invoke-Expression -Command $(VCPKG_INSTALL_ROOT)/bootstrap-vcpkg.bat
+#      - name: Install Apache Thrift
+#        run: |
+#          $(VCPKG_INSTALL_ROOT)/vcpkg.exe install --recurse --triplet $(VCPKG_ARCH) thrift
+#         $(VCPKG_INSTALL_ROOT)/vcpkg.exe integrate install
       - name: Build with CMake
         uses: ashutoshvarma/action-cmake-build@master
         env:
