@@ -15,7 +15,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>
     {
         let (mut stream, _) = listener.accept().await?;
 
-        tokio::spawn(async move {
+        tokio::spawn(async move
+        {
             let mut buffer = [0; 1024];
             let _ = stream.read(&mut buffer).await;
 

@@ -1,3 +1,8 @@
+# To run examples use: cargo run --example <name>
+# cargo run --example simple-http-server
+# cargo run --example tokio-http-server
+# cargo run --example echo
+
 [package]
 name = "rust-examples"
 version = "0.0.0"
