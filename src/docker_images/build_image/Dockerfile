@@ -61,6 +61,7 @@ RUN apt-get update \
     python3-flatbuffers \
     python3-gevent \
     python3-grpcio \
+    python3-hypercorn \
     python3-matplotlib \
     python3-mpi4py \
     python3-pip \
