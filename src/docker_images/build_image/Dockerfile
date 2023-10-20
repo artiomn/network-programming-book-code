@@ -48,6 +48,7 @@ RUN apt-get update \
     protobuf-compiler \
     protobuf-compiler-grpc \
     python3 \
+    python3-aiohttp \
     python3-anyio \
     python3-cryptography \
     python3-django \
