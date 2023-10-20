@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import anyio
 from anyio import create_tcp_listener, run
