@@ -8,7 +8,7 @@
 
 int main(int argc, char* argv[])
 {
-    DWORD result=0;
+    uint32_t result = 0;
     HANDLE hLookup = 0;
     WSAQUERYSETW lpRestrict = {};
     GUID guid = SVCID_HOSTNAME;
@@ -53,11 +53,12 @@ int main(int argc, char* argv[])
 
         if (WSALookupServiceEnd(hLookup))
             throw std::runtime_error("WSALookupServiceEnd(hLookup) failed with error code " + WSAGetLastError());
-
-        return 0;
     }
     catch (const std::runtime_error& error)
     {
         std::cerr << error.what();
+        return EXIT_FAILURE;
     }
+
+    return EXIT_SUCCESS;
 }
