@@ -2,36 +2,36 @@
 #include <socket_wrapper/socket_functions.h>
 #include <socket_wrapper/socket_wrapper.h>
 
-#include <winsock2.h>
 #include <svcguid.h>
 #include <iostream>
+
 
 int main(int argc, char* argv[])
 {
     uint32_t result = 0;
-    HANDLE hLookup = 0;
-    WSAQUERYSETW lpRestrict = {};
+    HANDLE hlookup = 0;
+    WSAQUERYSETW lp_restrict = {};
     GUID guid = SVCID_HOSTNAME;
 
     try
     {
         socket_wrapper::SocketWrapper sw;
 
-        lpRestrict.dwSize = sizeof(WSAQUERYSETW);
-        lpRestrict.lpServiceClassId = &guid;
+        lp_restrict.dwSize = sizeof(WSAQUERYSETW);
+        lp_restrict.lpServiceClassId = &guid;
 
-        if (WSALookupServiceBeginW(&lpRestrict, LUP_RETURN_NAME, &hLookup) == SOCKET_ERROR)
+        if (WSALookupServiceBeginW(&lp_restrict, LUP_RETURN_NAME, &hlookup) == SOCKET_ERROR)
         {
-            throw std::runtime_error("Error on WSALookupServiceBegin: " + WSAGetLastError());
+            throw std::system_error(errno, std::system_category(), "Error on WSALookupServiceBegin: " + std::to_string(WSAGetLastError()));
         }
 
-        std::shared_ptr<WSAQUERYSETW> pData_shared = std::make_shared<WSAQUERYSETW>();
-        WSAQUERYSETW* pData = pData_shared.get();
+        std::shared_ptr<WSAQUERYSETW> pdata_shared = std::make_shared<WSAQUERYSETW>();
+        WSAQUERYSETW* pdata = pdata_shared.get();
         DWORD length = sizeof(WSAQUERYSETW);
 
-        while(true)
+        while (true)
         {
-            if (WSALookupServiceNextW(hLookup, 0, &length, pData) != 0)
+            if (WSALookupServiceNextW(hlookup, 0, &length, pdata) != 0)
             {
                 result = WSAGetLastError();
                 // Windows can return two errors if there is no more result
@@ -44,19 +44,19 @@ int main(int argc, char* argv[])
                 continue;
             }
 
-            if (pData )
+            if (pdata)
             {
-                std::wcout << "  Service instance name: " << pData->lpszServiceInstanceName << std::endl;
-                std::wcout << "  Name space num: " << pData->dwNameSpace << std::endl;
+                std::wcout << "  Service instance name: " << pdata->lpszServiceInstanceName << std::endl;
+                std::wcout << "  Name space num: " << pdata->dwNameSpace << std::endl;
             }
         }
 
-        if (WSALookupServiceEnd(hLookup))
-            throw std::runtime_error("WSALookupServiceEnd(hLookup) failed with error code " + WSAGetLastError());
+        if (WSALookupServiceEnd(hlookup))
+            throw std::system_error(errno, std::system_category(), "WSALookupServiceEnd(hlookup) failed with error code " + std::to_string(WSAGetLastError()));
     }
-    catch (const std::runtime_error& error)
+    catch (const std::exception& e)
     {
-        std::cerr << error.what();
+        std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
     }
 
