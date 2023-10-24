@@ -17,3 +17,5 @@ if (UNIX)
     add_subdirectory("gio_server")
     add_subdirectory("poco-examples")
 endif()
+
+add_subdirectory(beast_http_req_resp)
