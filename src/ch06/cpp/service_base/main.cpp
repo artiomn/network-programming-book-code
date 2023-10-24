@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
         lp_restrict.dwSize = sizeof(WSAQUERYSETW);
         lp_restrict.lpServiceClassId = &guid;
 
-        if (WSALookupServiceBeginW(&lp_restrict, LUP_RETURN_NAME, &hlookup) == SOCKET_ERROR)
+        if (SOCKET_ERROR == WSALookupServiceBeginW(&lp_restrict, LUP_RETURN_NAME, &hlookup))
         {
             throw std::system_error(errno, std::system_category(), "Error on WSALookupServiceBegin: " + std::to_string(WSAGetLastError()));
         }
