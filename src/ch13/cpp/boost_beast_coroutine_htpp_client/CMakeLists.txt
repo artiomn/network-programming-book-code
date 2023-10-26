@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project("${CHAPTER_NAME}beast-http-client" C CXX)
 
-find_package(Boost COMPONENTS coroutine)
+find_package(Boost COMPONENTS beast coroutine)
 
 if (NOT Boost_FOUND)
 	message(WARNING "Please install Boost::Coroutine library!")
