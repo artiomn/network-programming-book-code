@@ -1,12 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 
-project("${CHAPTER_NAME}beast-http-client" C CXX)
+project("${CHAPTER_NAME}beast-http-req-resp" C CXX)
 
-find_package(Boost COMPONENTS beast coroutine)
-
-if (NOT Boost_FOUND)
-	message(WARNING "Please install Boost::Coroutine library!")
-endif()
+find_package(Boost COMPONENTS beast)
 
 set(${PROJECT_NAME}_SRC main.cpp)
 source_group(source FILES ${${PROJECT_NAME}_SRC}})

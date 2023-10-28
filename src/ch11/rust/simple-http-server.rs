@@ -4,21 +4,6 @@ use std::net::TcpListener;
 use std::net::TcpStream;
 
 
-fn main()
-{
-    // Listen for incoming TCP connections on localhost port 7878
-    let listener = TcpListener::bind("127.0.0.1:12345").unwrap();
-
-    // Block forever, handling each request that arrives at this IP address
-    for stream in listener.incoming()
-    {
-        let stream = stream.unwrap();
-
-        handle_connection(stream);
-    }
-}
-
-
 fn handle_connection(mut stream: TcpStream)
 {
     // Read the first 1024 bytes of data from the stream
@@ -45,4 +30,19 @@ fn handle_connection(mut stream: TcpStream)
     let response = format!("{status_line}Content-Length: {content_length}\r\n\r\n{contents}");
     stream.write_all(response.as_bytes()).unwrap();
     stream.flush().unwrap();
+}
+
+
+fn main()
+{
+    // Listen for incoming TCP connections.
+    let listener = TcpListener::bind("127.0.0.1:12345").unwrap();
+
+    // Block forever, handling each request that arrives at this IP address
+    for stream in listener.incoming()
+    {
+        let stream = stream.unwrap();
+
+        handle_connection(stream);
+    }
 }

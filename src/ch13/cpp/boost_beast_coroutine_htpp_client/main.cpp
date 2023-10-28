@@ -13,20 +13,21 @@
 //
 //------------------------------------------------------------------------------
 
-#include <boost/beast/core.hpp>
-#include <boost/beast/http.hpp>
-#include <boost/beast/version.hpp>
-#include <boost/asio/spawn.hpp>
 #include <cstdlib>
 #include <functional>
 #include <iostream>
 #include <string>
 
+#include <boost/asio/spawn.hpp>
+#include <boost/beast/core.hpp>
+#include <boost/beast/http.hpp>
+#include <boost/beast/version.hpp>
 
-namespace beast = boost::beast;         // from <boost/beast.hpp>
-namespace http = beast::http;           // from <boost/beast/http.hpp>
-namespace net = boost::asio;            // from <boost/asio.hpp>
-using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
+
+namespace beast = boost::beast;    // from <boost/beast.hpp>
+namespace http = beast::http;      // from <boost/beast/http.hpp>
+namespace net = boost::asio;       // from <boost/asio.hpp>
+using tcp = boost::asio::ip::tcp;  // from <boost/asio/ip/tcp.hpp>
 using namespace std::chrono_literals;
 
 
@@ -34,18 +35,13 @@ const auto timeout = 3s;
 
 // Performs an HTTP GET and prints the response
 void do_session(
-    std::string const& host,
-    std::string const& port,
-    std::string const& target,
-    int version,
-    net::io_context& ioc,
+    std::string const& host, std::string const& port, std::string const& target, int version, net::io_context& ioc,
     net::yield_context yield)
 {
     beast::error_code ec;
 
     // These objects perform our I/O
     tcp::resolver resolver(ioc);
-    beast::tcp_stream stream(ioc);
 
     try
     {
@@ -53,6 +49,7 @@ void do_session(
         auto const results = resolver.async_resolve(host, port, yield[ec]);
         if (ec) throw std::system_error(ec, "resolve");
 
+        beast::tcp_stream stream(ioc);
         // Set the timeout.
         stream.expires_after(timeout);
 
@@ -90,14 +87,11 @@ void do_session(
 
         // not_connected happens sometimes
         // so don't bother reporting it.
-        //
-        if (ec && ec != beast::errc::not_connected) std::system_error(ec, "shutdown");
+        if (ec && ec != beast::errc::not_connected) throw std::system_error(ec, "shutdown");
     }
-    catch (std::system_error &e)
+    catch (std::system_error& e)
     {
-        std::cerr
-            << e.what() << ": "
-            << e.code().message() << "\n";
+        std::cerr << e.what() << ": " << e.code().message() << "\n";
     }
 
     // If we get here then the connection is closed gracefully
@@ -107,13 +101,12 @@ void do_session(
 int main(int argc, char* argv[])
 {
     // Check command line arguments.
-    if(argc < 2 || argc > 4)
+    if (argc < 2 || argc > 4)
     {
-        std::cerr <<
-            "Usage: http-client-coro <host>[:port] [target] [<HTTP version: 1.0 or 1.1(default)>]\n" <<
-            "Example:\n" <<
-            "    http-client-coro www.example.com:80 /\n" <<
-            "    http-client-coro www.example.com / 1.0\n";
+        std::cerr << "Usage: http-client-coro <host>[:port] [target] [<HTTP version: 1.0 or 1.1(default)>]\n"
+                  << "Example:\n"
+                  << "    http-client-coro www.example.com:80 /\n"
+                  << "    http-client-coro www.example.com / 1.0\n";
         return EXIT_FAILURE;
     }
 
@@ -129,19 +122,10 @@ int main(int argc, char* argv[])
     // The io_context is required for all I/O
     net::io_context ioc;
 
-    std::cout
-        << host << ":" << port
-        << target
-        << std::endl;
+    std::cout << host << ":" << port << target << std::endl;
     // Launch the asynchronous operation
-    boost::asio::spawn(ioc, std::bind(
-        &do_session,
-        host,
-        port,
-        std::string(target),
-        version,
-        std::ref(ioc),
-        std::placeholders::_1));
+    boost::asio::spawn(
+        ioc, std::bind(&do_session, host, port, std::string(target), version, std::ref(ioc), std::placeholders::_1));
 
     // Run the I/O service. The call will return when
     // the get operation is complete.

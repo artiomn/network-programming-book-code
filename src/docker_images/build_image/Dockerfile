@@ -48,6 +48,7 @@ RUN apt-get update \
     protobuf-compiler \
     protobuf-compiler-grpc \
     python3 \
+    python3-aiohttp \
     python3-anyio \
     python3-cryptography \
     python3-django \
@@ -60,6 +61,7 @@ RUN apt-get update \
     python3-flatbuffers \
     python3-gevent \
     python3-grpcio \
+    python3-hypercorn \
     python3-matplotlib \
     python3-mpi4py \
     python3-pip \
