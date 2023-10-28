@@ -1,10 +1,10 @@
+#include <string>
+
 extern "C"
 {
-#include <gio/gio.h>
-#include <glib.h>
+#include <gio/gio.h>  // NOLINT
+#include <glib.h>     // NOLINT
 }
-
-#include <string>
 
 
 int main(int argc, const char *argv[])

@@ -1,11 +1,11 @@
-extern "C"
-{
-#include <gio/gio.h>
-#include <glib.h>
-}
-
 #include <iostream>
 #include <string>
+
+extern "C"
+{
+#include <gio/gio.h>  // NOLINT
+#include <glib.h>     // NOLINT
+}
 
 
 gboolean incoming_callback(

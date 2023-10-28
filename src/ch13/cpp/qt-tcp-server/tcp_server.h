@@ -13,9 +13,8 @@ public:
 
 signals:
 
-    // cppcheck-suppress unknownMacro
-public slots:
-    void newConnectign();
+public slots:  // cppcheck-suppress unknownMacro
+    void newConnection();
 
 protected:
     void initServer(unsigned short port);
