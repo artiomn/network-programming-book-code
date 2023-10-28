@@ -1,7 +1,7 @@
-#include "tcp_server.h"
-
 #include <QApplication>
 #include <iostream>
+
+#include "tcp_server.h"
 
 
 int main(int argc, char *argv[])
