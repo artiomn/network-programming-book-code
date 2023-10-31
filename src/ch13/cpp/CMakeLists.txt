@@ -14,9 +14,8 @@ endif()
 if (UNIX)
 # To build this lesson code on Windows, libraries must be installed manually.
     add_subdirectory("boost_beast_coroutine_htpp_client")
+    add_subdirectory(beast_http_req_resp)
     add_subdirectory("gio_client")
     add_subdirectory("gio_server")
     add_subdirectory("poco-examples")
 endif()
-
-add_subdirectory(beast_http_req_resp)

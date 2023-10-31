@@ -7,6 +7,8 @@ extern "C"
 #    include <ws2tcpip.h>
 }
 
+#    include <cinttypes>
+
 // See http://stackoverflow.com/questions/12765743/getaddrinfo-on-win32.
 #    if !defined(_WIN32_WINNT)
 #        define _WIN32_WINNT 0x0501 /* Windows XP. */
@@ -14,10 +16,9 @@ extern "C"
 
 using SocketDescriptorType = SOCKET;
 using ssize_t = int;
-using IoctlType = uint32_t;
+using IoctlType = u_long;
 
 #    if !defined(in_addr_t)
-#        include <cinttypes>
 using in_addr_t = uint32_t;
 #    endif
 
