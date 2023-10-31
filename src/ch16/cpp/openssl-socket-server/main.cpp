@@ -1,31 +1,28 @@
-#include <memory>
-
-#include <socket_wrapper/socket_headers.h>
-#include <socket_wrapper/socket_wrapper.h>
-#include <socket_wrapper/socket_class.h>
-
 extern "C"
 {
 #include <openssl/err.h>
 #include <openssl/ssl.h>
-#include <sys/socket.h>
-#include <unistd.h>
 }
+
+#include <socket_wrapper/socket_class.h>
+#include <socket_wrapper/socket_headers.h>
+#include <socket_wrapper/socket_wrapper.h>
+
+#include <memory>
 
 
 using ContextPtr = std::unique_ptr<SSL_CTX, decltype(SSL_CTX_free) &>;
 
 
-socket_wrapper::Socket &&create_socket(int port)
+socket_wrapper::Socket create_socket(int port)
 {
-    int s;
     struct sockaddr_in addr;
 
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    s = socket_wrapper::Socket(AF_INET, SOCK_STREAM, 0);
+    auto s = socket_wrapper::Socket(AF_INET, SOCK_STREAM, 0);
 
     if (!s)
     {
@@ -85,12 +82,11 @@ void configure_context(ContextPtr &ctx)
 int main(int argc, char **argv)
 {
     socket_wrapper::SocketWrapper sock_wrap;
-    int sock;
     auto ctx = std::move(create_context());
 
     configure_context(ctx);
 
-    sock = create_socket(4433);
+    auto sock = std::move(create_socket(4433));
 
     // Handle connections.
     while (true)
@@ -100,7 +96,7 @@ int main(int argc, char **argv)
         SSL *ssl;
         const char reply[] = "test\n";
 
-        int client = accept(sock, (struct sockaddr *)&addr, &len);
+        int client = accept(sock, reinterpret_cast<sockaddr *>(&addr), &len);
         if (client < 0)
         {
             perror("Unable to accept");
@@ -125,5 +121,4 @@ int main(int argc, char **argv)
     }
 
     close(sock);
-    //(ctx);
 }
