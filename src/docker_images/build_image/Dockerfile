@@ -201,15 +201,15 @@ RUN \
   && cp -a include/server /usr/local/include/CppServer/ \
   && find build_linux/ -iname \*.a -exec cp {} /usr/local/lib \; \
   && cp -a build_linux/cppserver-* /usr/local/bin/ \
-  && cd modules/CppCommon/modules/fmt \
-  && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
-  && cmake --build . --parallel \
-  && cmake --install .  --prefix "/usr/local" \
-  && cd /CppServer/modules/asio/asio \
-  && ./autogen.sh \
-  && ./configure \
-  && make -j16 \
-  && make install \
+#  && cd modules/CppCommon/modules/fmt \
+#  && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+#  && cmake --build . --parallel \
+#  && cmake --install .  --prefix "/usr/local" \
+#  && cd /CppServer/modules/asio/asio \
+#  && ./autogen.sh \
+#  && ./configure \
+#  && make -j16 \
+#  && make install \
   && cd / \
   && rm -rf CppServer \
   && git clone --depth 1 https://github.com/matt-42/lithium.git \
