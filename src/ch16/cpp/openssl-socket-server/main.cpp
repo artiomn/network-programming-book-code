@@ -1,12 +1,13 @@
 #include <memory>
 
+#include <socket_wrapper/socket_headers.h>
+#include <socket_wrapper/socket_wrapper.h>
+#include <socket_wrapper/socket_class.h>
+
 extern "C"
 {
-#include <arpa/inet.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
-#include <stdio.h>
-#include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 }
@@ -15,7 +16,7 @@ extern "C"
 using ContextPtr = std::unique_ptr<SSL_CTX, decltype(SSL_CTX_free) &>;
 
 
-int create_socket(int port)
+socket_wrapper::Socket &&create_socket(int port)
 {
     int s;
     struct sockaddr_in addr;
@@ -24,8 +25,9 @@ int create_socket(int port)
     addr.sin_port = htons(port);
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    s = socket(AF_INET, SOCK_STREAM, 0);
-    if (s < 0)
+    s = socket_wrapper::Socket(AF_INET, SOCK_STREAM, 0);
+
+    if (!s)
     {
         perror("Unable to create socket");
         exit(EXIT_FAILURE);
@@ -82,6 +84,7 @@ void configure_context(ContextPtr &ctx)
 
 int main(int argc, char **argv)
 {
+    socket_wrapper::SocketWrapper sock_wrap;
     int sock;
     auto ctx = std::move(create_context());
 
