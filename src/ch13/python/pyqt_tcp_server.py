@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from typing import Optional
-from PyQt6 import QtNetwork
+from PyQt6.QtNetwork import QTcpServer, QTcpSocket
 from PyQt6.QtCore import qDebug
 
 
@@ -9,8 +9,8 @@ class TcpServer:
     """Qt TCP server."""
 
     def __init__(self, parent=None, port: Optional[int] = None):
-        self._tcp_server = QtNetwork.QTcpServer(parent)
-        self._client_socket: Optional[QtNetwork.QTcpSocket] = None
+        self._tcp_server = QTcpServer(parent)
+        self._client_socket: Optional[QTcpSocket] = None
         self._tcp_server.newConnection.connect(self._new_connection)
 
         port = port if port is not None else 0
@@ -36,7 +36,7 @@ class TcpServer:
             self._client_socket = None
 
     def _connection_handler(self):
-        qDebug('Client send data:' f'{bytearray(self._client_socket.readLine()).decode()}')
+        qDebug('Client sent data:' f'{bytearray(self._client_socket.readLine()).decode()}')
 
     def wait_for_connection(self, msecs=0):
         self._tcp_server.waitForNewConnection(msecs)

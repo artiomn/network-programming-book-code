@@ -64,12 +64,16 @@ RUN apt-get update \
     python3-gi \
     python3-grpcio \
     python3-hypercorn \
+    python3-httplib2 \
     python3-matplotlib \
     python3-mpi4py \
     python3-pip \
     python3-pycurl \
     python3-python-flask-jwt-extended \
     python3-pyx \
+    python3-pyqt6 \
+    python3-pyqt6.qtwebsockets \
+    python3-requests \
     python3-sniffio \
     python3-thrift \
     python3-trio \
