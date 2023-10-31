@@ -189,18 +189,18 @@ RUN \
   && rm -rf tgbot-cpp \
   && pip3 install --break-system-packages scapy pythonping ping3 atheris curio flatbuffers gil thriftpy2 mrjob libp2p \
   && pip3 install --break-system-packages --extra-index-url "https://gitlab.com/api/v4/projects/19904939/packages/pypi/simple" pythonfuzz \
-  && cd / \
-  && git clone --depth 1 https://github.com/chronoxor/CppServer.git \
-  && cd CppServer \
-  && gil update \
-  && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_POSITION_INDEPENDENT_CODE=ON -G "Ninja" -B build_linux . \
-  && cmake --build build_linux --parallel \
-  && cmake --install build_linux --prefix "/usr/local" \
-  && mkdir /usr/local/include/CppServer \
-  && cp -a modules/CppCommon/include /usr/local/include/CppCommon \
-  && cp -a include/server /usr/local/include/CppServer/ \
-  && find build_linux/ -iname \*.a -exec cp {} /usr/local/lib \; \
-  && cp -a build_linux/cppserver-* /usr/local/bin/ \
+#  && cd / \
+#  && git clone --depth 1 https://github.com/chronoxor/CppServer.git \
+#  && cd CppServer \
+#  && gil update \
+#  && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_POSITION_INDEPENDENT_CODE=ON -G "Ninja" -B build_linux . \
+#  && cmake --build build_linux --parallel \
+#  && cmake --install build_linux --prefix "/usr/local" \
+#  && mkdir /usr/local/include/CppServer \
+#  && cp -a modules/CppCommon/include /usr/local/include/CppCommon \
+#  && cp -a include/server /usr/local/include/CppServer/ \
+#  && find build_linux/ -iname \*.a -exec cp {} /usr/local/lib \; \
+#  && cp -a build_linux/cppserver-* /usr/local/bin/ \
 #  && cd modules/CppCommon/modules/fmt \
 #  && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
 #  && cmake --build . --parallel \
