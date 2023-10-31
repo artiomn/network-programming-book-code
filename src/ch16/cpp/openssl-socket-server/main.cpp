@@ -95,7 +95,7 @@ int main(int argc, char **argv)
     while (true)
     {
         struct sockaddr_in addr;
-        unsigned int len = sizeof(addr);
+        int len = sizeof(addr);
 
         SSL *ssl;
         const std::string reply{"test\n"};
