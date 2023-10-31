@@ -124,6 +124,4 @@ int main(int argc, char **argv)
         SSL_shutdown(ssl);
         SSL_free(ssl);
     }
-
-    close(sock);
 }
