@@ -47,6 +47,7 @@ RUN apt-get update \
     php-common libapache2-mod-php php-cli \
     protobuf-compiler \
     protobuf-compiler-grpc \
+    pyqt6-dev \
     python3 \
     python3-aiohttp \
     python3-anyio \
@@ -60,6 +61,7 @@ RUN apt-get update \
     python3-flask-sockets \
     python3-flatbuffers \
     python3-gevent \
+    python3-gi \
     python3-grpcio \
     python3-hypercorn \
     python3-matplotlib \
@@ -71,6 +73,7 @@ RUN apt-get update \
     python3-sniffio \
     python3-thrift \
     python3-trio \
+    python-urllib3 \
     python3-uvloop \
     qt6-base-dev \
     rapidjson-dev \

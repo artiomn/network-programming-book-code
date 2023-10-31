@@ -10,7 +10,7 @@
 int main(int argc, const char* argv[])
 {
     Poco::Net::ServerSocket srv(8080);
-    for (;;)
+    while (true)
     {
         Poco::Net::StreamSocket ss = srv.acceptConnection();
         Poco::Net::SocketStream str(ss);
