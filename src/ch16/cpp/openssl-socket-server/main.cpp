@@ -100,7 +100,7 @@ int main(int argc, char **argv)
         SSL *ssl;
         const std::string reply{"test\n"};
 
-        socket_wrapper::Socket client{accept(sock, reinterpret_cast<sockaddr *>(&addr), &len)};
+        socket_wrapper::Socket client(accept(sock, reinterpret_cast<sockaddr *>(&addr), &len));
         if (client < 0)
         {
             perror("Unable to accept");
