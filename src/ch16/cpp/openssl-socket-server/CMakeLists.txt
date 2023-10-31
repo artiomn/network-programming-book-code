@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(openssl-socket-server C CXX)
+project(${CHAPTER_NAME}openssl-socket-server C CXX)
 
 find_package(OpenSSL REQUIRED)
 

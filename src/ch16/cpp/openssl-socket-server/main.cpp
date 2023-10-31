@@ -8,11 +8,13 @@ extern "C"
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
 
+#include <iostream>
 #include <memory>
+#include <string>
 
 
 using ContextPtr = std::unique_ptr<SSL_CTX, decltype(SSL_CTX_free) &>;
-
+const uint16_t port = 4433;
 
 socket_wrapper::Socket create_socket(int port)
 {
@@ -86,23 +88,26 @@ int main(int argc, char **argv)
 
     configure_context(ctx);
 
-    auto sock = std::move(create_socket(4433));
+    auto sock = std::move(create_socket(port));
+    std::cout << "Serve on port " << port << std::endl;
 
     // Handle connections.
     while (true)
     {
         struct sockaddr_in addr;
         unsigned int len = sizeof(addr);
-        SSL *ssl;
-        const char reply[] = "test\n";
 
-        int client = accept(sock, reinterpret_cast<sockaddr *>(&addr), &len);
+        SSL *ssl;
+        const std::string reply{"test\n"};
+
+        socket_wrapper::Socket client{accept(sock, reinterpret_cast<sockaddr *>(&addr), &len)};
         if (client < 0)
         {
             perror("Unable to accept");
             exit(EXIT_FAILURE);
         }
 
+        std::cout << "Accepted client..." << std::endl;
         ssl = SSL_new(ctx.get());
         SSL_set_fd(ssl, client);
 
@@ -112,12 +117,12 @@ int main(int argc, char **argv)
         }
         else
         {
-            SSL_write(ssl, reply, strlen(reply));
+            std::cout << "Sending text \"" << reply << "\"" << std::endl;
+            SSL_write(ssl, reply.c_str(), reply.size());
         }
 
         SSL_shutdown(ssl);
         SSL_free(ssl);
-        close(client);
     }
 
     close(sock);
