@@ -5,6 +5,7 @@ extern "C"
 }
 
 #include <socket_wrapper/socket_class.h>
+#include <socket_wrapper/socket_functions.h>
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
 
@@ -94,18 +95,10 @@ int main(int argc, char **argv)
     // Handle connections.
     while (true)
     {
-        struct sockaddr_in addr;
-        int len = sizeof(addr);
-
         SSL *ssl;
         const std::string reply{"test\n"};
 
-        socket_wrapper::Socket client(accept(sock, reinterpret_cast<sockaddr *>(&addr), &len));
-        if (client < 0)
-        {
-            perror("Unable to accept");
-            exit(EXIT_FAILURE);
-        }
+        socket_wrapper::Socket client{socket_wrapper::accept_client(sock)};
 
         std::cout << "Accepted client..." << std::endl;
         ssl = SSL_new(ctx.get());
