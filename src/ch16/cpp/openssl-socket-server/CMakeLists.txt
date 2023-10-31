@@ -7,3 +7,7 @@ find_package(OpenSSL REQUIRED)
 add_executable("${PROJECT_NAME}" "main.cpp")
 target_link_libraries("${PROJECT_NAME}" PRIVATE pthread OpenSSL::SSL OpenSSL::Crypto)
 target_link_libraries("${PROJECT_NAME}" PRIVATE socket-wrapper)
+
+if(UNIX)
+    target_link_libraries("${PROJECT_NAME}" PRIVATE pthread)
+endif()
