@@ -73,7 +73,7 @@ RUN apt-get update \
     python3-sniffio \
     python3-thrift \
     python3-trio \
-    python-urllib3 \
+    python3-urllib3 \
     python3-uvloop \
     qt6-base-dev \
     rapidjson-dev \
