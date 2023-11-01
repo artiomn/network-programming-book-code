@@ -12,16 +12,20 @@ cancelable = Gio.Cancellable()
 
 
 def cb_read(pipe, results, *args):
-    response = pipe.read_bytes_finish(results)
-    response = response.get_data().decode().strip()
+    request = pipe.read_bytes_finish(results)
+    request = request.get_data()
+    connection = args[:][0]
+    out_stream = Gio.IOStream.get_output_stream(connection)
 
-    if response:
-        print(f'Client response = {response}')
+    if request:
+        print(f'Client request = {request.decode().strip()}')
+        out_stream.write(request)
+    else:
+        return
 
     if not cancelable.is_cancelled():
-        GLib.idle_add(pipe.read_bytes_async, 256, 1, None, cb_read, ())
-
-    cancelable.cancel()
+        # pipe.read_bytes_async(256, 0, cancelable, cb_read, connection)
+        GLib.idle_add(pipe.read_bytes_async, 256, 0, None, cb_read, connection)
 
 
 try:
@@ -30,12 +34,12 @@ try:
         ostream = Gio.IOStream.get_output_stream(connection)
         ostream.write(b'Hello from the server!\n')
         istream = Gio.IOStream.get_input_stream(connection)
-        istream.read_bytes_async(256, 0, cancelable, cb_read)
+        istream.read_bytes_async(256, 0, cancelable, cb_read, connection)
 
         return False
 
     gio_service = Gio.SocketService.new()
-    Gio.SocketListener.add_inet_port(gio_service, 1500)
+    Gio.SocketListener.add_inet_port(gio_service, 12345)
     gio_service.connect('incoming', incoming_callback)
     gio_service.start()
     Gtk.main()

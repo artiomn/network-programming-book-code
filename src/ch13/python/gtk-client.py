@@ -9,7 +9,7 @@ cancelable = Gio.Cancellable()
 
 try:
     client = Gio.SocketClient.new()
-    connection = client.connect_to_host('localhost', 1500, None)
+    connection = client.connect_to_host('localhost', 12345, None)
     istream = Gio.IOStream.get_input_stream(connection)
     ostream = Gio.IOStream.get_output_stream(connection)
     msg = 'Hello, server!\n'
