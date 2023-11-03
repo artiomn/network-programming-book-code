@@ -1,0 +1,34 @@
+// tag_provider.proto
+
+/*
+ * Provides information about tags.
+ */
+
+syntax = "proto3";
+package our_system.tag_provider;
+
+import "google/protobuf/timestamp.proto";
+
+message TagBriefInfo
+{
+    string name = 1;
+    string description = 2;
+}
+
+message Tag
+{
+    uint64 id = 1;
+
+    google.protobuf.Timestamp timestamp = 2;
+
+    TagBriefInfo briefInfo = 3;
+
+    oneof value
+    {
+        bool boolVal = 20;
+        int64 int64Val = 21;
+        double doubleVal = 23;
+        string stringVal = 24;
+        bytes binaryVal = 25;
+    }
+}
