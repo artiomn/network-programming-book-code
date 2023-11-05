@@ -120,6 +120,14 @@ RUN \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf flatbuffers \
+  # Build only gRPC console \
+  && git clone --recursive --depth 1 https://github.com/grpc/grpc \
+  && cd grpc \
+  && cmake -B build -DgRPC_BUILD_TESTS=ON -DgRPC_INSTALL=ON -DCMAKE_INSTALL_PREFIX=/usr/local . \
+  && cmake --build build --parallel --target grpc_cli \
+  && cmake --install build --prefix "/usr/local" --target grpc_cli \
+  && cd / \
+  && rm -rf grpc \
   && git clone --recursive --depth 1 https://github.com/pistacheio/pistache \
   && cd pistache \
   && meson setup build \
@@ -194,7 +202,7 @@ RUN \
   && cmake --install . --prefix "/usr/local" \
   && cd / \
   && rm -rf tgbot-cpp \
-  && pip3 install --break-system-packages scapy pythonping ping3 atheris curio flatbuffers gil thriftpy2 mrjob libp2p bjoern \
+  && pip3 install --break-system-packages scapy pythonping ping3 atheris curio flatbuffers gil thriftpy2 mrjob libp2p bjoern pycapnp \
   && pip3 install --break-system-packages --extra-index-url "https://gitlab.com/api/v4/projects/19904939/packages/pypi/simple" pythonfuzz \
 #  && cd / \
 #  && git clone --depth 1 https://github.com/chronoxor/CppServer.git \
