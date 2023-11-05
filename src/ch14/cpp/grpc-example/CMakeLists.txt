@@ -51,12 +51,7 @@ protobuf_generate(
 )
 
 add_executable("${PROJECT_NAME}_server" server.cpp)
-target_link_libraries("${PROJECT_NAME}_server" PRIVATE "${PROJECT_NAME}_GRPC_GEN")
+target_link_libraries("${PROJECT_NAME}_server" PRIVATE "${PROJECT_NAME}_GRPC_GEN" gRPC::grpc++_reflection)
 
 add_executable("${PROJECT_NAME}_client" client.cpp)
 target_link_libraries("${PROJECT_NAME}_client" PRIVATE "${PROJECT_NAME}_GRPC_GEN")
-
-#if (ZLIB_FOUND)
-#  target_link_libraries("${PROJECT_NAME}_server" PRIVATE ZLIB::ZLIB)
-#  target_link_libraries("${PROJECT_NAME}_client" PRIVATE ZLIB::ZLIB)
-#endif ()

@@ -1,4 +1,6 @@
 #include <grpc/grpc.h>
+#include <grpcpp/ext/proto_server_reflection_plugin.h>
+#include <grpcpp/health_check_service_interface.h>
 #include <grpcpp/server_builder.h>
 #include <search_service.grpc.pb.h>
 #include <search_service.pb.h>
@@ -27,6 +29,8 @@ public:
             result->set_title("Yandex");
             result->set_url("http://www.yandex.ru");
         }
+        else
+            return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "Unknown query: " + query);
 
         return grpc::Status::OK;
     }
@@ -40,6 +44,9 @@ int main()
     server_builder.AddListeningPort("0.0.0.0:12345", grpc::InsecureServerCredentials());
 
     ExampleSearchServiceImpl service;
+
+    grpc::EnableDefaultHealthCheckService(true);
+    grpc::reflection::InitProtoReflectionServerBuilderPlugin();
 
     server_builder.RegisterService(&service);
     std::unique_ptr<grpc::Server> server(server_builder.BuildAndStart());
