@@ -33,6 +33,7 @@ RUN apt-get update \
     libevent-2\* libevent-dev libev-dev libuv1-dev \
     libc-ares-dev \
     libpoco-dev \
+    libprotobuf-dev \
     libthrift-[0-9.]\+ \
     libthrift-dev \
     libtorrent-dev \
