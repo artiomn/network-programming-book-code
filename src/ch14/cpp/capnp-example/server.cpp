@@ -20,7 +20,7 @@ public:
         auto echo_value = context.getParams().getEcho_request();
 
         std::cout << "Client request: " << std::string(echo_value) << std::endl;
-        context.getResults().setEcho("from server = " + std::string(echo_value));
+        context.getResults().setEcho_reply("from server = " + std::string(echo_value));
         return kj::READY_NOW;
     }
 };

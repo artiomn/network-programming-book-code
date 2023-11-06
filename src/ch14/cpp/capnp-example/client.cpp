@@ -20,7 +20,7 @@ int main()
 
     auto& wait_scope = client.getWaitScope();
     auto response = result_promise.wait(wait_scope);
-    std::cout << "Response received: " << std::string(response.getEcho()) << std::endl;
+    std::cout << "Response received: " << std::string(response.getEcho_reply()) << std::endl;
 
     return EXIT_SUCCESS;
 }

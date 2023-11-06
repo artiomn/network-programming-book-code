@@ -2,5 +2,5 @@
 
 interface Echo
 {
-    echo @0 (echo_request :Text) -> (echo :Text);
+    echo @0 (echo_request: Text) -> (echo_reply: Text);
 }
