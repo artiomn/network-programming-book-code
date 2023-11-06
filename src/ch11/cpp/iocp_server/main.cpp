@@ -7,9 +7,7 @@
 #include <thread>
 #include <vector>
 
-HANDLE completionPort;
-
-void worker_thread()
+void worker_thread(HANDLE completionPort)
 {
     while (true)
     {
@@ -33,7 +31,7 @@ int main()
     const int PORT = 6250;
     // Initialize Winsock
     socket_wrapper::SocketWrapper sw;
-
+    HANDLE completionPort;
     // Create a listening socket
     auto server_socket = socket_wrapper::Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -43,9 +41,9 @@ int main()
     server_address.sin_port = htons(PORT);
 
     // Start several threads to process completed operations
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 2; ++i)  // For example, two threads are used
     {
-        std::thread(worker_thread);
+        std::thread(worker_thread, completionPort).detach();
     }
 
     while (true)
@@ -54,11 +52,12 @@ int main()
 
         // Create an OVERLAPPED structure for asynchronously receiving data
         std::vector<char> buffer(MAX_BUFFER_SIZE);
-        std::unique_ptr<OVERLAPPED> overlapped = std::make_unique<OVERLAPPED>();
+        auto overlapped = std::make_unique<OVERLAPPED>();
         DWORD flags = 0;
 
         // Associate the socket with IOCP
-        HANDLE client_handle = reinterpret_cast<HANDLE>(static_cast<UINT_PTR>(client_socket));
+        HANDLE client_handle = reinterpret_cast<HANDLE>(SOCKET(client_socket));
+
         if (nullptr == CreateIoCompletionPort(client_handle, completionPort, 0, 0))
         {
             std::cerr << "Failed to associate socket with IOCP." << std::endl;
