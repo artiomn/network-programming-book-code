@@ -126,7 +126,7 @@ RUN \
   && cd grpc \
   && cmake -B build -DgRPC_BUILD_TESTS=ON -DgRPC_INSTALL=ON -DCMAKE_INSTALL_PREFIX=/usr/local . \
   && cmake --build build --target grpc_cli \
-  && cmake --install build --prefix "/usr/local" \
+#  && cmake --install build --prefix "/usr/local" \
   && cd / \
 #  && rm -rf grpc \
   && git clone --recursive --depth 1 https://github.com/pistacheio/pistache \
