@@ -29,7 +29,7 @@ RUN apt-get update \
     libmariadb-dev \
     libmicrohttpd-dev \
     libpcap-dev \
-    libpcapnp-dev \
+    libcapnp-dev \
     libplack-perl \
     libevent-2\* libevent-dev libev-dev libuv1-dev \
     libc-ares-dev \
