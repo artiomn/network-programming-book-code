@@ -124,7 +124,7 @@ RUN \
   # Build only gRPC console \
   && git clone --recursive --depth 1 https://github.com/grpc/grpc \
   && cd grpc \
-  && cmake -B build -DgRPC_BUILD_TESTS=ON -DgRPC_BUILD_CODEGEN=OFF -DgRPC_INSTALL=ON -DCMAKE_INSTALL_PREFIX=/usr/local . \
+  && cmake -B build -DgRPC_BUILD_TESTS=ON -DgRPC_INSTALL=ON -DCMAKE_INSTALL_PREFIX=/usr/local . \
   && cmake --build build --target grpc_cli \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
