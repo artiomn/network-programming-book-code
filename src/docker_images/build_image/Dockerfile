@@ -124,7 +124,7 @@ RUN \
   && git clone --recursive --depth 1 https://github.com/grpc/grpc \
   && cd grpc \
   && cmake -B build -DgRPC_BUILD_TESTS=ON -DgRPC_INSTALL=ON -DCMAKE_INSTALL_PREFIX=/usr/local . \
-  && cmake --build build --parallel --target grpc_cli \
+  && cmake --build build --target grpc_cli \
   && cmake --install build --prefix "/usr/local" --target grpc_cli \
   && cd / \
   && rm -rf grpc \
