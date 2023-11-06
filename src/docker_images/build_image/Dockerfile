@@ -29,6 +29,7 @@ RUN apt-get update \
     libmariadb-dev \
     libmicrohttpd-dev \
     libpcap-dev \
+    libpcapnp-dev \
     libplack-perl \
     libevent-2\* libevent-dev libev-dev libuv1-dev \
     libc-ares-dev \
@@ -123,11 +124,11 @@ RUN \
   # Build only gRPC console \
   && git clone --recursive --depth 1 https://github.com/grpc/grpc \
   && cd grpc \
-  && cmake -B build -DgRPC_BUILD_TESTS=ON -DgRPC_INSTALL=ON -DCMAKE_INSTALL_PREFIX=/usr/local . \
+  && cmake -B build -DgRPC_BUILD_TESTS=ON -DgRPC_BUILD_CODEGEN=OFF -DgRPC_INSTALL=ON -DCMAKE_INSTALL_PREFIX=/usr/local . \
   && cmake --build build --target grpc_cli \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
-  && rm -rf grpc \
+#  && rm -rf grpc \
   && git clone --recursive --depth 1 https://github.com/pistacheio/pistache \
   && cd pistache \
   && meson setup build \
