@@ -17,7 +17,11 @@ size_t sendall(int sock, const std::vector<char> &buffer)
     while (total < buffer.size())
     {
         int was_sent = send(sock, buffer.data() + total, bytes_left, 0);
-        if (-1 == was_sent) throw std::system_error(errno, std::system_category(), "Sending error!");
+        if (-1 == was_sent)
+        {
+            if (EAGAIN == errno) continue;
+            throw std::system_error(errno, std::system_category(), "Sending error!");
+        }
         total += was_sent;
         bytes_left -= was_sent;
     }
