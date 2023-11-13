@@ -7,14 +7,15 @@
 #include <thread>
 #include <vector>
 
-void worker_thread(HANDLE completionPort)
+
+void worker_thread(HANDLE completion_port)
 {
     while (true)
     {
         DWORD bytes_transferred;
         ULONG_PTR completion_key;
         OVERLAPPED* overlapped;
-        if (GetQueuedCompletionStatus(completionPort, &bytes_transferred, &completion_key, &overlapped, INFINITE))
+        if (GetQueuedCompletionStatus(completion_port, &bytes_transferred, &completion_key, &overlapped, INFINITE))
         {
             // Process completed operation here
             char* buffer = reinterpret_cast<char*>(overlapped);
@@ -25,13 +26,15 @@ void worker_thread(HANDLE completionPort)
     }
 }
 
+
 int main()
 {
     const size_t MAX_BUFFER_SIZE = 1024;
     const int PORT = 6250;
     // Initialize Winsock
     socket_wrapper::SocketWrapper sw;
-    HANDLE completionPort;
+
+    HANDLE completion_port;
     // Create a listening socket
     auto server_socket = socket_wrapper::Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -43,7 +46,7 @@ int main()
     // Start several threads to process completed operations
     for (int i = 0; i < 2; ++i)  // For example, two threads are used
     {
-        std::thread(worker_thread, completionPort).detach();
+        std::thread(worker_thread, completion_port).detach();
     }
 
     while (true)
@@ -58,9 +61,9 @@ int main()
         // Associate the socket with IOCP
         HANDLE client_handle = reinterpret_cast<HANDLE>(SOCKET(client_socket));
 
-        if (nullptr == CreateIoCompletionPort(client_handle, completionPort, 0, 0))
+        if (nullptr == CreateIoCompletionPort(client_handle, completion_port, 0, 0))
         {
-            std::cerr << "Failed to associate socket with IOCP." << std::endl;
+            std::cerr << sw.get_last_error_string() << std::endl;
             client_socket.close();
             continue;
         }
@@ -71,7 +74,7 @@ int main()
         {
             if (WSAGetLastError() != WSA_IO_PENDING)
             {
-                std::cerr << "Failed to initiate asynchronous receive." << std::endl;
+                std::cerr << sw.get_last_error_string() << std::endl;
                 client_socket.close();
                 continue;
             }
