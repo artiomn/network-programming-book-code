@@ -94,9 +94,11 @@ RUN apt-get update \
     tcpdump \
     thrift-compiler \
     tmux \
+    tshark \
     uwsgi \
     valgrind \
     vim \
+    wireshark-qt \
     zip \
 #    yggdrasil \
   && systemctl disable apache2 \
