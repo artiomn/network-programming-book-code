@@ -203,7 +203,7 @@ RUN \
   && cmake --install . --prefix "/usr/local" \
   && cd / \
   && rm -rf tgbot-cpp \
-  && pip3 install --break-system-packages scapy pythonping ping3 atheris curio flatbuffers gil thriftpy2 mrjob libp2p bjoern pycapnp==2.0.0b1 eve \
+  && pip3 install --break-system-packages scapy pythonping ping3 atheris curio flatbuffers gil thriftpy2 mrjob libp2p bjoern pcapy-ng pycapnp==2.0.0b1 eve \
   && pip3 install --break-system-packages --extra-index-url "https://gitlab.com/api/v4/projects/19904939/packages/pypi/simple" pythonfuzz \
 #  && cd / \
 #  && git clone --depth 1 https://github.com/chronoxor/CppServer.git \
