@@ -8,7 +8,7 @@
 #include <vector>
 
 
-void worker_thread(HANDLE completion_port)
+void worker_thread(HANDLE completion_port, std::vector<std::unique_ptr<char[]>>& buffers)
 {
     while (true)
     {
@@ -18,8 +18,9 @@ void worker_thread(HANDLE completion_port)
         if (GetQueuedCompletionStatus(completion_port, &bytes_transferred, &completion_key, &overlapped, INFINITE))
         {
             // Process completed operation here
-            char* buffer = reinterpret_cast<char*>(overlapped);
-            std::cout << "Received: " << buffer << std::endl;
+            std::unique_ptr<char[]> buffer(reinterpret_cast<char*>(overlapped));
+            buffers.push_back(std::move(buffer));
+            std::cout << "Received: " << buffers.back().get() << std::endl;
 
             // Perform additional data processing if necessary
         }
@@ -34,7 +35,15 @@ int main()
     // Initialize Winsock
     socket_wrapper::SocketWrapper sw;
 
-    HANDLE completion_port;
+    HANDLE completion_port = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0);
+    if (completion_port == nullptr)
+    {
+        std::cerr << "Failed to create completion port: " << GetLastError() << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    std::vector<std::unique_ptr<char[]>> buffers;
+
     // Create a listening socket
     auto server_socket = socket_wrapper::Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -46,7 +55,7 @@ int main()
     // Start several threads to process completed operations
     for (int i = 0; i < 2; ++i)  // For example, two threads are used
     {
-        std::thread(worker_thread, completion_port).detach();
+        std::thread(worker_thread, completion_port, std::ref(buffers)).detach();
     }
 
     while (true)
@@ -64,9 +73,10 @@ int main()
         if (nullptr == CreateIoCompletionPort(client_handle, completion_port, 0, 0))
         {
             std::cerr << sw.get_last_error_string() << std::endl;
-            client_socket.close();
             continue;
         }
+
+        client_socket.release();
 
         // Read data asynchronously
         if (SOCKET_ERROR ==
@@ -75,7 +85,6 @@ int main()
             if (WSAGetLastError() != WSA_IO_PENDING)
             {
                 std::cerr << sw.get_last_error_string() << std::endl;
-                client_socket.close();
                 continue;
             }
         }
