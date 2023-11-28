@@ -1,32 +1,36 @@
-#include <iostream>
-#include <string>
-
+#include <socket_wrapper/socket_class.h>
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
-#include <socket_wrapper/socket_class.h>
 
 extern "C"
 {
-#include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <openssl/ssl.h>
 }
 
+#include <iostream>
+#include <string>
 
 const auto buffer_size = 256;
 
 
 bool recv_packet(SSL *ssl)
 {
-    char buf[buffer_size];
+    std::string buf;
     int len = 0;
 
-    do
+    while (true)
     {
-        len = SSL_read(ssl, buf, buffer_size - 1);
-        buf[len] = 0;
-        std::cout << buf << std::endl;
+        buf.resize(buffer_size);
+        len = SSL_read(ssl, buf.data(), buf.size() - 1);
+        if (len > 0)
+        {
+            buf.resize(len);
+            std::cout << buf << std::endl;
+        }
+        else
+            break;
     }
-    while (len > 0);
 
     if (len < 0)
     {
@@ -36,7 +40,7 @@ bool recv_packet(SSL *ssl)
             case SSL_ERROR_WANT_READ:
             case SSL_ERROR_WANT_WRITE:
                 return true;
-            break;
+                break;
             case SSL_ERROR_ZERO_RETURN:
             case SSL_ERROR_SYSCALL:
             case SSL_ERROR_SSL:
@@ -59,7 +63,7 @@ bool send_packet(const std::string &buf, SSL *ssl)
             case SSL_ERROR_WANT_WRITE:
             case SSL_ERROR_WANT_READ:
                 return true;
-            break;
+                break;
             case SSL_ERROR_ZERO_RETURN:
             case SSL_ERROR_SYSCALL:
             case SSL_ERROR_SSL:
@@ -83,7 +87,7 @@ void log_ssl()
 }
 
 
-int main(int argc, const char * const argv[])
+int main(int argc, const char *const argv[])
 {
     if (argc != 3)
     {
@@ -93,12 +97,7 @@ int main(int argc, const char * const argv[])
 
     unsigned short port = std::stoi(argv[2]);
 
-    addrinfo hints =
-    {
-        .ai_family = AF_INET,
-        .ai_socktype = SOCK_STREAM,
-        .ai_protocol = IPPROTO_TCP
-    };
+    addrinfo hints = {.ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = IPPROTO_TCP};
 
     // Results.
     addrinfo *servinfo = nullptr;
@@ -110,7 +109,7 @@ int main(int argc, const char * const argv[])
         return EXIT_FAILURE;
     }
 
-    sockaddr_in sa = {*reinterpret_cast<const sockaddr_in* const>(servinfo->ai_addr)};
+    sockaddr_in sa = {*reinterpret_cast<const sockaddr_in *const>(servinfo->ai_addr)};
     sa.sin_port = htons(port);
 
     freeaddrinfo(servinfo);
@@ -133,7 +132,6 @@ int main(int argc, const char * const argv[])
     SSL *ssl = nullptr;
 
     SSL_library_init();
-    SSLeay_add_ssl_algorithms();
     SSL_load_error_strings();
 
     const SSL_METHOD *meth = TLS_client_method();
@@ -166,4 +164,3 @@ int main(int argc, const char * const argv[])
 
     return EXIT_SUCCESS;
 }
-
