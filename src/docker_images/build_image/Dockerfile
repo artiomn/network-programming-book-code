@@ -98,6 +98,7 @@ RUN apt-get update \
     uwsgi \
     valgrind \
     vim \
+    wfuzz \
     wireshark-qt \
     zip \
 #    yggdrasil \
