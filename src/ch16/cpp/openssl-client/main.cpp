@@ -1,23 +1,23 @@
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <cstdlib>
-
 extern "C"
 {
-#include <openssl/ssl.h>
 #include <openssl/bio.h>
 #include <openssl/err.h>
+#include <openssl/ssl.h>
 
 // Need only for the certificate issuer name printing.
 #include <openssl/x509.h>
 }
 
+#include <cstdlib>
+#include <iostream>
+#include <sstream>
+#include <string>
+
 
 const auto buff_size = 1024;
 
 
-bool print_error(const std::string &msg)
+bool print_error(const std::string& msg)
 {
     perror(msg.c_str());
     ERR_print_errors_fp(stderr);
@@ -40,7 +40,7 @@ void cleanup(SSL_CTX* ctx, BIO* bio)
 }
 
 
-bool secure_connect(const std::string &hostname)
+bool secure_connect(const std::string& hostname)
 {
     std::stringstream request;
     std::string response;
@@ -65,10 +65,7 @@ bool secure_connect(const std::string &hostname)
     BIO_get_ssl(bio, &ssl);
 
     SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
-    std::cout
-        << "Connecting to \""
-        << host << "\"..."
-        << std::endl;
+    std::cout << "Connecting to \"" << host << "\"..." << std::endl;
 
     if (SSL_set_tlsext_host_name(ssl, host.c_str()) != 1)
     {
@@ -76,6 +73,7 @@ bool secure_connect(const std::string &hostname)
         return print_error("SSL_set_tlsext_host_name");
     }
 
+    std::cout << "Connected." << std::endl;
     // Without this `SSL_get_verify_result()` will always return error 18 (self-signed cert).
     BIO_set_conn_hostname(bio, host.c_str());
     // Link BIO channel, SSL session, and server endpoint.
@@ -95,69 +93,56 @@ bool secure_connect(const std::string &hostname)
     }
 
     // This is not necessary, showing peer certs.
-    X509 *cert = SSL_get_peer_certificate(ssl);
+    X509* cert = SSL_get_peer_certificate(ssl);
     if (nullptr == cert)
     {
-        std::cerr
-            << "No peer certificates."
-            << std::endl;
+        std::cerr << "No peer certificates." << std::endl;
     }
     else
     {
         std::string buf;
         buf.resize(256);
         // Peer cert data reading example.
-        std::cout
-            << "Peer certificate:\n"
-            << "Subject: " << X509_NAME_oneline(X509_get_subject_name(cert), buf.data(), buf.size()) << "\n"
-            << "Issuer: " << X509_NAME_oneline(X509_get_issuer_name(cert), buf.data(), buf.size()) << "\n"
-            << std::endl;
+        std::cout << "Peer certificate:\n"
+                  << "Subject: " << X509_NAME_oneline(X509_get_subject_name(cert), buf.data(), buf.size()) << "\n"
+                  << "Issuer: " << X509_NAME_oneline(X509_get_issuer_name(cert), buf.data(), buf.size()) << "\n"
+                  << std::endl;
         X509_free(cert);
 
         // Chain example.
-        STACK_OF(X509) *certs = SSL_get_peer_cert_chain(ssl);
+        STACK_OF(X509)* certs = SSL_get_peer_cert_chain(ssl);
         for (int i = 1; i < sk_X509_num(certs); i++)
         {
             auto ct = sk_X509_value(certs, i);
-            std::cout
-                << "Cert " << i << " in chain:\n"
-                << "Subject: " << X509_NAME_oneline(X509_get_subject_name(ct), buf.data(), buf.size()) << "\n"
-                << "Issuer: " << X509_NAME_oneline(X509_get_issuer_name(ct), buf.data(), buf.size()) << "\n"
-                << "---"
-                << std::endl;
+            std::cout << "Cert " << i << " in chain:\n"
+                      << "Subject: " << X509_NAME_oneline(X509_get_subject_name(ct), buf.data(), buf.size()) << "\n"
+                      << "Issuer: " << X509_NAME_oneline(X509_get_issuer_name(ct), buf.data(), buf.size()) << "\n"
+                      << "---" << std::endl;
         }
     }
 
-    long verify_flag = SSL_get_verify_result(ssl);
+    auto verify_flag = SSL_get_verify_result(ssl);
     switch (verify_flag)
     {
         // Verification error handling by code example.
         case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
         case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN:
-            std::cerr
-                << "##### Certificate verification error: self-signed ("
-                << X509_verify_cert_error_string(verify_flag) << ", "
-                << verify_flag << ") but continuing..."
-                << std::endl;
-        break;
+            std::cerr << "##### Certificate verification error: self-signed ("
+                      << X509_verify_cert_error_string(verify_flag) << ", " << verify_flag << ") but continuing..."
+                      << std::endl;
+            break;
         case X509_V_OK:
-            std::cout
-                << "##### Certificate verification passed..."
-                << std::endl;
-        break;
+            std::cout << "##### Certificate verification passed..." << std::endl;
+            break;
         default:
-            std::cerr
-                << "##### Certificate verification error ("
-                << X509_verify_cert_error_string(verify_flag) << ", "
-                << verify_flag << ") but continuing..."
-                << std::endl;
+            std::cerr << "##### Certificate verification error (" << X509_verify_cert_error_string(verify_flag) << ", "
+                      << verify_flag << ") but continuing..." << std::endl;
     }
 
     // Fetch the homepage as sample data.
-    request
-        << "GET / HTTP/1.1\x0D\x0A"
-        << "Host: " << hostname << "\x0D\x0A"
-        << "Connection: Close\x0D\x0A\x0D\x0A";
+    request << "GET / HTTP/1.1\x0D\x0A"
+            << "Host: " << hostname << "\x0D\x0A"
+            << "Connection: Close\x0D\x0A\x0D\x0A";
     BIO_puts(bio, request.str().c_str());
 
     // Read HTTP response from server and print to stdout.
@@ -175,7 +160,7 @@ bool secure_connect(const std::string &hostname)
 }
 
 
-int main(int argc, const char * const argv[])
+int main(int argc, const char* const argv[])
 {
     if (argc != 2)
     {
@@ -191,4 +176,3 @@ int main(int argc, const char * const argv[])
 
     return EXIT_SUCCESS;
 }
-

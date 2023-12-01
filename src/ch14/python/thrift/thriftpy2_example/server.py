@@ -4,6 +4,7 @@ import thriftpy2
 from get_scheme_path import get_scheme_file
 from thriftpy2.rpc import make_server
 
+
 PHONES_THRIFT = thriftpy2.load(str(get_scheme_file()), module_name='phones_thrift')
 
 

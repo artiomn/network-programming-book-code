@@ -12,5 +12,7 @@ else()
 endif()
 
 if (UNIX)
+    add_subdirectory("grpc-example")
+    add_subdirectory("capnp-example")
     add_subdirectory("phistache-example")
 endif()

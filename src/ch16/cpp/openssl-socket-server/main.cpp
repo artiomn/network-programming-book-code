@@ -1,31 +1,34 @@
-#include <memory>
-
 extern "C"
 {
-#include <arpa/inet.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <unistd.h>
 }
+
+#include <socket_wrapper/socket_class.h>
+#include <socket_wrapper/socket_functions.h>
+#include <socket_wrapper/socket_headers.h>
+#include <socket_wrapper/socket_wrapper.h>
+
+#include <iostream>
+#include <memory>
+#include <string>
 
 
 using ContextPtr = std::unique_ptr<SSL_CTX, decltype(SSL_CTX_free) &>;
+const uint16_t port = 4433;
 
 
-int create_socket(int port)
+socket_wrapper::Socket create_socket(int port)
 {
-    int s;
     struct sockaddr_in addr;
 
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    s = socket(AF_INET, SOCK_STREAM, 0);
-    if (s < 0)
+    auto s = socket_wrapper::Socket(AF_INET, SOCK_STREAM, 0);
+
+    if (!s)
     {
         perror("Unable to create socket");
         exit(EXIT_FAILURE);
@@ -82,28 +85,23 @@ void configure_context(ContextPtr &ctx)
 
 int main(int argc, char **argv)
 {
-    int sock;
+    socket_wrapper::SocketWrapper sock_wrap;
     auto ctx = std::move(create_context());
 
     configure_context(ctx);
 
-    sock = create_socket(4433);
+    auto sock = std::move(create_socket(port));
+    std::cout << "Serve on port " << port << std::endl;
 
     // Handle connections.
     while (true)
     {
-        struct sockaddr_in addr;
-        unsigned int len = sizeof(addr);
         SSL *ssl;
-        const char reply[] = "test\n";
+        const std::string reply{"test\n"};
 
-        int client = accept(sock, (struct sockaddr *)&addr, &len);
-        if (client < 0)
-        {
-            perror("Unable to accept");
-            exit(EXIT_FAILURE);
-        }
+        socket_wrapper::Socket client{socket_wrapper::accept_client(sock)};
 
+        std::cout << "Accepted client..." << std::endl;
         ssl = SSL_new(ctx.get());
         SSL_set_fd(ssl, client);
 
@@ -113,14 +111,11 @@ int main(int argc, char **argv)
         }
         else
         {
-            SSL_write(ssl, reply, strlen(reply));
+            std::cout << "Sending text \"" << reply << "\"" << std::endl;
+            SSL_write(ssl, reply.c_str(), reply.size());
         }
 
         SSL_shutdown(ssl);
         SSL_free(ssl);
-        close(client);
     }
-
-    close(sock);
-    //(ctx);
 }

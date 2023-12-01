@@ -1,32 +1,41 @@
 #pragma once
 
+#if defined(_WIN32)
 extern "C"
 {
-#ifdef _WIN32
-#    include <ws2tcpip.h>
 #    include <winsock2.h>
+#    include <ws2tcpip.h>
+}
 
-	/* See http://stackoverflow.com/questions/12765743/getaddrinfo-on-win32 */
+#    include <cinttypes>
+
+// See http://stackoverflow.com/questions/12765743/getaddrinfo-on-win32.
 #    if !defined(_WIN32_WINNT)
-#        define _WIN32_WINNT 0x0501  /* Windows XP. */
+#        define _WIN32_WINNT 0x0501 /* Windows XP. */
 #    endif
-typedef SOCKET SocketDescriptorType;
-typedef int ssize_t;
-typedef unsigned long IoctlType;
 
-#	if !defined(in_addr_t)
-#		include <cinttypes>
-typedef uint32_t in_addr_t;
-#	endif
+using SocketDescriptorType = SOCKET;
+using ssize_t = int;
+using IoctlType = u_long;
 
-#else
-/* Assume that any non-Windows platform uses POSIX-style sockets instead. */
-#    include <sys/socket.h>
+#    if !defined(in_addr_t)
+using in_addr_t = uint32_t;
+#    endif
+
+#else  // not WIN32
+// Assume that any non-Windows platform uses POSIX-style sockets instead.
+extern "C"
+{
 #    include <arpa/inet.h>
-#    include <netdb.h>  /* Needed for getaddrinfo() and freeaddrinfo() */
-#    include <unistd.h> /* Needed for close() */
-typedef int SocketDescriptorType;
-typedef int IoctlType;
+#    include <sys/socket.h>
+// Needed for getaddrinfo() and freeaddrinfo().
+#    include <netdb.h>
+// Needed for close().
+#    include <unistd.h>
+}
+
+using SocketDescriptorType = int;
+using IoctlType = int;
 
 #endif
 
@@ -39,5 +48,3 @@ typedef int IoctlType;
 #if !defined(SOCKET_ERROR)
 #    define SOCKET_ERROR (-1)
 #endif
-
-}

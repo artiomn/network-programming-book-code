@@ -2,7 +2,7 @@ FROM gcc:13
 
 MAINTAINER artiomn
 
-ENV DEBIAN_FRONTEND=noninteractive INSIDE_NB_DOCKER_CONTAINER=1
+ENV DEBIAN_FRONTEND=noninteractive INSIDE_NB_DOCKER_CONTAINER=1 GIT_CLONE_JOBS=16
 
 RUN apt-get update \
   && echo 'deb https://deb.debian.org/debian bookworm-backports main contrib non-free' >> /etc/apt/sources.list.d/backports.list \
@@ -17,6 +17,7 @@ RUN apt-get update \
     gdbserver \
     golang-go \
     gosu \
+    gunicorn \
     inetutils-ping \
     iproute2 \
     libboost-all-dev \
@@ -28,10 +29,12 @@ RUN apt-get update \
     libmariadb-dev \
     libmicrohttpd-dev \
     libpcap-dev \
+    libcapnp-dev \
     libplack-perl \
     libevent-2\* libevent-dev libev-dev libuv1-dev \
     libc-ares-dev \
     libpoco-dev \
+    libprotobuf-dev \
     libthrift-[0-9.]\+ \
     libthrift-dev \
     libtorrent-dev \
@@ -47,6 +50,7 @@ RUN apt-get update \
     php-common libapache2-mod-php php-cli \
     protobuf-compiler \
     protobuf-compiler-grpc \
+    pyqt6-dev \
     python3 \
     python3-aiohttp \
     python3-anyio \
@@ -60,17 +64,23 @@ RUN apt-get update \
     python3-flask-sockets \
     python3-flatbuffers \
     python3-gevent \
+    python3-gi \
     python3-grpcio \
     python3-hypercorn \
+    python3-httplib2 \
     python3-matplotlib \
     python3-mpi4py \
     python3-pip \
     python3-pycurl \
     python3-python-flask-jwt-extended \
     python3-pyx \
+    python3-pyqt6 \
+    python3-pyqt6.qtwebsockets \
+    python3-requests \
     python3-sniffio \
     python3-thrift \
     python3-trio \
+    python3-urllib3 \
     python3-uvloop \
     qt6-base-dev \
     rapidjson-dev \
@@ -84,8 +94,12 @@ RUN apt-get update \
     tcpdump \
     thrift-compiler \
     tmux \
+    tshark \
+    uwsgi \
     valgrind \
     vim \
+    wfuzz \
+    wireshark-qt \
     zip \
 #    yggdrasil \
   && systemctl disable apache2 \
@@ -102,7 +116,7 @@ RUN apt-get update \
 #  && rm -rf CMake
 
 RUN \
-  git clone --recursive --depth 1 https://github.com/google/flatbuffers \
+  git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/google/flatbuffers \
   && cd flatbuffers \
   && cmake \
     -DCMAKE_BUILD_TYPE=Release -B build \
@@ -110,7 +124,15 @@ RUN \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf flatbuffers \
-  && git clone --recursive --depth 1 https://github.com/pistacheio/pistache \
+  # Build only gRPC console \
+  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/grpc/grpc \
+  && cd grpc \
+  && cmake -B build -DgRPC_BUILD_TESTS=ON -DgRPC_INSTALL=ON -DCMAKE_INSTALL_PREFIX=/usr/local . \
+  && cmake --build build --target grpc_cli \
+  && mv build/grpc_cli /usr/local/bin/ \
+  && cd / \
+  && rm -rf grpc \
+  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/pistacheio/pistache \
   && cd pistache \
   && meson setup build \
     --buildtype=debug \
@@ -121,7 +143,7 @@ RUN \
   && meson install -C build \
   && cd / \
   && rm -rf pistache \
-  && git clone --recursive --depth 1 https://github.com/etr/libhttpserver \
+  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/etr/libhttpserver \
   && cd libhttpserver \
   && ./bootstrap \
   && mkdir build \
@@ -131,14 +153,14 @@ RUN \
   && make install \
   && cd / \
   && rm -rf libhttpserver \
-  && git clone --recursive --depth 1 https://github.com/corvusoft/restbed.git \
+  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/corvusoft/restbed.git \
   && cd restbed \
   && cmake -B build -DBUILD_SSL=NO -DBUILD_TESTS=NO -DCMAKE_INSTALL_PREFIX=/usr/local . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf restbed \
-  && git clone --recursive --depth 1 https://github.com/oatpp/oatpp.git \
+  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/oatpp/oatpp.git \
   && cd oatpp \
   # This is necessary to build oatpp \
   && mkdir build \
@@ -149,67 +171,67 @@ RUN \
   && cmake --install . --prefix "/usr/local" \
   && cd / \
   && rm -rf oatpp \
-  && git clone --recursive --depth 1 https://github.com/oatpp/oatpp-websocket.git \
+  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/oatpp/oatpp-websocket.git \
   && cd oatpp-websocket \
   && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf oatpp-websocket \
-  && git clone --recursive --depth 1 https://github.com/oatpp/oatpp-swagger.git \
+  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/oatpp/oatpp-swagger.git \
   && cd oatpp-swagger \
   && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf oatpp-swagger \
-  && git clone --recursive --depth 1 https://github.com/oatpp/oatpp-curl.git \
+  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/oatpp/oatpp-curl.git \
   && cd oatpp-curl \
   && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf oatpp-curl \
-  && git clone --recursive --depth 1 https://github.com/Thalhammer/jwt-cpp \
+  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/Thalhammer/jwt-cpp \
   && cd jwt-cpp \
   && cmake -B build -DBUILD_SSL=YES -DBUILD_TESTS=NO -DCMAKE_INSTALL_PREFIX=/usr/local . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "/usr/local" \
   && rm -rf jwt-cpp \
   && cd / \
-  && git clone --recursive --depth 1 https://github.com/reo7sp/tgbot-cpp \
+  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/reo7sp/tgbot-cpp \
   && cd tgbot-cpp \
   && cmake . \
   && cmake --build . --parallel \
   && cmake --install . --prefix "/usr/local" \
   && cd / \
   && rm -rf tgbot-cpp \
-  && pip3 install --break-system-packages scapy pythonping ping3 atheris curio flatbuffers gil thriftpy2 mrjob libp2p \
+  && pip3 install --break-system-packages scapy pythonping ping3 atheris curio flatbuffers gil thriftpy2 mrjob libp2p bjoern pcapy-ng pycapnp==2.0.0b1 eve jwt \
   && pip3 install --break-system-packages --extra-index-url "https://gitlab.com/api/v4/projects/19904939/packages/pypi/simple" pythonfuzz \
-  && cd / \
-  && git clone --depth 1 https://github.com/chronoxor/CppServer.git \
-  && cd CppServer \
-  && gil update \
-  && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_POSITION_INDEPENDENT_CODE=ON -G "Ninja" -B build_linux . \
-  && cmake --build build_linux --parallel \
-  && cmake --install build_linux --prefix "/usr/local" \
-  && mkdir /usr/local/include/CppServer \
-  && cp -a modules/CppCommon/include /usr/local/include/CppCommon \
-  && cp -a include/server /usr/local/include/CppServer/ \
-  && find build_linux/ -iname \*.a -exec cp {} /usr/local/lib \; \
-  && cp -a build_linux/cppserver-* /usr/local/bin/ \
-  && cd modules/CppCommon/modules/fmt \
-  && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
-  && cmake --build . --parallel \
-  && cmake --install .  --prefix "/usr/local" \
-  && cd /CppServer/modules/asio/asio \
-  && ./autogen.sh \
-  && ./configure \
-  && make -j16 \
-  && make install \
+#  && cd / \
+#  && git clone --depth 1 https://github.com/chronoxor/CppServer.git \
+#  && cd CppServer \
+#  && gil update \
+#  && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_POSITION_INDEPENDENT_CODE=ON -G "Ninja" -B build_linux . \
+#  && cmake --build build_linux --parallel \
+#  && cmake --install build_linux --prefix "/usr/local" \
+#  && mkdir /usr/local/include/CppServer \
+#  && cp -a modules/CppCommon/include /usr/local/include/CppCommon \
+#  && cp -a include/server /usr/local/include/CppServer/ \
+#  && find build_linux/ -iname \*.a -exec cp {} /usr/local/lib \; \
+#  && cp -a build_linux/cppserver-* /usr/local/bin/ \
+#  && cd modules/CppCommon/modules/fmt \
+#  && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+#  && cmake --build . --parallel \
+#  && cmake --install .  --prefix "/usr/local" \
+#  && cd /CppServer/modules/asio/asio \
+#  && ./autogen.sh \
+#  && ./configure \
+#  && make -j16 \
+#  && make install \
   && cd / \
   && rm -rf CppServer \
-  && git clone --depth 1 https://github.com/matt-42/lithium.git \
+  && git clone --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/matt-42/lithium.git \
   && cd lithium \
 #  && ./vcpkg/bootstrap-vcpkg.sh \
 #  && vcpkg/vcpkg install \

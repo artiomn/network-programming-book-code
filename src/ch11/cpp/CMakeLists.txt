@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-add_subdirectory("select_aio_server")
-
 if (UNIX)
     add_subdirectory("epoll_example")
     add_subdirectory("libevent_echo_server")
@@ -15,6 +13,7 @@ if (UNIX)
     add_subdirectory("getaddrinfo_a_resolver")
     add_subdirectory("c_ares_example")
     add_subdirectory("asio_resolver")
+    add_subdirectory("select_aio_server")
 #    add_subdirectory("ioring_server")
 elseif(WIN32)
     add_subdirectory("iocp_server")
