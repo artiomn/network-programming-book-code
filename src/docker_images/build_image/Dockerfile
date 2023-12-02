@@ -166,6 +166,7 @@ RUN \
   && npm install -D @types/node \
   && echo y|make RELEASE=8.0 release \
   && cd release \
+  && cmake -B build -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_STATIC_LIBS=ON -DCMAKE_INSTALL_PREFIX=/usr/local . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
