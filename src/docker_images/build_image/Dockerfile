@@ -47,6 +47,7 @@ RUN apt-get update \
     netcat-openbsd \
     nginx \
     net-tools \
+    npm \
     php-common libapache2-mod-php php-cli \
     protobuf-compiler \
     protobuf-compiler-grpc \
@@ -160,6 +161,15 @@ RUN \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf restbed \
+  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/nodejs/llhttp \
+  && cd llhttp \
+  && npm install -D @types/node \
+  && echo y|make RELEASE=8.0 release \
+  && cd release \
+  && cmake --build build --parallel \
+  && cmake --install build --prefix "/usr/local" \
+  && cd / \
+  && rm -rf llhttp \
   && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/oatpp/oatpp.git \
   && cd oatpp \
   # This is necessary to build oatpp \
