@@ -21,6 +21,7 @@ RUN apt-get update \
     inetutils-ping \
     iproute2 \
     libboost-all-dev \
+    libc-ares-dev \
     libgtest-dev \
     libglib2.0-dev \
     libgtk2.0-dev \
@@ -32,9 +33,9 @@ RUN apt-get update \
     libcapnp-dev \
     libplack-perl \
     libevent-2\* libevent-dev libev-dev libuv1-dev \
-    libc-ares-dev \
     libpoco-dev \
     libprotobuf-dev \
+    libsdl2-net-dev \
     libthrift-[0-9.]\+ \
     libthrift-dev \
     libtorrent-dev \

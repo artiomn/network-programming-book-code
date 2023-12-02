@@ -1,6 +1,6 @@
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
-#include <SDL3_net/SDL_net.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_main.h>
+#include <SDL2/SDL_net.h>
 #include <stdio.h>
 
 
@@ -9,23 +9,27 @@ int main(int argc, char **argv)
     if (SDLNet_Init() < 0)
     {
         SDL_Log("SDLNet_Init() failed: %s", SDL_GetError());
-        return 1;
+        return EXIT_FAILURE;
     }
 
     for (int i = 1; i < argc; ++i)
     {
         SDL_Log("Looking up %s ...", argv[i]);
-        SDLNet_Address *addr = SDLNet_ResolveHostname(argv[i]);
-        if (SDLNet_WaitUntilResolved(addr, -1) == -1)
+        IPaddress addr;
+        if (-1 == SDLNet_ResolveHost(&addr, argv[i], 80))
         {
             SDL_Log("Failed to lookup %s: %s", argv[i], SDL_GetError());
         }
         else
         {
-            SDL_Log("%s is %s", argv[i], SDLNet_GetAddressString(addr));
-            char *req = NULL;
+            SDL_Log("%s is %s", argv[i], SDLNet_ResolveIP(&addr));
+            char *req = nullptr;
             SDL_asprintf(&req, "GET / HTTP/1.0\r\nHost: %s\r\n\r\n", argv[i]);
-            SDLNet_StreamSocket *sock = req ? SDLNet_CreateClient(addr, 80) : NULL;
+            auto *sock = SDLNet_TCP_Open(&addr);
+            if (!sock)
+            {
+                SDL_Log("Error socket opening [%s]", SDL_GetError());
+            }
             if (!req)
             {
                 SDL_Log("Out of memory!");
@@ -34,23 +38,15 @@ int main(int argc, char **argv)
             {
                 SDL_Log("Failed to create stream socket to %s: %s\n", argv[i], SDL_GetError());
             }
-            else if (SDLNet_WaitUntilConnected(sock, -1) < 0)
-            {
-                SDL_Log("Failed to connect to %s: %s", argv[i], SDL_GetError());
-            }
-            else if (SDLNet_WriteToStreamSocket(sock, req, SDL_strlen(req)) < 0)
+            else if (SDLNet_TCP_Send(sock, req, SDL_strlen(req)) < 0)
             {
                 SDL_Log("Failed to write to %s: %s", argv[i], SDL_GetError());
-            }
-            else if (SDLNet_WaitUntilStreamSocketDrained(sock, -1) < 0)
-            {
-                SDL_Log("Failed to finish write to %s: %s", argv[i], SDL_GetError());
             }
             else
             {
                 char buf[512];
                 int br;
-                while ((br = SDLNet_ReadFromStreamSocket(sock, buf, sizeof(buf))) >= 0)
+                while ((br = SDLNet_TCP_Recv(sock, buf, sizeof(buf))) >= 0)
                 {
                     fwrite(buf, 1, br, stdout);
                 }
@@ -61,7 +57,7 @@ int main(int argc, char **argv)
 
             if (sock)
             {
-                SDLNet_DestroyStreamSocket(sock);
+                SDLNet_TCP_Close(sock);
             }
 
             SDL_free(req);
@@ -71,5 +67,5 @@ int main(int argc, char **argv)
 
     SDLNet_Quit();
 
-    return 0;
+    return EXIT_SUCCESS;
 }
