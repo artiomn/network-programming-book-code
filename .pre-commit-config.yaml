@@ -43,7 +43,7 @@ repos:
         additional_dependencies:
           [clang-format==15.0.7]
       - id: cppcheck
-        args: ["-x", "c++", "--inline-suppr", "--suppress-xml=src/.cppcheck-suppress.xml"]
+        args: ["-v", "-x", "c++", "--inline-suppr", "--suppress-xml=src/.cppcheck-suppress.xml"]
 
       - id: cpplint
         args: ["--exclude=src/ch14/cpp/flatbuffers/*_generated.*", "--root", "src"]

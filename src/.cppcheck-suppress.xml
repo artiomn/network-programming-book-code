@@ -12,6 +12,14 @@
     <fileName>src/ch17/TurboC-source/*</fileName>
   </suppress>
   <suppress>
+    <id>toomanyconfigs</id>
+    <fileName>src/ch17/cpp/gpp-httplib-example/client.cpp</fileName>
+  </suppress>
+  <suppress>
+    <id>noValidConfiguration</id>
+    <fileName>src/ch17/cpp/gpp-httplib-example/client.cpp</fileName>
+  </suppress>
+  <suppress>
     <id>*</id>
     <fileName>src/ch14/cpp/flatbuffers/scheme_generated.h</fileName>
   </suppress>

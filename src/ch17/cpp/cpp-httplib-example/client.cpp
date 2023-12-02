@@ -20,16 +20,9 @@ int main(int argc, const char* const argv[])
     ssl_cli.set_ca_cert_path("/etc/ssl/certs/ca-certificates.crt");
 
     auto res = cli.Get("/");
-    std::cout
-        << res->status << "\n"
-        << res->body
-        << std::endl;
+    std::cout << res->status << "\n" << res->body << std::endl;
 
     res = ssl_cli.Get("/");
 
-    std::cout
-        << res->status << "\n"
-        << res->body
-        << std::endl;
+    std::cout << res->status << "\n" << res->body << std::endl;
 }
-
