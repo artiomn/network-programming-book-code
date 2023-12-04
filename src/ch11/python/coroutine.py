@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import asyncio
 
 
@@ -8,7 +10,7 @@ async def async_func():
 
 
 async def main():
-    task = asyncio.create_task (async_func())
+    task = asyncio.create_task(async_func())
     await task
 
 

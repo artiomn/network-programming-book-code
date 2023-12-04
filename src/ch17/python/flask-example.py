@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from flask import Flask
 
 
@@ -23,4 +25,4 @@ def about():
 
 
 if '__main__' == __name__:
-    app.run(debug=True)
+    app.run(debug=True)  # nosec B201:flask_debug_true

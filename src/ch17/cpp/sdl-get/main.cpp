@@ -26,10 +26,7 @@ int main(int argc, char **argv)
             char *req = nullptr;
             SDL_asprintf(&req, "GET / HTTP/1.0\r\nHost: %s\r\n\r\n", argv[i]);
             auto *sock = SDLNet_TCP_Open(&addr);
-            if (!sock)
-            {
-                SDL_Log("Error socket opening [%s]", SDL_GetError());
-            }
+
             if (!req)
             {
                 SDL_Log("Out of memory!");
