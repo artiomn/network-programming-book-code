@@ -81,6 +81,7 @@ RUN apt-get update \
     python3-requests \
     python3-sniffio \
     python3-thrift \
+    python3-tornado \
     python3-trio \
     python3-urllib3 \
     python3-uvloop \
