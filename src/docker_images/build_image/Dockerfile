@@ -270,6 +270,14 @@ RUN \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf wt \
+  && git clone --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/scylladb/seastar \
+  && cd seastar \
+  && ./install-dependencies.sh \
+  && ./configure.py --mode=release --prefix=/usr/local \
+  && cmake --build build/release --parallel \
+  && cmake --install build/release --prefix "/usr/local" \
+  && cd / \
+  && rm -rf seastar \
   && ldconfig
 
 COPY ./entry.sh /
