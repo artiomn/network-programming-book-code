@@ -243,8 +243,8 @@ RUN \
 #  && ./configure \
 #  && make -j16 \
 #  && make install \
-  && cd / \
-  && rm -rf CppServer \
+#  && cd / \
+#  && rm -rf CppServer \
   && git clone --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/matt-42/lithium.git \
   && cd lithium \
 #  && ./vcpkg/bootstrap-vcpkg.sh \
@@ -263,6 +263,13 @@ RUN \
 #  && cmake --install build --prefix "/usr/local" \
 #  && cd / \
 #  && rm -rf cpp-libp2p \
+  && git clone --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/emweb/wt \
+  && cd wt \
+  && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local -DINSTALL_EXAMPLES=ON . \
+  && cmake --build build --parallel \
+  && cmake --install build --prefix "/usr/local" \
+  && cd / \
+  && rm -rf wt \
   && ldconfig
 
 COPY ./entry.sh /
