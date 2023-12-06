@@ -2,9 +2,12 @@ FROM gcc:13
 
 MAINTAINER artiomn
 
-ENV DEBIAN_FRONTEND=noninteractive INSIDE_NB_DOCKER_CONTAINER=1 GIT_CLONE_JOBS=16
+ENV DEBIAN_FRONTEND=noninteractive INSIDE_NB_DOCKER_CONTAINER=1 \
+  GIT_CLONE_PARAMETERS="--recursive --depth 1 -j 16 --single-branch" \
+  INSTALL_PREFIX="/usr/local"
 
-RUN apt-get update \
+RUN \
+  apt-get update \
   && echo 'deb https://deb.debian.org/debian bookworm-backports main contrib non-free' >> /etc/apt/sources.list.d/backports.list \
 #  && echo 'deb http://neilalexander.s3.eu-west-2.amazonaws.com/deb/ debian yggdrasil' >> /etc/apt/sources.list.d/yggdrasil.list \
   && apt-get update \
@@ -120,23 +123,29 @@ RUN apt-get update \
 #  && rm -rf CMake
 
 RUN \
-  git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/google/flatbuffers \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/uNetworking/uWebSockets \
+  && cd uWebSockets \
+  && make examples -j16 \
+  && make DESTDIR=/usr/local prefix=/usr/local install \
+  && cd / \
+  && rm -rf uWebSockets \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/google/flatbuffers \
   && cd flatbuffers \
   && cmake \
     -DCMAKE_BUILD_TYPE=Release -B build \
   && cmake --build build --parallel \
-  && cmake --install build --prefix "/usr/local" \
+  && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf flatbuffers \
   # Build only gRPC console \
-  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/grpc/grpc \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/grpc/grpc \
   && cd grpc \
   && cmake -B build -DgRPC_BUILD_TESTS=ON -DgRPC_INSTALL=ON -DCMAKE_INSTALL_PREFIX=/usr/local . \
   && cmake --build build --target grpc_cli \
   && mv build/grpc_cli /usr/local/bin/ \
   && cd / \
   && rm -rf grpc \
-  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/pistacheio/pistache \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/pistacheio/pistache \
   && cd pistache \
   && meson setup build \
     --buildtype=debug \
@@ -147,7 +156,7 @@ RUN \
   && meson install -C build \
   && cd / \
   && rm -rf pistache \
-  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/etr/libhttpserver \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/etr/libhttpserver \
   && cd libhttpserver \
   && ./bootstrap \
   && mkdir build \
@@ -157,14 +166,14 @@ RUN \
   && make install \
   && cd / \
   && rm -rf libhttpserver \
-  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/corvusoft/restbed.git \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/corvusoft/restbed.git \
   && cd restbed \
   && cmake -B build -DBUILD_SSL=NO -DBUILD_TESTS=NO -DCMAKE_INSTALL_PREFIX=/usr/local . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf restbed \
-  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/nodejs/llhttp \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/nodejs/llhttp \
   && cd llhttp \
   && npm install -D @types/node \
   && echo y|make RELEASE=8.0 release \
@@ -174,7 +183,7 @@ RUN \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf llhttp \
-  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/oatpp/oatpp.git \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/oatpp/oatpp.git \
   && cd oatpp \
   # This is necessary to build oatpp \
   && mkdir build \
@@ -185,35 +194,35 @@ RUN \
   && cmake --install . --prefix "/usr/local" \
   && cd / \
   && rm -rf oatpp \
-  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/oatpp/oatpp-websocket.git \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/oatpp/oatpp-websocket.git \
   && cd oatpp-websocket \
   && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf oatpp-websocket \
-  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/oatpp/oatpp-swagger.git \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/oatpp/oatpp-swagger.git \
   && cd oatpp-swagger \
   && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf oatpp-swagger \
-  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/oatpp/oatpp-curl.git \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/oatpp/oatpp-curl.git \
   && cd oatpp-curl \
   && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf oatpp-curl \
-  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/Thalhammer/jwt-cpp \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/Thalhammer/jwt-cpp \
   && cd jwt-cpp \
   && cmake -B build -DBUILD_SSL=YES -DBUILD_TESTS=NO -DCMAKE_INSTALL_PREFIX=/usr/local . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "/usr/local" \
   && rm -rf jwt-cpp \
   && cd / \
-  && git clone --recursive --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/reo7sp/tgbot-cpp \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/reo7sp/tgbot-cpp \
   && cd tgbot-cpp \
   && cmake . \
   && cmake --build . --parallel \
@@ -245,7 +254,7 @@ RUN \
 #  && make install \
 #  && cd / \
 #  && rm -rf CppServer \
-  && git clone --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/matt-42/lithium.git \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/matt-42/lithium.git \
   && cd lithium \
 #  && ./vcpkg/bootstrap-vcpkg.sh \
 #  && vcpkg/vcpkg install \
@@ -263,14 +272,14 @@ RUN \
 #  && cmake --install build --prefix "/usr/local" \
 #  && cd / \
 #  && rm -rf cpp-libp2p \
-  && git clone --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/emweb/wt \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/emweb/wt \
   && cd wt \
   && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local -DINSTALL_EXAMPLES=ON . \
   && cmake --build build \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf wt \
-  && git clone --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/scylladb/seastar \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/scylladb/seastar \
   && cd seastar \
   && ./install-dependencies.sh \
   && ./configure.py --mode=release --prefix=/usr/local \
