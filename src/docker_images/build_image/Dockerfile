@@ -16,6 +16,7 @@ RUN \
     capnproto \
     clang \
     cmake \
+    dpdk-dev \
     gdb \
     gdbserver \
     golang-go \
@@ -125,8 +126,8 @@ RUN \
 RUN \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/uNetworking/uWebSockets \
   && cd uWebSockets \
-  && make examples -j16 \
-  && make DESTDIR=/usr/local prefix=/usr/local install \
+  && make examples -j32 \
+  && make prefix=/usr/local install \
   && cd / \
   && rm -rf uWebSockets \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/google/flatbuffers \
