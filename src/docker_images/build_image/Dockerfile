@@ -274,7 +274,7 @@ RUN \
   && cd seastar \
   && ./install-dependencies.sh \
   && ./configure.py --mode=release --prefix=/usr/local \
-  && cmake --build build/release --parallel \
+  && cmake --build build/release \
   && cmake --install build/release --prefix "/usr/local" \
   && cd / \
   && rm -rf seastar \
