@@ -266,7 +266,7 @@ RUN \
   && git clone --depth 1 -j ${GIT_CLONE_JOBS} --single-branch https://github.com/emweb/wt \
   && cd wt \
   && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local -DINSTALL_EXAMPLES=ON . \
-  && cmake --build build --parallel \
+  && cmake --build build \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf wt \
@@ -274,7 +274,7 @@ RUN \
   && cd seastar \
   && ./install-dependencies.sh \
   && ./configure.py --mode=release --prefix=/usr/local \
-  && cmake --build build/release \
+  && cmake --build build/release  --parallel \
   && cmake --install build/release --prefix "/usr/local" \
   && cd / \
   && rm -rf seastar \
