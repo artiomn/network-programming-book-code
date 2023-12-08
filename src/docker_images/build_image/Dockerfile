@@ -124,10 +124,12 @@ RUN \
 #  && rm -rf CMake
 
 RUN \
-  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/uNetworking/uWebSockets \
+  git clone ${GIT_CLONE_PARAMETERS} https://github.com/uNetworking/uWebSockets \
   && cd uWebSockets \
-  && make examples -j32 \
+  && CXXFLAGS="${CXXFLAGS} -fPIE" CFLAGS="${CFLAGS} -fPIE" make WITH_LTO=0 WITH_LIBUV=1 -j16 examples \
   && make prefix=/usr/local install \
+  && install uSockets/uSockets.a /usr/local/lib/libusockets.a \
+  && install uSockets/src/libusockets.h /usr/local/include/ \
   && cd / \
   && rm -rf uWebSockets \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/google/flatbuffers \
