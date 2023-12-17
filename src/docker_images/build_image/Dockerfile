@@ -268,9 +268,9 @@ RUN \
   && find single_headers -name "*.hh" -exec cp {} /usr/local/include \; \
   && cd / \
   && rm -rf lithium \
-#  && git clone --depth 1 https://github.com/libp2p/cpp-libp2p.git \
+#  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/libp2p/cpp-libp2p.git \
 #  && cd cpp-libp2p \
-#  && cmake -DCLANG_TIDY=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -G "Ninja" -B build . \
+#  && cmake -DCLANG_TIDY=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -G "Ninja" -B build . \
 #  && cmake --build build --parallel \
 #  && cmake --install build --prefix "/usr/local" \
 #  && cd / \
