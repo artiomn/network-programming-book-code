@@ -45,6 +45,7 @@ RUN \
     libtorrent-dev \
     libtorrent-rasterbar-dev \
     liburing-dev \
+    libzmq3-dev \
     less \
     mc \
     meson \
@@ -89,6 +90,7 @@ RUN \
     python3-trio \
     python3-urllib3 \
     python3-uvloop \
+    python3-zmq \
     qt6-base-dev \
     rapidjson-dev \
     rsync \
