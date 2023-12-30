@@ -285,7 +285,7 @@ RUN \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf wt \
-  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/scylladb/seastar \
+  && git clone ${GIT_CLONE_PARAMETERS} --branch "seastar-22.11-branch" https://github.com/scylladb/seastar \
   && cd seastar \
   && ./install-dependencies.sh \
   && ./configure.py --mode=release --prefix=/usr/local \
