@@ -16,6 +16,7 @@ RUN \
     capnproto \
     clang \
     cmake \
+    cppzmq-dev \
     dpdk-dev \
     gdb \
     gdbserver \
@@ -285,14 +286,14 @@ RUN \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf wt \
-  && git clone ${GIT_CLONE_PARAMETERS} --branch "seastar-22.11-branch" https://github.com/scylladb/seastar \
-  && cd seastar \
-  && ./install-dependencies.sh \
-  && ./configure.py --mode=release --prefix=/usr/local \
-  && cmake --build build/release  --parallel \
-  && cmake --install build/release --prefix "/usr/local" \
-  && cd / \
-  && rm -rf seastar \
+#  && git clone ${GIT_CLONE_PARAMETERS} --branch "seastar-22.11-branch" https://github.com/scylladb/seastar \
+#  && cd seastar \
+#  && ./install-dependencies.sh \
+#  && ./configure.py --mode=release --prefix=/usr/local \
+#  && cmake --build build/release  --parallel \
+#  && cmake --install build/release --prefix "/usr/local" \
+#  && cd / \
+#  && rm -rf seastar \
   && ldconfig
 
 COPY ./entry.sh /
