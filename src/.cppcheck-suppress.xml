@@ -23,4 +23,8 @@
     <id>*</id>
     <fileName>src/ch14/cpp/flatbuffers/scheme_generated.h</fileName>
   </suppress>
+  <suppress>
+    <id>cppcheckError</id>
+    <fileName>src/ch19/cpp/zmq-example/router.cpp</fileName>
+  </suppress>
 </suppressions>

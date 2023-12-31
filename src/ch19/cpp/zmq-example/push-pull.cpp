@@ -25,5 +25,8 @@ int main()
 
     if (!ret) return EXIT_FAILURE;
     std::cout << "Got " << *ret << " messages" << std::endl;
+
+    for (const auto& m : recv_msgs) std::cout << m << std::endl;
+
     return EXIT_SUCCESS;
 }
