@@ -25,6 +25,6 @@
   </suppress>
   <suppress>
     <id>cppcheckError</id>
-    <fileName>src/ch19/cpp/zeromq/router.cpp</fileName>
+    <fileName>src/ch19/cpp/zeromq/pub-sub.cpp</fileName>
   </suppress>
 </suppressions>

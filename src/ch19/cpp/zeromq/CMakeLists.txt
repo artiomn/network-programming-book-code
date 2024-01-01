@@ -13,5 +13,5 @@ target_link_libraries("${PROJECT_NAME}-rep-server" PRIVATE cppzmq)
 add_executable("${PROJECT_NAME}-req-client" "req-client.cpp")
 target_link_libraries("${PROJECT_NAME}-req-client" PRIVATE cppzmq)
 
-add_executable("${PROJECT_NAME}-router" "router.cpp")
-target_link_libraries("${PROJECT_NAME}-router" PRIVATE cppzmq)
+add_executable("${PROJECT_NAME}-pub-sub" "pub-sub.cpp")
+target_link_libraries("${PROJECT_NAME}-pub-sub" PRIVATE cppzmq)
