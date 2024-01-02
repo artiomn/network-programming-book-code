@@ -40,6 +40,7 @@ RUN \
     libevent-2\* libevent-dev libev-dev libuv1-dev \
     libpoco-dev \
     libprotobuf-dev \
+    librdkafka-dev \
     libsdl2-net-dev \
     libthrift-[0-9.]\+ \
     libthrift-dev \
@@ -62,6 +63,7 @@ RUN \
     python3 \
     python3-aiohttp \
     python3-anyio \
+    python3-confluent-kafka \
     python3-cryptography \
     python3-django \
     python3-fastapi \
@@ -294,6 +296,13 @@ RUN \
 #  && cmake --install build/release --prefix "/usr/local" \
 #  && cd / \
 #  && rm -rf seastar \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/mfontanini/cppkafka \
+  && cd cppkafka \
+  && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local -DINSTALL_EXAMPLES=ON . \
+  && cmake --build build --parallel \
+  && cmake --install build --prefix "/usr/local" \
+  && cd / \
+  && rm -rf cppkafka \
   && ldconfig
 
 COPY ./entry.sh /
