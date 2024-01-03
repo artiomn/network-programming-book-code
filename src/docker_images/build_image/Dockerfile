@@ -296,9 +296,9 @@ RUN \
 #  && cmake --install build/release --prefix "/usr/local" \
 #  && cd / \
 #  && rm -rf seastar \
-  && git clone ${GIT_CLONE_PARAMETERS} --branch v0.3.1 https://github.com/mfontanini/cppkafka \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/mfontanini/cppkafka \
   && cd cppkafka \
-  && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local -DINSTALL_EXAMPLES=ON . \
+  && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local -DCPPKAFKA_BUILD_SHARED=0 -DCPPKAFKA_DISABLE_TESTS=ON -DCPPKAFKA_DISABLE_EXAMPLES=ON . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
