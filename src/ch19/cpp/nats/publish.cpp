@@ -25,8 +25,7 @@ int main(int argc, char **argv)
 
     if (natsOptions_Create(&opts) != NATS_OK) s = NATS_NO_MEMORY;
 
-    const char *server_urls[1];
-    server_urls = argv[1];
+    const char *server_urls[1] = {argv[1]};
 
     if (NATS_OK == s)
         s = natsOptions_SetServers(

@@ -25,7 +25,7 @@ static void async_cb(natsConnection *nc, natsSubscription *sub, natsStatus err, 
 }
 
 
-int main(int argc, char **argv)
+int main(int argc, const char **argv)
 {
     natsConnection *conn = nullptr;
     natsOptions *opts = nullptr;
@@ -45,8 +45,7 @@ int main(int argc, char **argv)
 
     if (natsOptions_Create(&opts) != NATS_OK) s = NATS_NO_MEMORY;
 
-    const char *server_urls[1];
-    server_urls = argv[1];
+    const char *server_urls[1] = {argv[1]};
 
     if (NATS_OK == s)
         s = natsOptions_SetServers(
