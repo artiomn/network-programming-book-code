@@ -1,6 +1,6 @@
 extern "C"
 {
-#include <nats.h>
+#include <nats/nats.h>
 }
 
 #include <iostream>
@@ -17,9 +17,11 @@ static void on_msg(natsConnection *nc, natsSubscription *sub, natsMsg *msg, void
 
 static void async_cb(natsConnection *nc, natsSubscription *sub, natsStatus err, void *closure)
 {
-    std::cerr << "Async error: " << err << "[" << natsStatus_GetText(err) << "]" << std::endl;
+    int64_t dropped;
+    natsSubscription_GetDropped(sub, &dropped);
 
-    natsSubscription_GetDropped(sub, static_cast<int64_t *>(&dropped));
+    std::cerr << "Async error: " << err << "[" << natsStatus_GetText(err) << "]\n"
+              << "Dropped messages = " << dropped << std::endl;
 }
 
 
@@ -30,14 +32,12 @@ int main(int argc, char **argv)
     natsSubscription *sub = nullptr;
     natsStatistics *stats = nullptr;
     natsMsg *msg = nullptr;
-    natsStatus s;
+    natsStatus s = NATS_OK;
     const int64_t total = 10000;
     bool async = false;
-
-    opts = parseArgs(argc, argv, usage);
     const std::string subj = "test";
 
-    if (atgc < 2)
+    if (argc < 2)
     {
         std::cerr << argv[0] << " <nats address>" << std::endl;
         return EXIT_FAILURE;
@@ -45,12 +45,12 @@ int main(int argc, char **argv)
 
     if (natsOptions_Create(&opts) != NATS_OK) s = NATS_NO_MEMORY;
 
-    const char *server_urls[1] = argv[1];
-    natsStatus s = NATS_OK;
+    const char *server_urls[1];
+    server_urls = argv[1];
 
     if (NATS_OK == s)
         s = natsOptions_SetServers(
-            opts, reinterpret_cast<const char *const *>(server_urls), sizeof(server_urls) / sizeof(*server_urls));
+            opts, reinterpret_cast<const char **>(server_urls), sizeof(server_urls) / sizeof(*server_urls));
 
     std::cout << "Listening " << (async ? "a" : "") << "synchronously on '" << subj << "'." << std::endl;
     if (NATS_OK == s) s = natsOptions_SetErrorHandler(opts, async_cb, nullptr);
@@ -66,7 +66,7 @@ int main(int argc, char **argv)
     }
 
     if (NATS_OK == s) s = natsSubscription_SetPendingLimits(sub, -1, -1);
-    if (NATS_OK == s) s = natsSubscription_AutoUnsubscribe(sub, reinterpret_cast<int>(total));
+    if (NATS_OK == s) s = natsSubscription_AutoUnsubscribe(sub, total);
     if (NATS_OK == s) s = natsStatistics_Create(&stats);
 
     if ((NATS_OK == s) && async)
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
     }
     else if (NATS_OK == s)
     {
-        for (count = 0; (NATS_OK == s) && (count < total); ++count)
+        for (size_t count = 0; (NATS_OK == s) && (count < total); ++count)
         {
             s = natsSubscription_NextMsg(&msg, sub, 10000);
             if (s != NATS_OK) break;

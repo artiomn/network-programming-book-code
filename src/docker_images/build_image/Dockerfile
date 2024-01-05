@@ -27,6 +27,8 @@ RUN \
     iproute2 \
     libboost-all-dev \
     libc-ares-dev \
+    libcapnp-dev \
+    libevent-2\* libevent-dev libev-dev libuv1-dev \
     libgtest-dev \
     libglib2.0-dev \
     libgtk2.0-dev \
@@ -34,12 +36,12 @@ RUN \
     libgrpc++-dev \
     libmariadb-dev \
     libmicrohttpd-dev \
+    libnats-dev \
     libpcap-dev \
-    libcapnp-dev \
     libplack-perl \
-    libevent-2\* libevent-dev libev-dev libuv1-dev \
     libpoco-dev \
     libprotobuf-dev \
+    libprotobuf-c-dev \
     librdkafka-dev \
     libsdl2-net-dev \
     libthrift-[0-9.]\+ \
