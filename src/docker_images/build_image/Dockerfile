@@ -84,6 +84,7 @@ RUN \
     python3-kafka \
     python3-matplotlib \
     python3-mpi4py \
+    python3-paho-mqtt \
     python3-pip \
     python3-pycurl \
     python3-python-flask-jwt-extended \
