@@ -36,6 +36,7 @@ RUN \
     libgrpc++-dev \
     libmariadb-dev \
     libmicrohttpd-dev \
+    libmosquitto-dev \
     libnats-dev \
     libpcap-dev \
     libplack-perl \
