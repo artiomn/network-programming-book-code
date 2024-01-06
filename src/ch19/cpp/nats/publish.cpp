@@ -31,11 +31,11 @@ int main(int argc, char **argv)
         s = natsOptions_SetServers(
             opts, reinterpret_cast<const char **>(server_urls), sizeof(server_urls) / sizeof(*server_urls));
 
-    std::cout << "Sending " << total << " messages to subject '" << subj << "'..." << std::endl;
-
     if (NATS_OK == s) s = natsConnection_Connect(&conn, opts);
 
     if (NATS_OK == s) s = natsStatistics_Create(&stats);
+
+    std::cout << "Sending " << total << " messages to subject '" << subj << "'..." << std::endl;
 
     for (size_t count = 0; (NATS_OK == s) && (count < total); ++count)
         s = natsConnection_Publish(conn, subj.c_str(), reinterpret_cast<const void *>(payload.c_str()), payload.size());

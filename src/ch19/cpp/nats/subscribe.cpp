@@ -34,7 +34,7 @@ int main(int argc, const char **argv)
     natsMsg *msg = nullptr;
     natsStatus s = NATS_OK;
     const int64_t total = 10000;
-    bool async = false;
+    bool async = true;
     const std::string subj = "test";
 
     if (argc < 2)
@@ -81,6 +81,11 @@ int main(int argc, const char **argv)
         {
             s = natsSubscription_NextMsg(&msg, sub, 10000);
             if (s != NATS_OK) break;
+
+            std::string data(natsMsg_GetData(msg), natsMsg_GetDataLength(msg));
+            std::cout << "Message\n"
+                      << "  Subject: " << natsMsg_GetSubject(msg) << "\n"
+                      << "  Data: " << data << std::endl;
             natsMsg_Destroy(msg);
         }
     }
