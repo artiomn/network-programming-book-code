@@ -9,14 +9,18 @@ def on_message(cln, userdata, message):
     print(f'received message: {str(message.payload.decode("utf-8"))}')
 
 
-mqtt_broker = 'mqtt.eclipseprojects.io'
+# mqtt_broker = 'mqtt.eclipseprojects.io'
+mqtt_broker = 'localhost'
 
 client = mqtt.Client('Subscriber')
+client.on_message = on_message
+
+client.username_pw_set('guest', 'guest')
+
 client.connect(mqtt_broker)
 
 client.loop_start()
 
-client.on_message = on_message
 client.subscribe('Example')
 
 time.sleep(30)
