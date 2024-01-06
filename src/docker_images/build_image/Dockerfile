@@ -80,6 +80,7 @@ RUN \
     python3-grpcio \
     python3-hypercorn \
     python3-httplib2 \
+    python3-kafka \
     python3-matplotlib \
     python3-mpi4py \
     python3-pip \
