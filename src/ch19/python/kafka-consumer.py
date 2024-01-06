@@ -3,6 +3,6 @@
 from kafka import KafkaConsumer
 
 
-consumer = KafkaConsumer('metadata.broker.list', group_id='my_favorite_group')
+consumer = KafkaConsumer('mytopic', bootstrap_servers=['localhost:9092'], group_id='my_group')
 for msg in consumer:
     print(msg)

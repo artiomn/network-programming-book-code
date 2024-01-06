@@ -4,7 +4,7 @@ from kafka import KafkaProducer
 
 
 bootstrap_servers = ['localhost:9092']
-topic_name = 'metadata.broker.list'
+topic_name = 'mytopic'
 producer = KafkaProducer(bootstrap_servers=bootstrap_servers)
 
 for data in ['s1', 's2', 's3']:

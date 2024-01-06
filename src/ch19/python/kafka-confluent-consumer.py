@@ -3,7 +3,7 @@
 from confluent_kafka import Consumer
 
 
-c = Consumer({'bootstrap.servers': 'mybroker', 'group.id': 'mygroup', 'auto.offset.reset': 'earliest'})
+c = Consumer({'bootstrap.servers': 'localhost', 'group.id': 'my_group', 'auto.offset.reset': 'earliest'})
 
 c.subscribe(['mytopic'])
 

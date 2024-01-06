@@ -8,6 +8,6 @@ int main()
     cppkafka::Producer producer(config);
 
     std::string message = "hey there!";
-    producer.produce(cppkafka::MessageBuilder("my_topic").partition(0).payload(message));
+    producer.produce(cppkafka::MessageBuilder("mytopic").partition(0).payload(message));
     producer.flush();
 }

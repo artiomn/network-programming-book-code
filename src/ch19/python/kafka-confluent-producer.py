@@ -3,7 +3,7 @@
 from confluent_kafka import Producer
 
 
-p = Producer({'bootstrap.servers': 'mybroker1,mybroker2'})
+p = Producer({'bootstrap.servers': 'localhost,mybroker2'})
 
 
 def delivery_report(err, msg):
