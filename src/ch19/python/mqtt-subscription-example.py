@@ -21,6 +21,7 @@ client.connect(mqtt_broker)
 
 client.loop_start()
 
+print('Subscription...')
 client.subscribe('Example')
 
 time.sleep(30)
