@@ -43,6 +43,7 @@ RUN \
     libpoco-dev \
     libprotobuf-dev \
     libprotobuf-c-dev \
+    libqpid-proton-cpp12-dev \
     librdkafka-dev \
     libsdl2-net-dev \
     libthrift-[0-9.]\+ \
