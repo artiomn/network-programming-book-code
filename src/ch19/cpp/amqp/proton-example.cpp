@@ -10,9 +10,6 @@
 
 class hello_world : public proton::messaging_handler
 {
-    std::string conn_url_;
-    std::string addr_;
-
 public:
     hello_world(const std::string& u, const std::string& a) : conn_url_(u), addr_(a) {}
 
@@ -26,7 +23,7 @@ public:
 
     void on_sendable(proton::sender& s) override
     {
-        proton::message m("Hello World!");
+        proton::message m("Hello from Qpid Proton API!");
         s.send(m);
         s.close();
     }
@@ -36,6 +33,10 @@ public:
         std::cout << m.body() << std::endl;
         d.connection().close();
     }
+
+private:
+    std::string conn_url_;
+    std::string addr_;
 };
 
 
