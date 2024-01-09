@@ -85,6 +85,7 @@ RUN \
     python3-matplotlib \
     python3-mpi4py \
     python3-paho-mqtt \
+    python3-pika \
     python3-pip \
     python3-pycurl \
     python3-python-flask-jwt-extended \
