@@ -1,4 +1,7 @@
+extern "C"
+{
 #include <modbus.h>
+}
 
 #include <iostream>
 
@@ -25,7 +28,7 @@ int main()
 
     if (-1 == modbus_connect(ctx))
     {
-        stderr << "Unable to connect: " << modbus_strerror(errno) << std::endl;
+        std::cerr << "Unable to connect: " << modbus_strerror(errno) << std::endl;
         modbus_free(ctx);
         return EXIT_FAILURE;
     }

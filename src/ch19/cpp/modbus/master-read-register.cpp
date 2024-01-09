@@ -1,4 +1,7 @@
+extern "C"
+{
 #include <modbus.h>
+}
 
 #include <iostream>
 
