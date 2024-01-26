@@ -90,6 +90,7 @@ RUN \
     python3-pika \
     python3-pip \
     python3-pycurl \
+    python3-modbus \
     python3-python-flask-jwt-extended \
     python3-pyx \
     python3-pyqt6 \
