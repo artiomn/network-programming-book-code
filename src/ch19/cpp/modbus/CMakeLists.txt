@@ -8,8 +8,8 @@ pkg_check_modules(Modbus IMPORTED_TARGET libmodbus REQUIRED)
 add_executable("${PROJECT_NAME}-read-register" "master-read-register.cpp")
 target_link_libraries("${PROJECT_NAME}-read-register" PRIVATE PkgConfig::Modbus)
 
-add_executable("${PROJECT_NAME}-master" "master-rs232.cpp")
+add_executable("${PROJECT_NAME}-master" "master-tcp.cpp")
 target_link_libraries("${PROJECT_NAME}-master" PRIVATE PkgConfig::Modbus)
 
-add_executable("${PROJECT_NAME}-slave" "slave-rs232.cpp")
+add_executable("${PROJECT_NAME}-slave" "slave-tcp.cpp")
 target_link_libraries("${PROJECT_NAME}-slave" PRIVATE PkgConfig::Modbus)

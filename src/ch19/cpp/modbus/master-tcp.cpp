@@ -8,7 +8,8 @@ extern "C"
 
 int main()
 {
-    modbus_t *ctx = modbus_new_rtu("/dev/ttyS0", 9600, 'N', 8, 1);
+    modbus_t *ctx = modbus_new_tcp("127.0.0.1", 1502);
+    // modbus_t *ctx = modbus_new_rtu("/dev/ttyS0", 9600, 'N', 8, 1);
 
     if (!ctx)
     {
@@ -32,6 +33,8 @@ int main()
     {
         std::cerr << "Failed to read: " << modbus_strerror(errno) << std::endl;
     }
+    else
+        std::cout << "Received " << num << " bytes." << std::endl;
 
     modbus_close(ctx);
     modbus_free(ctx);
