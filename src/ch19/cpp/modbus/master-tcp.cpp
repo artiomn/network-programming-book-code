@@ -3,6 +3,7 @@ extern "C"
 #include <modbus.h>
 }
 
+#include <array>
 #include <iostream>
 
 
@@ -24,11 +25,11 @@ int main()
         return EXIT_FAILURE;
     }
 
-    modbus_set_slave(ctx, 3);
+    // modbus_set_slave(ctx, 3);
 
-    uint16_t reg[5];
+    std::array<uint16_t, 5> reg;
 
-    int num = modbus_read_registers(ctx, 10, 5, reg);
+    int num = modbus_read_registers(ctx, 10, reg.size(), reg.data());
     if (num != 5)
     {
         std::cerr << "Failed to read: " << modbus_strerror(errno) << std::endl;
