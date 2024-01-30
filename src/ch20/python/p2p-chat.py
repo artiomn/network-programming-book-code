@@ -65,20 +65,12 @@ class Communicator:
         on_message: Optional[Callable[[ChatMessage, asyncio.transports.Transport], None]] = None,
     ):
         print(f'Client = {client_addr}, server = {server_addr}')
-        self._server_addr = (str(server_addr[0]), int(server_addr[1])) if server_addr is not None else None
-        self._client_addr = (str(client_addr[0]), int(client_addr[1])) if client_addr is not None else None
-        self._on_message = on_message
+        self._server_addr = self._fix_params(server_addr)
+        self._client_addr = self._fix_params(client_addr)
+        self.on_message = on_message
         self._server: Optional[asyncio.Server] = None
         self._client: Optional[Tuple[asyncio.transports.Transport, ChatProtocol]] = None
         self._protos: List[ChatProtocol] = []
-
-    @property
-    def on_message(self):
-        return self._on_message
-
-    @on_message.setter
-    def on_message(self, on_message):
-        self._on_message = on_message
 
     async def run(self):
         print('Starting communication layer...')
@@ -122,11 +114,15 @@ class Communicator:
                 print(e)
 
     @staticmethod
+    def _fix_params(p) -> Optional[Tuple[str, int]]:
+        return (str(p[0]), int(p[1])) if p is not None else None
+
+    @staticmethod
     def _marshall_message(msg: ChatMessage) -> bytes:
         return json.dumps(asdict(msg)).encode()
 
-    def _proto_factory(self):
-        proto = ChatProtocol(self._on_message, self._on_disconnect)
+    def _proto_factory(self) -> ChatProtocol:
+        proto = ChatProtocol(self.on_message, self._on_disconnect)
         self._protos.append(proto)
 
         return proto
@@ -151,7 +147,7 @@ class MessengerLogic:
 
         self._user_io_pool_exc = None
 
-    async def run_forever(self):
+    async def run_until_stop(self):
         if self._running:
             return
 
@@ -227,11 +223,11 @@ async def main():
         server_addr=args.server.split(':') if args.server is not None and args.server.lower() != 'no' else None,
     )
 
-    return await MessengerLogic(args.nickname, comm_layer).run_forever()
+    return await MessengerLogic(args.nickname, comm_layer).run_until_stop()
 
 
 try:
-    bl = asyncio.run(main())
+    asyncio.run(main())
 except KeyboardInterrupt:
     print('Exiting...')
     sys.exit()
