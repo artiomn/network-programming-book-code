@@ -273,7 +273,7 @@ RUN \
 #  && rm -rf cpp-libp2p \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/emweb/wt \
   && cd wt \
-  && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DINSTALL_EXAMPLES=ON . \
+  && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DBUILD_TESTS=OFF -DINSTALL_EXAMPLES=ON . \
   && cmake --build build \
   && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
