@@ -1,6 +1,6 @@
-#include <iostream>
+#include <mr4c/algo_dev_api.h>
 
-// #include "algo_dev_api.h"
+#include <iostream>
 
 
 using namespace MR4C;
