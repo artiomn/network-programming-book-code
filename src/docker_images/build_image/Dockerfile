@@ -12,6 +12,8 @@ RUN \
 #  && echo 'deb http://neilalexander.s3.eu-west-2.amazonaws.com/deb/ debian yggdrasil' >> /etc/apt/sources.list.d/yggdrasil.list \
   && apt-get update \
   && apt-get -y --no-install-recommends --show-progress install \
+    # For MR4C \
+    ant \
     apache2 \
     capnproto \
     clang \
@@ -141,6 +143,7 @@ RUN \
 #  && cd / \
 #  && rm -rf CMake
 COPY ./.gitconfig /home/developer/
+COPY ./patches /home/developer
 
 RUN \
   git clone ${GIT_CLONE_PARAMETERS} https://github.com/uNetworking/uWebSockets \
@@ -294,6 +297,13 @@ RUN \
   && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf cppkafka \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/google/mr4c \
+  && cd mr4c \
+  && git apply /home/developer/patches/mr4c.patch \
+  && ./build_all \
+  && ./deploy_all \
+  && cd / \
+  && rm -rf mr4c \
   && apt-get clean \
   && ldconfig
 
