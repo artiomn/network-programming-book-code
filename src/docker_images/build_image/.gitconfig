@@ -1,0 +1,12 @@
+[core]
+packedGitLimit = 512m
+packedGitWindowSize = 512m
+compression = 0
+
+[http]
+postBuffer = 524288000
+
+[pack]
+deltaCacheSize = 2047m
+packSizeLimit = 2047m
+windowMemory = 2047m

@@ -137,6 +137,7 @@ RUN \
 #  && make install \
 #  && cd / \
 #  && rm -rf CMake
+COPY ./.gitconfig /home/developer/
 
 RUN \
   git clone ${GIT_CLONE_PARAMETERS} https://github.com/uNetworking/uWebSockets \
@@ -275,14 +276,14 @@ RUN \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf wt \
-#  && git clone ${GIT_CLONE_PARAMETERS} --branch "seastar-22.11-branch" https://github.com/scylladb/seastar \
-#  && cd seastar \
-#  && ./install-dependencies.sh \
-#  && ./configure.py --mode=release --prefix=/usr/local \
-#  && cmake --build build/release  --parallel \
-#  && cmake --install build/release --prefix "/usr/local" \
-#  && cd / \
-#  && rm -rf seastar \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/scylladb/seastar \
+  && cd seastar \
+  && ./install-dependencies.sh \
+  && ./configure.py --mode=release --prefix=/usr/local --without-tests \
+  && cmake --build build/release  --parallel \
+  && cmake --install build/release --prefix "/usr/local" \
+  && cd / \
+  && rm -rf seastar \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/mfontanini/cppkafka \
   && cd cppkafka \
   && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local -DCPPKAFKA_BUILD_SHARED=0 -DCPPKAFKA_DISABLE_TESTS=ON -DCPPKAFKA_DISABLE_EXAMPLES=ON . \
@@ -290,6 +291,7 @@ RUN \
   && cmake --install build --prefix "/usr/local" \
   && cd / \
   && rm -rf cppkafka \
+  && apt-get clean \
   && ldconfig
 
 COPY ./entry.sh /
