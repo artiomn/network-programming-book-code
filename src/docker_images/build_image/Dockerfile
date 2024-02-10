@@ -250,29 +250,6 @@ RUN \
   && pip3 install --break-system-packages scapy pythonping ping3 atheris curio flatbuffers gil thriftpy2 mrjob libp2p bjoern pcapy-ng pycapnp==2.0.0b1 \
                                           eve jwt sanic pyTelegramBotAPI==4.10.0 oct2py~=5.6.0 nats.py opcua asyncua opcua-client \
   && pip3 install --break-system-packages --extra-index-url "https://gitlab.com/api/v4/projects/19904939/packages/pypi/simple" pythonfuzz \
-#  && cd / \
-#  && git clone --depth 1 https://github.com/chronoxor/CppServer.git \
-#  && cd CppServer \
-#  && gil update \
-#  && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_POSITION_INDEPENDENT_CODE=ON -G "Ninja" -B build_linux . \
-#  && cmake --build build_linux --parallel \
-#  && cmake --install build_linux --prefix "/usr/local" \
-#  && mkdir /usr/local/include/CppServer \
-#  && cp -a modules/CppCommon/include /usr/local/include/CppCommon \
-#  && cp -a include/server /usr/local/include/CppServer/ \
-#  && find build_linux/ -iname \*.a -exec cp {} /usr/local/lib \; \
-#  && cp -a build_linux/cppserver-* /usr/local/bin/ \
-#  && cd modules/CppCommon/modules/fmt \
-#  && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
-#  && cmake --build . --parallel \
-#  && cmake --install .  --prefix "/usr/local" \
-#  && cd /CppServer/modules/asio/asio \
-#  && ./autogen.sh \
-#  && ./configure \
-#  && make -j16 \
-#  && make install \
-#  && cd / \
-#  && rm -rf CppServer \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/matt-42/lithium.git \
   && cd lithium \
 #  && ./vcpkg/bootstrap-vcpkg.sh \
@@ -284,7 +261,7 @@ RUN \
   && find single_headers -name "*.hh" -exec cp {} /usr/local/include \; \
   && cd / \
   && rm -rf lithium \
-  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/libp2p/cpp-libp2p.git \
+#  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/libp2p/cpp-libp2p.git \
 #  && cd cpp-libp2p \
 #  && cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DTESTING=OFF -DEXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=/usr/local -G "Ninja" -B build . \
 #  && cmake --build build --parallel \
