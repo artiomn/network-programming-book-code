@@ -29,9 +29,10 @@ RUN \
     libc-ares-dev \
     libcapnp-dev \
     libcppunit-dev \
+    libgdal-dev \
     libevent-2\* libevent-dev libev-dev libuv1-dev \
-    libgtest-dev \
     libglib2.0-dev \
+    libgtest-dev \
     libgtk2.0-dev \
     libgtk-3-dev \
     libgrpc++-dev \
