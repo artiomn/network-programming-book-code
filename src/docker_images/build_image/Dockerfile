@@ -218,21 +218,21 @@ RUN \
   && rm -rf oatpp \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/oatpp/oatpp-websocket.git \
   && cd oatpp-websocket \
-  && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} . \
+  && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DOATPP_BUILD_TESTS=OFF . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf oatpp-websocket \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/oatpp/oatpp-swagger.git \
   && cd oatpp-swagger \
-  && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} . \
+  && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DOATPP_BUILD_TESTS=OFF . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf oatpp-swagger \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/oatpp/oatpp-curl.git \
   && cd oatpp-curl \
-  && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} . \
+  && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DOATPP_BUILD_TESTS=OFF . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
@@ -246,9 +246,9 @@ RUN \
   && cd / \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/reo7sp/tgbot-cpp \
   && cd tgbot-cpp \
-  && cmake . \
-  && cmake --build . --parallel \
-  && cmake --install . --prefix "${INSTALL_PREFIX}" \
+  && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DENABLE_TESTS=OFF . \
+  && cmake --build build --parallel \
+  && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf tgbot-cpp \
   && pip3 install --break-system-packages scapy pythonping ping3 atheris curio flatbuffers gil thriftpy2 mrjob libp2p bjoern pcapy-ng pycapnp==2.0.0b1 \
