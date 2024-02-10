@@ -285,12 +285,12 @@ RUN \
   && cd / \
   && rm -rf lithium \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/libp2p/cpp-libp2p.git \
-  && cd cpp-libp2p \
-  && cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DTESTING=OFF -DEXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=/usr/local -G "Ninja" -B build . \
-  && cmake --build build --parallel \
-  && cmake --install build --prefix "/usr/local" \
-  && cd / \
-  && rm -rf cpp-libp2p \
+#  && cd cpp-libp2p \
+#  && cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DTESTING=OFF -DEXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=/usr/local -G "Ninja" -B build . \
+#  && cmake --build build --parallel \
+#  && cmake --install build --prefix "/usr/local" \
+#  && cd / \
+#  && rm -rf cpp-libp2p \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/emweb/wt \
   && cd wt \
   && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local -DINSTALL_EXAMPLES=ON . \
