@@ -84,6 +84,7 @@ RUN \
     python3-hypercorn \
     python3-httplib2 \
     python3-kafka \
+    python3-libtorrent \
     python3-matplotlib \
     python3-mpi4py \
     python3-paho-mqtt \
