@@ -145,9 +145,9 @@ RUN \
   git clone ${GIT_CLONE_PARAMETERS} https://github.com/uNetworking/uWebSockets \
   && cd uWebSockets \
   && CXXFLAGS="${CXXFLAGS} -fPIE" CFLAGS="${CFLAGS} -fPIE" make WITH_LTO=0 WITH_LIBUV=1 -j16 examples \
-  && make prefix=/usr/local install \
-  && install uSockets/uSockets.a /usr/local/lib/libusockets.a \
-  && install uSockets/src/libusockets.h /usr/local/include/ \
+  && make prefix=${INSTALL_PREFIX} install \
+  && install uSockets/uSockets.a ${INSTALL_PREFIX}/lib/libusockets.a \
+  && install uSockets/src/libusockets.h ${INSTALL_PREFIX}/include/ \
   && cd / \
   && rm -rf uWebSockets \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/google/flatbuffers \
@@ -161,9 +161,9 @@ RUN \
   # Build only gRPC console \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/grpc/grpc \
   && cd grpc \
-  && cmake -B build -DgRPC_BUILD_TESTS=ON -DgRPC_INSTALL=ON -DCMAKE_INSTALL_PREFIX=/usr/local . \
+  && cmake -B build -DgRPC_BUILD_TESTS=ON -DgRPC_INSTALL=ON -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} . \
   && cmake --build build --target grpc_cli \
-  && mv build/grpc_cli /usr/local/bin/ \
+  && mv build/grpc_cli ${INSTALL_PREFIX}/bin/ \
   && cd / \
   && rm -rf grpc \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/pistacheio/pistache \
@@ -172,7 +172,7 @@ RUN \
     --buildtype=debug \
     -DPISTACHE_USE_SSL=true \
     -DPISTACHE_BUILD_TESTS=false \
-    --prefix="/usr/local" \
+    --prefix="${INSTALL_PREFIX}" \
   && meson compile -C build \
   && meson install -C build \
   && cd / \
@@ -189,9 +189,9 @@ RUN \
   && rm -rf libhttpserver \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/corvusoft/restbed.git \
   && cd restbed \
-  && cmake -B build -DBUILD_SSL=NO -DBUILD_TESTS=NO -DCMAKE_INSTALL_PREFIX=/usr/local . \
+  && cmake -B build -DBUILD_SSL=NO -DBUILD_TESTS=NO -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} . \
   && cmake --build build --parallel \
-  && cmake --install build --prefix "/usr/local" \
+  && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf restbed \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/nodejs/llhttp \
@@ -199,9 +199,9 @@ RUN \
   && npm install -D @types/node \
   && echo y|make RELEASE=8.0 release \
   && cd release \
-  && cmake -B build -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_STATIC_LIBS=ON -DCMAKE_INSTALL_PREFIX=/usr/local . \
+  && cmake -B build -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_STATIC_LIBS=ON -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} . \
   && cmake --build build --parallel \
-  && cmake --install build --prefix "/usr/local" \
+  && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf llhttp \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/oatpp/oatpp.git \
@@ -209,45 +209,45 @@ RUN \
   # This is necessary to build oatpp \
   && mkdir build \
   && cd build \
-  && cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DOATPP_BUILD_TESTS=OFF .. \
+  && cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DOATPP_BUILD_TESTS=OFF .. \
   && make -j32 \
   # && cmake --build . --parallel \
-  && cmake --install . --prefix "/usr/local" \
+  && cmake --install . --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf oatpp \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/oatpp/oatpp-websocket.git \
   && cd oatpp-websocket \
-  && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local . \
+  && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} . \
   && cmake --build build --parallel \
-  && cmake --install build --prefix "/usr/local" \
+  && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf oatpp-websocket \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/oatpp/oatpp-swagger.git \
   && cd oatpp-swagger \
-  && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local . \
+  && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} . \
   && cmake --build build --parallel \
-  && cmake --install build --prefix "/usr/local" \
+  && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf oatpp-swagger \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/oatpp/oatpp-curl.git \
   && cd oatpp-curl \
-  && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local . \
+  && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} . \
   && cmake --build build --parallel \
-  && cmake --install build --prefix "/usr/local" \
+  && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf oatpp-curl \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/Thalhammer/jwt-cpp \
   && cd jwt-cpp \
-  && cmake -B build -DJWT_BUILD_TESTS=NO -DCMAKE_INSTALL_PREFIX=/usr/local . \
+  && cmake -B build -DJWT_BUILD_TESTS=NO -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} . \
   && cmake --build build --parallel \
-  && cmake --install build --prefix "/usr/local" \
+  && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && rm -rf jwt-cpp \
   && cd / \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/reo7sp/tgbot-cpp \
   && cd tgbot-cpp \
   && cmake . \
   && cmake --build . --parallel \
-  && cmake --install . --prefix "/usr/local" \
+  && cmake --install . --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf tgbot-cpp \
   && pip3 install --break-system-packages scapy pythonping ping3 atheris curio flatbuffers gil thriftpy2 mrjob libp2p bjoern pcapy-ng pycapnp==2.0.0b1 \
@@ -257,40 +257,40 @@ RUN \
   && cd lithium \
 #  && ./vcpkg/bootstrap-vcpkg.sh \
 #  && vcpkg/vcpkg install \
-#  && cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake . \
+#  && cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake . \
 #  && cmake --build . --parallel \
-#  && cmake --install . --prefix "/usr/local/li" \
-  && g++ -O3 -DNDEBUG -std=c++17 libraries/symbol/symbol/symbol_generator.cc -o /usr/local/bin/li_symbol_generator \
-  && find single_headers -name "*.hh" -exec cp {} /usr/local/include \; \
+#  && cmake --install . --prefix "${INSTALL_PREFIX}/li" \
+  && g++ -O3 -DNDEBUG -std=c++17 libraries/symbol/symbol/symbol_generator.cc -o ${INSTALL_PREFIX}/bin/li_symbol_generator \
+  && find single_headers -name "*.hh" -exec cp {} ${INSTALL_PREFIX}/include \; \
   && cd / \
   && rm -rf lithium \
 #  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/libp2p/cpp-libp2p.git \
 #  && cd cpp-libp2p \
-#  && cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DTESTING=OFF -DEXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=/usr/local -G "Ninja" -B build . \
+#  && cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DTESTING=OFF -DEXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -G "Ninja" -B build . \
 #  && cmake --build build --parallel \
-#  && cmake --install build --prefix "/usr/local" \
+#  && cmake --install build --prefix "${INSTALL_PREFIX}" \
 #  && cd / \
 #  && rm -rf cpp-libp2p \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/emweb/wt \
   && cd wt \
-  && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local -DINSTALL_EXAMPLES=ON . \
+  && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DINSTALL_EXAMPLES=ON . \
   && cmake --build build \
-  && cmake --install build --prefix "/usr/local" \
+  && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf wt \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/scylladb/seastar \
   && cd seastar \
   && ./install-dependencies.sh \
-  && ./configure.py --mode=release --prefix=/usr/local --without-tests \
+  && ./configure.py --mode=release --prefix=${INSTALL_PREFIX} --without-tests \
   && cmake --build build/release  --parallel \
-  && cmake --install build/release --prefix "/usr/local" \
+  && cmake --install build/release --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf seastar \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/mfontanini/cppkafka \
   && cd cppkafka \
-  && cmake -B build -DCMAKE_INSTALL_PREFIX=/usr/local -DCPPKAFKA_BUILD_SHARED=0 -DCPPKAFKA_DISABLE_TESTS=ON -DCPPKAFKA_DISABLE_EXAMPLES=ON . \
+  && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DCPPKAFKA_BUILD_SHARED=0 -DCPPKAFKA_DISABLE_TESTS=ON -DCPPKAFKA_DISABLE_EXAMPLES=ON . \
   && cmake --build build --parallel \
-  && cmake --install build --prefix "/usr/local" \
+  && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf cppkafka \
   && apt-get clean \
