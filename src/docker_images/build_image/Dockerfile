@@ -238,7 +238,7 @@ RUN \
   && rm -rf oatpp-curl \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/Thalhammer/jwt-cpp \
   && cd jwt-cpp \
-  && cmake -B build -DBUILD_SSL=YES -DBUILD_TESTS=NO -DCMAKE_INSTALL_PREFIX=/usr/local . \
+  && cmake -B build -DJWT_BUILD_TESTS=NO -DCMAKE_INSTALL_PREFIX=/usr/local . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "/usr/local" \
   && rm -rf jwt-cpp \
