@@ -136,3 +136,4 @@ index 6bfb574..bb155d3 100644
 +			m_defaultInitMR4C= (bool)LogManager::exists(FRAMEWORK_ROOT);
  			m_initMR4C = m_defaultInitMR4C;
  		}
+
