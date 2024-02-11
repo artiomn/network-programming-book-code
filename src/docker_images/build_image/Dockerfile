@@ -143,7 +143,7 @@ RUN \
 #  && cd / \
 #  && rm -rf CMake
 COPY ./.gitconfig /home/developer/
-COPY ./patches /home/developer
+COPY ./patches /home/developer/patches
 
 RUN \
   git clone ${GIT_CLONE_PARAMETERS} https://github.com/uNetworking/uWebSockets \
@@ -254,6 +254,20 @@ RUN \
   && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf tgbot-cpp \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/mfontanini/cppkafka \
+  && cd cppkafka \
+  && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DCPPKAFKA_BUILD_SHARED=0 -DCPPKAFKA_DISABLE_TESTS=ON -DCPPKAFKA_DISABLE_EXAMPLES=ON . \
+  && cmake --build build --parallel \
+  && cmake --install build --prefix "${INSTALL_PREFIX}" \
+  && cd / \
+  && rm -rf cppkafka \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/google/mr4c \
+  && cd mr4c \
+  && git apply /home/developer/patches/mr4c.patch \
+  && ./build_all \
+  && ./deploy_all \
+  && cd / \
+  && rm -rf mr4c \
   && pip3 install --break-system-packages scapy pythonping ping3 atheris curio flatbuffers gil thriftpy2 mrjob libp2p bjoern pcapy-ng pycapnp==2.0.0b1 \
                                           eve jwt sanic pyTelegramBotAPI==4.10.0 oct2py~=5.6.0 nats.py opcua asyncua opcua-client \
   && pip3 install --break-system-packages --extra-index-url "https://gitlab.com/api/v4/projects/19904939/packages/pypi/simple" pythonfuzz \
@@ -290,20 +304,6 @@ RUN \
   && cmake --install build/release --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf seastar \
-  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/mfontanini/cppkafka \
-  && cd cppkafka \
-  && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DCPPKAFKA_BUILD_SHARED=0 -DCPPKAFKA_DISABLE_TESTS=ON -DCPPKAFKA_DISABLE_EXAMPLES=ON . \
-  && cmake --build build --parallel \
-  && cmake --install build --prefix "${INSTALL_PREFIX}" \
-  && cd / \
-  && rm -rf cppkafka \
-  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/google/mr4c \
-  && cd mr4c \
-  && git apply /home/developer/patches/mr4c.patch \
-  && ./build_all \
-  && ./deploy_all \
-  && cd / \
-  && rm -rf mr4c \
   && apt-get clean \
   && ldconfig
 
