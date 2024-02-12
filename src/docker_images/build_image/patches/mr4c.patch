@@ -1,5 +1,5 @@
 diff --git a/build_all b/build_all
-index 3e3b656..8e98d37 100755
+index 3e3b656..8150729 100755
 --- a/build_all
 +++ b/build_all
 @@ -3,11 +3,11 @@
@@ -7,12 +7,12 @@ index 3e3b656..8e98d37 100755
  
  cd native
 -make
-+make -j16
++make -j16 lib
  cd ..
  
  cd geospatial
 -make
-+make -j16
++make -j16 lib
  cd ..
  
  cd java
