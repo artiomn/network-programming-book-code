@@ -27,4 +27,8 @@
     <id>cppcheckError</id>
     <fileName>src/ch19/cpp/zeromq/pub-sub.cpp</fileName>
   </suppress>
+  <suppress>
+    <id>*</id>
+	<fileName>src/docker_images/build_image/patches/*</fileName>
+  </suppress>
 </suppressions>
