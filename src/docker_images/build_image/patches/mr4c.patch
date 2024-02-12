@@ -1,8 +1,8 @@
 diff --git a/build_all b/build_all
-index 3e3b656..8150729 100755
+index 3e3b656..878d589 100755
 --- a/build_all
 +++ b/build_all
-@@ -3,11 +3,11 @@
+@@ -3,14 +3,14 @@
  set -e
  
  cd native
@@ -15,7 +15,13 @@ index 3e3b656..8150729 100755
 +make -j16 lib
  cd ..
  
- cd java
+-cd java
+-tools/build_yarn
+-cd ..
++# cd java
++# tools/build_yarn
++# cd ..
+ 
 diff --git a/geospatial/src/cpp/api/gdal/GDALCoordTrans.h b/geospatial/src/cpp/api/gdal/GDALCoordTrans.h
 index 5fb6ea6..9c3ee4c 100644
 --- a/geospatial/src/cpp/api/gdal/GDALCoordTrans.h

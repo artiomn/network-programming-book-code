@@ -268,6 +268,14 @@ RUN \
   && ./deploy_all \
   && cd / \
   && rm -rf mr4c \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/scylladb/seastar \
+  && cd seastar \
+  && ./install-dependencies.sh \
+  && ./configure.py --mode=release --prefix=${INSTALL_PREFIX} --without-tests \
+  && cmake --build build/release  --parallel \
+  && cmake --install build/release --prefix "${INSTALL_PREFIX}" \
+  && cd / \
+  && rm -rf seastar \
   && pip3 install --break-system-packages scapy pythonping ping3 atheris curio flatbuffers gil thriftpy2 mrjob libp2p bjoern pcapy-ng pycapnp==2.0.0b1 \
                                           eve jwt sanic pyTelegramBotAPI==4.10.0 oct2py~=5.6.0 nats.py opcua asyncua opcua-client \
   && pip3 install --break-system-packages --extra-index-url "https://gitlab.com/api/v4/projects/19904939/packages/pypi/simple" pythonfuzz \
@@ -296,14 +304,6 @@ RUN \
   && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf wt \
-  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/scylladb/seastar \
-  && cd seastar \
-  && ./install-dependencies.sh \
-  && ./configure.py --mode=release --prefix=${INSTALL_PREFIX} --without-tests \
-  && cmake --build build/release  --parallel \
-  && cmake --install build/release --prefix "${INSTALL_PREFIX}" \
-  && cd / \
-  && rm -rf seastar \
   && apt-get clean \
   && ldconfig
 
