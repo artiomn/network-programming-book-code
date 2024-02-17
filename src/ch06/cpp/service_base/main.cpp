@@ -10,46 +10,71 @@ int main(int argc, char* argv[])
 {
     uint32_t result = 0;
     HANDLE hlookup = 0;
-    WSAQUERYSETW lp_restrict = {};
+    WSAQUERYSET first_query = {};
     GUID guid = SVCID_HOSTNAME;
 
     try
     {
         socket_wrapper::SocketWrapper sw;
 
-        lp_restrict.dwSize = sizeof(WSAQUERYSETW);
-        lp_restrict.lpServiceClassId = &guid;
+        first_query.dwSize = sizeof(WSAQUERYSET);
+        first_query.lpServiceClassId = &guid;
 
-        if (SOCKET_ERROR == WSALookupServiceBeginW(&lp_restrict, LUP_RETURN_NAME, &hlookup))
+        if (FAILED(WSALookupServiceBegin(&first_query, LUP_RETURN_NAME | LUP_RETURN_COMMENT | LUP_RETURN_ADDR, &hlookup)))
         {
             throw std::system_error(errno, std::system_category(), "Error on WSALookupServiceBegin: " + std::to_string(WSAGetLastError()));
         }
 
-        std::shared_ptr<WSAQUERYSETW> pdata_shared = std::make_shared<WSAQUERYSETW>();
-        WSAQUERYSETW* pdata = pdata_shared.get();
-        DWORD length = sizeof(WSAQUERYSETW);
-
         while (true)
         {
-            if (WSALookupServiceNextW(hlookup, 0, &length, pdata) != 0)
+            WSAQUERYSET test_query = {};
+            unsigned long length = sizeof(test_query);
+
+            if (SUCCEEDED(WSALookupServiceNext(hlookup, 0, &length, &test_query)))
             {
-                result = WSAGetLastError();
-                // Windows can return two errors if there is no more result
-                if ((WSA_E_NO_MORE == result) || (WSAENOMORE == result))
-                {
-                    std::cout << "No more record found!" << std::endl;
-                    break;
-                }
-                std::wcout << "WSALookupServiceNext() failed with error code " << WSAGetLastError() << std::endl;
-                continue;
+                std::cerr << "Impossible" << std::endl;
+                break;
             }
 
-            if (pdata)
+            auto err_code = GetLastError();
+            if (WSAEFAULT == err_code)
             {
-                std::wcout << "  Service instance name: " << pdata->lpszServiceInstanceName << std::endl;
-                std::wcout << "  Name space num: " << pdata->dwNameSpace << std::endl;
+                auto pdata_shared = std::make_shared<char[]>(length);
+                WSAQUERYSET* p_data = reinterpret_cast<WSAQUERYSET*>(pdata_shared.get());
+
+                if (FAILED(WSALookupServiceNext(hlookup, 0, &length, p_data)))
+                {
+                    result = WSAGetLastError();
+                    // Windows can return two errors if there is no more result
+                    if ((WSA_E_NO_MORE == result) || (WSAENOMORE == result))
+                    {
+                        std::cout << "No more record found!" << std::endl;
+                        break;
+                    }
+                    else throw std::system_error(errno, std::system_category(), "Error on WSALookupServiceNext: " + std::to_string(WSAGetLastError()));
+                }
+
+                std::wcout
+                    << "Service instance name: " << p_data->lpszServiceInstanceName << "\n"
+                    << "Name space num: " << p_data->dwNameSpace << "\n"
+                    << "Address count:  " << p_data->dwNumberOfCsAddrs
+                    << std::endl;
+
+
+                for (size_t i = 0; i < p_data->dwNumberOfCsAddrs; ++i)
+                {
+                    if (IPPROTO_TCP  == p_data->lpcsaBuffer[i].iProtocol)
+                    {
+                        std::cout << p_data->lpcsaBuffer[i].RemoteAddr.lpSockaddr << std::endl;
+                    }
+                }
             }
-        }
+            else if (result != WSA_E_NO_MORE && result != WSAENOMORE)
+            {
+                break;
+            }
+            else throw std::system_error(errno, std::system_category(), "Error on WSALookupServiceNext: " + std::to_string(WSAGetLastError()));
+        };
 
         if (WSALookupServiceEnd(hlookup))
             throw std::system_error(errno, std::system_category(), "WSALookupServiceEnd(hlookup) failed with error code " + std::to_string(WSAGetLastError()));
