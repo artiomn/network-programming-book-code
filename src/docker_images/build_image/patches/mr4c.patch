@@ -1,0 +1,145 @@
+diff --git a/build_all b/build_all
+index 3e3b656..878d589 100755
+--- a/build_all
++++ b/build_all
+@@ -3,14 +3,14 @@
+ set -e
+ 
+ cd native
+-make
++make -j16 lib
+ cd ..
+ 
+ cd geospatial
+-make
++make -j16 lib
+ cd ..
+ 
+-cd java
+-tools/build_yarn
+-cd ..
++# cd java
++# tools/build_yarn
++# cd ..
+ 
+diff --git a/geospatial/src/cpp/api/gdal/GDALCoordTrans.h b/geospatial/src/cpp/api/gdal/GDALCoordTrans.h
+index 5fb6ea6..9c3ee4c 100644
+--- a/geospatial/src/cpp/api/gdal/GDALCoordTrans.h
++++ b/geospatial/src/cpp/api/gdal/GDALCoordTrans.h
+@@ -17,7 +17,7 @@
+ #ifndef __MR4C_GEO_GDAL_COORD_TRANS_H__
+ #define __MR4C_GEO_GDAL_COORD_TRANS_H__
+ 
+-#include "ogr_spatialref.h"
++#include <gdal/ogr_spatialref.h>
+ 
+ #include "coord/coord_api.h"
+ 
+diff --git a/geospatial/src/cpp/api/gdal/GDALFile.h b/geospatial/src/cpp/api/gdal/GDALFile.h
+index e5d2806..e6a8fa7 100644
+--- a/geospatial/src/cpp/api/gdal/GDALFile.h
++++ b/geospatial/src/cpp/api/gdal/GDALFile.h
+@@ -19,7 +19,7 @@
+ 
+ #include <string>
+ 
+-#include "gdal_priv.h"
++#include <gdal/gdal_priv.h>
+ 
+ #include "dataset/dataset_api.h"
+ 
+diff --git a/geospatial/src/cpp/api/gdal/GDALFileBase.h b/geospatial/src/cpp/api/gdal/GDALFileBase.h
+index 58f6bf5..4cdb3f8 100644
+--- a/geospatial/src/cpp/api/gdal/GDALFileBase.h
++++ b/geospatial/src/cpp/api/gdal/GDALFileBase.h
+@@ -19,7 +19,7 @@
+ 
+ #include <string>
+ 
+-#include "gdal_priv.h"
++#include <gdal/gdal_priv.h>
+ 
+ #include "dataset/dataset_api.h"
+ 
+diff --git a/geospatial/src/cpp/api/gdal/GDALLocalFile.h b/geospatial/src/cpp/api/gdal/GDALLocalFile.h
+index f95bd07..2095efe 100644
+--- a/geospatial/src/cpp/api/gdal/GDALLocalFile.h
++++ b/geospatial/src/cpp/api/gdal/GDALLocalFile.h
+@@ -19,7 +19,7 @@
+ 
+ #include <string>
+ 
+-#include "gdal_priv.h"
++#include <gdal/gdal_priv.h>
+ 
+ #include "dataset/dataset_api.h"
+ 
+diff --git a/geospatial/src/cpp/api/gdal/GDALMemoryFile.h b/geospatial/src/cpp/api/gdal/GDALMemoryFile.h
+index 7101565..ec63ad2 100644
+--- a/geospatial/src/cpp/api/gdal/GDALMemoryFile.h
++++ b/geospatial/src/cpp/api/gdal/GDALMemoryFile.h
+@@ -19,7 +19,7 @@
+ 
+ #include <string>
+ 
+-#include "gdal_priv.h"
++#include <gdal/gdal_priv.h>
+ 
+ #include "dataset/dataset_api.h"
+ 
+diff --git a/geospatial/src/cpp/api/gdal/GDALUtils.h b/geospatial/src/cpp/api/gdal/GDALUtils.h
+index f0c3055..a2169ac 100644
+--- a/geospatial/src/cpp/api/gdal/GDALUtils.h
++++ b/geospatial/src/cpp/api/gdal/GDALUtils.h
+@@ -17,8 +17,8 @@
+ #ifndef __MR4C_GEO_GDAL_UTILS_H__
+ #define __MR4C_GEO_GDAL_UTILS_H__
+ 
+-#include "gdal_priv.h"
+-#include "ogr_spatialref.h"
++#include <gdal/gdal_priv.h>
++#include <gdal/ogr_spatialref.h>
+ 
+ #include "coord/coord_api.h"
+ #include "dataset/dataset_api.h"
+diff --git a/geospatial/src/cpp/impl/gdal/GDALUtils.cpp b/geospatial/src/cpp/impl/gdal/GDALUtils.cpp
+index e950eff..f341c9f 100644
+--- a/geospatial/src/cpp/impl/gdal/GDALUtils.cpp
++++ b/geospatial/src/cpp/impl/gdal/GDALUtils.cpp
+@@ -15,8 +15,8 @@
+ */
+ 
+ #include <stdexcept>
+-#include "cpl_conv.h" 
+-#include "ogr_spatialref.h"
++#include <gdal/cpl_conv.h>
++#include <gdal/ogr_spatialref.h>
+ 
+ #include "gdal/gdal_api.h"
+ #include "util/util_api.h"
+diff --git a/native/src/cpp/impl/context/AlgorithmContext.cpp b/native/src/cpp/impl/context/AlgorithmContext.cpp
+index 08adf63..694034d 100644
+--- a/native/src/cpp/impl/context/AlgorithmContext.cpp
++++ b/native/src/cpp/impl/context/AlgorithmContext.cpp
+@@ -48,7 +48,7 @@ class AlgorithmContextAlgoLogger : public Logger {
+ 		}
+ 	
+ 		virtual void log(const std::string& file, int line, LogLevel level, const std::string& msg) {
+-			LocationInfo loc(file.c_str(), "", line);
++			LocationInfo loc(file.c_str(), "", "", line);
+ 			switch(level) {
+ 				case INFO :
+ 					m_logger->info(msg,loc);
+diff --git a/native/src/cpp/impl/util/MR4CLogging.cpp b/native/src/cpp/impl/util/MR4CLogging.cpp
+index 6bfb574..e2e0540 100644
+--- a/native/src/cpp/impl/util/MR4CLogging.cpp
++++ b/native/src/cpp/impl/util/MR4CLogging.cpp
+@@ -121,7 +121,7 @@ class MR4CLoggingImpl {
+ 		}
+ 	
+ 		void checkMR4CInitialized() {
+-			m_defaultInitMR4C= LogManager::exists(FRAMEWORK_ROOT);
++			m_defaultInitMR4C= (bool)(LogManager::exists(FRAMEWORK_ROOT));
+ 			m_initMR4C = m_defaultInitMR4C;
+ 		}
+ 

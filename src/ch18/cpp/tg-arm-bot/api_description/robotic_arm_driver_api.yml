@@ -5,7 +5,7 @@ servers:
     url: https://virtserver.swaggerhub.com/artiomn/robotic_arm_driver/1.0.0
 info:
   version: "1.0.0"
-  title: robotic-arm-server-api
+  title: robotic-arm-driver-api
   description: The API for the Robotic Arm Server educational project
 paths:
   '/device':

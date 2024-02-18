@@ -9,3 +9,5 @@ __pycache__
 .vscode/
 setting.json
 .*.swp
+CMakeLists.txt.user*
+/.vs

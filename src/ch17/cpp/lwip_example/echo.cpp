@@ -1,20 +1,29 @@
-#include "lwip/debug.h"
-
-#include "lwip/stats.h"
-
 #include "echo.h"
 
+extern "C"
+{
 #include <netif/etharp.h>
-
-#include "lwip/tcp.h"
-#include "lwip/prot/tcp.h"
+#include <ctype.h>
+#include <time.h>
+}
 
 #include <iomanip>
 #include <iostream>
-#include <stdarg.h>
-#include <ctype.h>
-#include <string.h>
-#include <time.h>
+
+#include <cstdarg>
+#include <cstring>
+
+extern "C"
+{
+// cppcheck-suppress missingInclude
+#include "lwip/debug.h"
+// cppcheck-suppress missingInclude
+#include "lwip/stats.h"
+// cppcheck-suppress missingInclude
+#include "lwip/tcp.h"
+// cppcheck-suppress missingInclude
+#include "lwip/prot/tcp.h"
+}
 
 
 // Called by echo_msgrecv() when it effectively gets an EOF.
@@ -62,7 +71,6 @@ static err_t echo_msgrecv(void *arg, struct tcp_pcb *pcb, struct pbuf *p,
             // Send request immediately.
             err = tcp_output(pcb);
         }
-
     }
     else if (ERR_OK == err && nullptr == p)
     {
@@ -98,7 +106,7 @@ static err_t echo_msgaccept(void *arg, struct tcp_pcb *pcb, err_t err)
         << std::endl;
 
     // Set an arbitrary pointer for callbacks. We don't use this right now.
-    //tcp_arg(pcb, esm);
+    // tcp_arg(pcb, esm);
 
     // Set TCP receive packet callback.
     tcp_recv(pcb, echo_msgrecv);
@@ -115,7 +123,7 @@ int echo_init(void)
 {
     // Create lwIP TCP instance.
     struct tcp_pcb *pcb = tcp_new();
-    const short unsigned int port = 11111;
+    const uint16_t port = 11111;
 
     LWIP_DEBUGF(ECHO_DEBUG, ("echo_init on port %d (pcb: %x)\n", port, pcb));
     int r = tcp_bind(pcb, IP_ADDR_ANY, port);
@@ -132,7 +140,7 @@ int echo_init(void)
 
 // Hook to incoming TCP packet.
 // We catch incoming connections here because the tcp_accept() hook is triggered after the first ACK
-int tcp_in_packet(struct tcp_pcb *pcb, struct tcp_hdr *hdr, uint16_t optlen,
+int tcp_in_packet(const struct tcp_pcb *pcb, struct tcp_hdr *hdr, uint16_t optlen,
                   uint16_t opt1len, uint8_t *opt2, struct pbuf *p)
 {
     // First incoming packet is in a LISTEN state.
@@ -147,6 +155,7 @@ int tcp_in_packet(struct tcp_pcb *pcb, struct tcp_hdr *hdr, uint16_t optlen,
             << ipaddr_ntoa(ip_current_src_addr())
             << std::endl;
     }
+
     return ERR_OK;
 }
 

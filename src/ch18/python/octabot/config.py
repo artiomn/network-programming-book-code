@@ -1,1 +1,1 @@
-token = PUT YOUR TOKEN HERE
+token = 'PUT YOUR TOKEN HERE'

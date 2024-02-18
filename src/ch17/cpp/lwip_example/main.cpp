@@ -1,21 +1,24 @@
-#include <iostream>
-#include <stdio.h>
-#include <stddef.h>
-#include <stdarg.h>
-#include <string.h>
-
-#include <pcap/pcap.h>
-
-#include <lwip/init.h>
-#include <lwip/netif.h>
-#include <lwip/ethip6.h>
-#include <netif/etharp.h>
-#include <lwip/udp.h>
-#include <lwip/mld6.h>
-#include <lwip/timeouts.h>
-
 #include "echo.h"
 #include "ping.h"
+
+extern "C"
+{
+#include <pcap/pcap.h>  // NOLINT
+
+#include <lwip/init.h>  // NOLINT
+#include <lwip/netif.h>  // NOLINT
+#include <lwip/ethip6.h>  // NOLINT
+#include <netif/etharp.h>  // NOLINT
+#include <lwip/udp.h>  // NOLINT
+#include <lwip/mld6.h>  // NOLINT
+#include <lwip/timeouts.h>  // NOLINT
+}
+
+#include <iostream>  // NOLINT
+#include <cstdio>  // NOLINT
+#include <cstddef>  // NOLINT
+#include <cstring>  // NOLINT
+#include <cstdarg>  // NOLINT
 
 
 // Callback to send a raw lwIP packet via PCAP.
@@ -47,10 +50,10 @@ static err_t pcap_output(struct netif *netif, struct pbuf *p)
 static err_t input_callback(struct pbuf *p, struct netif *inp)
 {
     // Start of payload will have an Ethernet header.
-    struct eth_hdr *ethhdr = reinterpret_cast<struct eth_hdr *>(p->payload);
+    // struct eth_hdr *ethhdr = reinterpret_cast<struct eth_hdr *>(p->payload);
 
     // "src" contains the source hardware address from the packet.
-    struct eth_addr *ethaddr = &ethhdr->src;
+    // struct eth_addr *ethaddr = &ethhdr->src;
 
     std::cout << "OK" << std::endl;
 
@@ -93,7 +96,6 @@ int main(int argc, const char * const argv[])
 
     // Open PCAP on some interface.
     pcap_t *pcap = pcap_open_live(interface, 65536, 1, 100, nullptr);
-    char errbuf[PCAP_ERRBUF_SIZE];
 
     // Create a lwIP network interface struct and give it a MAC.
     struct netif netif = { .hwaddr_len = 6, 0 };
@@ -138,17 +140,14 @@ int main(int argc, const char * const argv[])
             case 0:
                 // Timeout
                 continue;
-
             case -1:
                 std::cerr
                     << "Error: "
                     << pcap_geterr(pcap)
                     << std::endl;
                 continue;
-
             case 1:
                 break;
-
             default:
                 std::cerr
                     << "Unknown result: " << r

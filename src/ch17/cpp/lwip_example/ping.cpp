@@ -2,13 +2,19 @@
 
 #include <iostream>
 
+extern "C"
+{
+// cppcheck-suppress missingInclude
 #include "lwip/debug.h"
+// cppcheck-suppress missingInclude
 #include "lwip/icmp.h"
+// cppcheck-suppress missingInclude
 #include "lwip/raw.h"
-
+}
 
 // ICMP message received. Return 0 to let lwIP process it and 1 to eat the
 // packet.
+// cppcheck-suppress constParameterCallback
 static u8_t ping_recv(void *arg, struct raw_pcb *pcb, struct pbuf *p, const ip_addr_t *addr)
 {
     LWIP_UNUSED_ARG(arg);
@@ -16,11 +22,11 @@ static u8_t ping_recv(void *arg, struct raw_pcb *pcb, struct pbuf *p, const ip_a
 
     std::cout << "Ping accepted from " << ipaddr_ntoa(addr) << std::endl;
 
-    struct icmp_echo_hdr *iecho = nullptr;
+    // struct icmp_echo_hdr *iecho = nullptr;
     // If the message is long enough, get the header and do something.
     if (p->tot_len >= (PBUF_IP_HLEN + sizeof(struct icmp_echo_hdr)))
     {
-        iecho = reinterpret_cast<struct icmp_echo_hdr *>(static_cast<char *>(p->payload) + PBUF_IP_HLEN);
+        // iecho = reinterpret_cast<struct icmp_echo_hdr *>(static_cast<char *>(p->payload) + PBUF_IP_HLEN);
     }
 
     return 0;
@@ -45,3 +51,4 @@ int ping_init(void)
 
     return 0;
 }
+

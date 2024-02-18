@@ -4,15 +4,14 @@
  * @author Christian Grothoff
  */
 
-
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-
 extern "C"
 {
 #include <microhttpd.h>
 }
+
+#include <cstdio>
+#include <iostream>
+#include <string>
 
 
 #define PAGE "<html><head><title>libmicrohttpd demo</title></head><body>libmicrohttpd demo</body></html>"
@@ -22,7 +21,7 @@ static enum MHD_Result ahc_echo(
     const char *upload_data, size_t *upload_data_size, void **req_cls)
 {
     static int aptr;
-    const char *me = static_cast<const char *>(cls);
+    const std::string_view me{static_cast<const char *>(cls)};
     struct MHD_Response *response;
     enum MHD_Result ret;
 
@@ -31,7 +30,7 @@ static enum MHD_Result ahc_echo(
     (void)upload_data;      /* Unused. Silent compiler warning. */
     (void)upload_data_size; /* Unused. Silent compiler warning. */
 
-    if (0 != strcmp(method, "GET")) return MHD_NO;
+    if (std::string_view(method) != "GET") return MHD_NO;
 
     if (&aptr != *req_cls)
     {
@@ -40,9 +39,8 @@ static enum MHD_Result ahc_echo(
         return MHD_YES;
     }
 
-    // Сброс по завершении.
-    *req_cls = NULL;
-    response = MHD_create_response_from_buffer(strlen(me), (void *)me, MHD_RESPMEM_PERSISTENT);
+    *req_cls = nullptr;
+    response = MHD_create_response_from_buffer(me.size(), const_cast<char *>(me.data()), MHD_RESPMEM_PERSISTENT);
     ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
     MHD_destroy_response(response);
     return ret;
@@ -55,8 +53,8 @@ int main(int argc, const char *const *argv)
 
     if (argc != 2)
     {
-        printf("%s PORT\n", argv[0]);
-        return 1;
+        std::cerr << argv[0] << " <PORT>" << std::endl;
+        return EXIT_FAILURE;
     }
 
     d = MHD_start_daemon(
@@ -69,13 +67,13 @@ int main(int argc, const char *const *argv)
            MHD_USE_POLL, */
         /* MHD_USE_THREAD_PER_CONNECTION |
            MHD_USE_INTERNAL_POLLING_THREAD | MHD_USE_ERROR_LOG, */
-        atoi(argv[1]), NULL, NULL, &ahc_echo, const_cast<char *>(PAGE), MHD_OPTION_CONNECTION_TIMEOUT,
-        (unsigned int)120, MHD_OPTION_STRICT_FOR_CLIENT, (int)1, MHD_OPTION_END);
+        atoi(argv[1]), nullptr, nullptr, &ahc_echo, const_cast<char *>(PAGE), MHD_OPTION_CONNECTION_TIMEOUT, 120u,
+        MHD_OPTION_STRICT_FOR_CLIENT, 1, MHD_OPTION_END);
 
-    if (d == NULL) return 1;
+    if (!d) return EXIT_FAILURE;
 
-    getc(stdin);
+    getchar();
     MHD_stop_daemon(d);
 
-    return 0;
+    return EXIT_SUCCESS;
 }

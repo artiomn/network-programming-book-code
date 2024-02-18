@@ -3,12 +3,11 @@
 
 #include "oatpp-test/UnitTest.hpp"
 
-class MyControllerTest : public oatpp::test::UnitTest {
+class MyControllerTest : public oatpp::test::UnitTest
+{
 public:
-
-  MyControllerTest() : UnitTest("TEST[MyControllerTest]"){}
-  void onRun() override;
-
+    MyControllerTest() : UnitTest("TEST[MyControllerTest]") {}
+    void onRun() override;
 };
 
-#endif // MyControllerTest_hpp
+#endif  // MyControllerTest_hpp
