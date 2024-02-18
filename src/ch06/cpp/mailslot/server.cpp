@@ -9,8 +9,8 @@ extern "C"
 
 int main()
 {
-    const LPCTSTR SlotName = TEXT("\\\\.\\mailslot\\test_mailslot");
-    HANDLE h_slot = CreateMailslot(lpszSlotName, 0, MAILSLOT_WAIT_FOREVER, nullptr);
+    const LPCTSTR slot_name = TEXT("\\\\.\\mailslot\\test_mailslot");
+    HANDLE h_slot = CreateMailslot(slot_name, 0, MAILSLOT_WAIT_FOREVER, nullptr);
 
     if (INVALID_HANDLE_VALUE == h_slot)
     {
@@ -19,7 +19,7 @@ int main()
     }
     else
     {
-        std::cout << "Mailslot created successfully.";
+        std::cout << "Mailslot created successfully." << std::endl;
         std::vector<char> buffer(2048);
         DWORD bytes_read;
 

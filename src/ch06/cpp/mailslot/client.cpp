@@ -3,11 +3,13 @@ extern "C"
 #include <windows.h>
 }
 
+#include <iostream>
 #include <vector>
 
 
 int main()
 {
+    const LPCTSTR slot_name = TEXT("\\\\.\\mailslot\\test_mailslot");
     HANDLE h_slot =
         CreateFile(slot_name, GENERIC_WRITE, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
