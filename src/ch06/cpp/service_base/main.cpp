@@ -3,15 +3,17 @@
 #include <socket_wrapper/socket_wrapper.h>
 
 #include <svcguid.h>
+#include <cassert>
 #include <iostream>
 
 
 int main(int argc, char* argv[])
 {
     uint32_t result = 0;
-    HANDLE hlookup = 0;
+    HANDLE h_lookup = 0;
     WSAQUERYSET first_query = {};
-    GUID guid = SVCID_HOSTNAME;
+    // SVCID_UDP(7)
+    GUID guid = SVCID_ECHO_UDP;
 
     try
     {
@@ -20,7 +22,7 @@ int main(int argc, char* argv[])
         first_query.dwSize = sizeof(WSAQUERYSET);
         first_query.lpServiceClassId = &guid;
 
-        if (FAILED(WSALookupServiceBegin(&first_query, LUP_RETURN_NAME | LUP_RETURN_COMMENT | LUP_RETURN_ADDR, &hlookup)))
+        if (FAILED(WSALookupServiceBegin(&first_query, LUP_RETURN_NAME | LUP_RETURN_COMMENT | LUP_RETURN_ADDR, &h_lookup)))
         {
             throw std::system_error(errno, std::system_category(), "Error on WSALookupServiceBegin: " + std::to_string(WSAGetLastError()));
         }
@@ -30,7 +32,7 @@ int main(int argc, char* argv[])
             WSAQUERYSET test_query = {};
             unsigned long length = sizeof(test_query);
 
-            if (SUCCEEDED(WSALookupServiceNext(hlookup, 0, &length, &test_query)))
+            if (SUCCEEDED(WSALookupServiceNext(h_lookup, 0, &length, &test_query)))
             {
                 std::cerr << "Impossible" << std::endl;
                 break;
@@ -42,7 +44,7 @@ int main(int argc, char* argv[])
                 auto pdata_shared = std::make_shared<char[]>(length);
                 WSAQUERYSET* p_data = reinterpret_cast<WSAQUERYSET*>(pdata_shared.get());
 
-                if (FAILED(WSALookupServiceNext(hlookup, 0, &length, p_data)))
+                if (FAILED(WSALookupServiceNext(h_lookup, 0, &length, p_data)))
                 {
                     result = WSAGetLastError();
                     // Windows can return two errors if there is no more result
@@ -63,9 +65,13 @@ int main(int argc, char* argv[])
 
                 for (size_t i = 0; i < p_data->dwNumberOfCsAddrs; ++i)
                 {
-                    if (IPPROTO_TCP  == p_data->lpcsaBuffer[i].iProtocol)
+                    if (IPPROTO_UDP == p_data->lpcsaBuffer[i].iProtocol)
                     {
-                        std::cout << p_data->lpcsaBuffer[i].RemoteAddr.lpSockaddr << std::endl;
+                        char addr[INET_ADDRSTRLEN];
+                        const auto& sa = reinterpret_cast<const sockaddr_in*>(p_data->lpcsaBuffer[i].RemoteAddr.lpSockaddr);
+                        assert(AF_INET == sa->sin_family);
+
+                        std::cout << inet_ntop(AF_INET, &sa->sin_addr, addr, INET_ADDRSTRLEN) << std::endl;
                     }
                 }
             }
@@ -76,7 +82,7 @@ int main(int argc, char* argv[])
             else throw std::system_error(errno, std::system_category(), "Error on WSALookupServiceNext: " + std::to_string(WSAGetLastError()));
         };
 
-        if (WSALookupServiceEnd(hlookup))
+        if (WSALookupServiceEnd(h_lookup))
             throw std::system_error(errno, std::system_category(), "WSALookupServiceEnd(hlookup) failed with error code " + std::to_string(WSAGetLastError()));
     }
     catch (const std::exception& e)
