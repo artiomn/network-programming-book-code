@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
                     // Windows can return two errors if there is no more result
                     if ((WSA_E_NO_MORE == result) || (WSAENOMORE == result))
                     {
-                        std::cout << "No more record found!" << std::endl;
+                        std::cout << "No more records found!" << std::endl;
                         break;
                     }
                     else throw std::system_error(errno, std::system_category(), "Error on WSALookupServiceNext: " + std::to_string(WSAGetLastError()));
