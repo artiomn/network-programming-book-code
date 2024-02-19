@@ -1,5 +1,5 @@
 diff --git a/build_all b/build_all
-index 3e3b656..0e868c2 100755
+index 3e3b656..878d589 100755
 --- a/build_all
 +++ b/build_all
 @@ -3,14 +3,14 @@
@@ -15,10 +15,30 @@ index 3e3b656..0e868c2 100755
 +make -j16 lib
  cd ..
  
- cd java
+-cd java
 -tools/build_yarn
-+tools/build_yarn ; true
+-cd ..
++# cd java
++# tools/build_yarn
++# cd ..
+ 
+diff --git a/deploy_all b/deploy_all
+index 16b9416..b1861fd 100755
+--- a/deploy_all
++++ b/deploy_all
+@@ -16,9 +16,9 @@ sudo make deploy
  cd ..
+ sudo /usr/local/mr4c/geospatial/bin/post_install
+ 
+-cd java
+-sudo ant deploy
+-cd ..
+-sudo /usr/local/mr4c/java/bin/post_install
++# cd java
++# sudo ant deploy
++# cd ..
++# sudo /usr/local/mr4c/java/bin/post_install
+ 
  
 diff --git a/geospatial/src/cpp/api/gdal/GDALCoordTrans.h b/geospatial/src/cpp/api/gdal/GDALCoordTrans.h
 index 5fb6ea6..9c3ee4c 100644
