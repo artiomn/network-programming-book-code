@@ -188,7 +188,7 @@ bool ping(const t_ping_data *const wping)
         for (int i = 0; i < wping->count; ++i)
         {
             echo_reply->Status = IP_SUCCESS;
-            // Reqest an ICMP echo:
+            // Request is an ICMP echo:
             // icmpSendEcho(Handle from IcmpCreateFile(), Destination IP address,
             //              Pointer to buffer to send, Size of buffer in bytes,
             //              Request options, Reply buffer, Time to wait in milliseconds).
