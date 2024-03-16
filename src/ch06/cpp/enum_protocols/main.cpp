@@ -1,9 +1,3 @@
-/*
-#ifndef UNICODE
-#define UNICODE 1
-#endif
-*/
-
 #include <objbase.h>
 #include <socket_wrapper/socket_functions.h>
 #include <socket_wrapper/socket_headers.h>
@@ -13,16 +7,13 @@
 #include <vector>
 
 
-int wmain()
+int main()
 {
     //-----------------------------------------
     // Declare and initialize variables
     WSADATA wsaData;
 
     INT iNuminfo = 0;
-
-    // Allocate a 16K buffer to retrieve all the protocol providers
-    DWORD dwBufferLen = 16384;
 
     // LPWSAPROTOCOL_INFO lpProtocolInfo = NULL;
 
@@ -31,9 +22,11 @@ int wmain()
 
     socket_wrapper::SocketWrapper sw;
 
-    lpProtocolInfo = std::vector<char>(dwBufferLen);
+    WSAPROTOCOL_INFO lpProtocolInfo;
+    // Allocate a 16K buffer to retrieve all the protocol providers
+    DWORD dwBufferLen = sizeof(lpProtocolInfo);
 
-    iNuminfo = WSAEnumProtocols(nullptr, lpProtocolInfo.data(), &dwBufferLen);
+    iNuminfo = WSAEnumProtocols(nullptr, &lpProtocolInfo, &dwBufferLen);
     if (SOCKET_ERROR == iNuminfo)
     {
         int iError = WSAGetLastError();
@@ -47,13 +40,13 @@ int wmain()
             wprintf(L"WSAEnumProtocols failed with error: WSAENOBUFS (%d)\n", iError);
             wprintf(L"  Increasing buffer size to %d\n\n", dwBufferLen);
 
-            lpProtocolInfo.resize(dwBufferLen);
-            if (nullptr == lpProtocolInfo)
+            //lpProtocolInfo.resize(dwBufferLen);
+            if (nullptr == &lpProtocolInfo)
             {
                 wprintf(L"Memory allocation increase for buffer failed\n");
                 return 1;
             }
-            iNuminfo = WSAEnumProtocols(NULL, lpProtocolInfo, &dwBufferLen);
+            iNuminfo = WSAEnumProtocols(NULL, &lpProtocolInfo, &dwBufferLen);
             if (SOCKET_ERROR == iNuminfo)
             {
                 iError = WSAGetLastError();
@@ -76,12 +69,12 @@ int wmain()
 
         wprintf(L"Protocol:\t\t\t %ws\n", lpProtocolInfo[i].szProtocol);
 
-        int iRet = StringFromGUID2(
-            reinterpret_cast<LPWSAPROTOCOL_INFO>(lpProtocolInfo.data())[i] ProviderId, (LPOLESTR)&GuidString, 39);
-        if (iRet == 0)
-            wprintf(L"StringFromGUID2 failed\n");
-        else
-            wprintf(L"Provider ID:\t\t\t %ws\n", GuidString);
+        //int iRet = StringFromGUID2(
+        //    reinterpret_cast<LPWSAPROTOCOL_INFO>(lpProtocolInfo.data())[i] ProviderId, (LPOLESTR)&GuidString, 39);
+        //if (iRet == 0)
+        //    wprintf(L"StringFromGUID2 failed\n");
+        //else
+        //    wprintf(L"Provider ID:\t\t\t %ws\n", GuidString);
 
         wprintf(L"Catalog Entry ID:\t\t %u\n", lpProtocolInfo[i].dwCatalogEntryId);
 

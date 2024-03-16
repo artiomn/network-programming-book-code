@@ -160,7 +160,8 @@ bool ping(const t_ping_data *const wping)
         throw std::logic_error("Can't lookup destination!");
     }
 
-    char ip_buf[16];
+    std::string ip_buf;
+    ip_buf.resize(INET_ADDRSTRLEN);
 
     while (true)
     {
@@ -179,7 +180,7 @@ bool ping(const t_ping_data *const wping)
         {
             std::cout << "Count = " << wping->count << "\nSize  = " << wping->buf_sz + sizeof(ICMP_ECHO_REPLY)
                       << "\nDelay = " << wping->delay << "\nSending to \""
-                      << inet_ntop(AF_INET, &ia_dest.sin_addr, ip_buf, sizeof(ip_buf)) << "\"\n"
+                      << inet_ntop(AF_INET, &ia_dest.sin_addr, ip_buf.data(), ip_buf.size()) << "\"\n"
                       << std::endl;
         }
 
@@ -206,7 +207,7 @@ bool ping(const t_ping_data *const wping)
                     if (wping->opts & PING_OPT_VERBOSE)
                     {
                         std::cout << "Received from: "
-                                  << inet_ntop(AF_INET, &echo_reply->Address, ip_buf, sizeof(ip_buf))
+                                  << inet_ntop(AF_INET, &echo_reply->Address, ip_buf.data(), ip_buf.size())
                                   << "\nStatus: " << echo_reply->Status
                                   << "\nRoundtrip time: " << echo_reply->RoundTripTime << "ms"
                                   << "\nTTL: " << static_cast<int>(echo_reply->Options.Ttl)
@@ -221,7 +222,7 @@ bool ping(const t_ping_data *const wping)
                 if (wping->opts & PING_OPT_VERBOSE)
                 {
                     std::cout << "Host " << wping->host << " (resolved:\""
-                              << inet_ntop(AF_INET, &ia_dest.sin_addr, ip_buf, sizeof(ip_buf))
+                              << inet_ntop(AF_INET, &ia_dest.sin_addr, ip_buf.data(), ip_buf.size())
                               << "\") doesn't response!" << std::endl;
                 }
                 end_time += get_end_time(end_time, wping, wping->delay);
