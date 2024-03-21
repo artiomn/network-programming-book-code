@@ -47,7 +47,7 @@ void print_adapter_params(const std::string& name)
     cmd.link_mode_masks_nwords = -cmd.link_mode_masks_nwords;
     if (ioctl(sock, SIOCETHTOOL, &ifr) < 0)
     {
-        std::cerr << "Cannot read speed on interface: " << name;
+        throw std::logic_error("Cannot read speed on interface: " + name);
     }
 
     if (!ethtool_validate_speed(cmd.speed))
