@@ -39,19 +39,22 @@ int main(int argc, const char *const argv[])
         throw std::system_error(errno, std::system_category(), "socket");
     }
 
-    int result = ioctl(sock, SIOCGMIIPHY, &ifr);
-
-    if (result < 0)
+    if (ioctl(sock, SIOCGMIIPHY, &ifr) < 0)
     {
         close(sock);
         throw std::system_error(errno, std::system_category(), "SIOCFMIIPHY");
     }
+
     mii_ioctl_data *mii_data = reinterpret_cast<mii_ioctl_data *>(&ifr.ifr_data);
 
     for (int i = 0; i < 0x20; ++i)
     {
         mii_data->reg_num = i;
-        ioctl(sock, SIOCGMIIREG, &ifr);
+        if (ioctl(sock, SIOCGMIIREG, &ifr) < 0)
+        {
+            close(sock);
+            throw std::system_error(errno, std::system_category(), "ioctl");
+        }
         std::cout << std::hex << "PHY addr: 0x" << mii_data->phy_id << ", reg: 0x" << mii_data->reg_num << ", value: 0x"
                   << mii_data->val_out << std::endl;
     }
