@@ -30,50 +30,58 @@ void print_adapter_params(const std::string& name)
     ifr.ifr_name[IF_NAMESIZE - 1] = '\0';
     ifr.ifr_data = reinterpret_cast<caddr_t>(&cmd);
 
-    if (ioctl(sock, SIOCETHTOOL, &ifr) < 0)
+    try
     {
-        throw std::system_error(errno, std::system_category(), "SIOCETHTOOL IOCtl");
-    }
+        if (ioctl(sock, SIOCETHTOOL, &ifr) < 0)
+        {
+            throw std::system_error(errno, std::system_category(), "SIOCETHTOOL IOCtl");
+        }
 
-    // We expect a strictly negative value from kernel.
-    if (cmd.link_mode_masks_nwords >= 0 || cmd.cmd != ETHTOOL_GLINKSETTINGS)
+        // We expect a strictly negative value from kernel.
+        if (cmd.link_mode_masks_nwords >= 0 || cmd.cmd != ETHTOOL_GLINKSETTINGS)
+        {
+            throw std::logic_error("Incorrect speed!");
+        }
+
+        // Got the real link_mode_masks_nwords,
+        // Now send the real request.
+        cmd.cmd = ETHTOOL_GLINKSETTINGS;
+        cmd.link_mode_masks_nwords = -cmd.link_mode_masks_nwords;
+        if (ioctl(sock, SIOCETHTOOL, &ifr) < 0)
+        {
+            throw std::logic_error("Cannot read speed on interface: " + name);
+        }
+
+        if (!ethtool_validate_speed(cmd.speed))
+        {
+            throw std::logic_error("Incorrect speed!");
+        }
+
+        if (!ethtool_validate_duplex(cmd.duplex))
+        {
+            throw std::logic_error("Incorrect duplex!");
+        }
+
+        const std::map<int, std::string> s_map = {{SPEED_10, "10 Mb/s"},    {SPEED_100, "100 Mb/s"},
+                                                  {SPEED_1000, "1 Gb/s"},   {SPEED_2500, "2.5 Gb/s"},
+                                                  {SPEED_10000, "10 Gb/s"}, {SPEED_UNKNOWN, "Unknown"}};
+
+        const auto speed = s_map.find(cmd.speed);
+        if (s_map.end() == speed)
+        {
+            throw std::logic_error("Incorrect speed!");
+        }
+
+        std::cout << "Iface = " << ifr.ifr_name << "\n"
+                  << "Speed = " << speed->second << "\n"
+                  << "Duplex = "
+                  << (DUPLEX_HALF == cmd.duplex ? "half" : (DUPLEX_FULL == cmd.duplex ? "full" : "Unknown"))
+                  << std::endl;
+    }
+    catch (...)
     {
-        throw std::logic_error("Incorrect speed!");
+        throw;
     }
-
-    // Got the real link_mode_masks_nwords,
-    // Now send the real request.
-    cmd.cmd = ETHTOOL_GLINKSETTINGS;
-    cmd.link_mode_masks_nwords = -cmd.link_mode_masks_nwords;
-    if (ioctl(sock, SIOCETHTOOL, &ifr) < 0)
-    {
-        throw std::logic_error("Cannot read speed on interface: " + name);
-    }
-
-    if (!ethtool_validate_speed(cmd.speed))
-    {
-        throw std::logic_error("Incorrect speed!");
-    }
-
-    if (!ethtool_validate_duplex(cmd.duplex))
-    {
-        throw std::logic_error("Incorrect duplex!");
-    }
-
-    const std::map<int, std::string> s_map = {{SPEED_10, "10 Mb/s"},    {SPEED_100, "100 Mb/s"},
-                                              {SPEED_1000, "1 Gb/s"},   {SPEED_2500, "2.5 Gb/s"},
-                                              {SPEED_10000, "10 Gb/s"}, {SPEED_UNKNOWN, "Unknown"}};
-
-    const auto speed = s_map.find(cmd.speed);
-    if (s_map.end() == speed)
-    {
-        throw std::logic_error("Incorrect speed!");
-    }
-
-    std::cout << "Iface = " << ifr.ifr_name << "\n"
-              << "Speed = " << speed->second << "\n"
-              << "Duplex = " << (DUPLEX_HALF == cmd.duplex ? "half" : (DUPLEX_FULL == cmd.duplex ? "full" : "Unknown"))
-              << std::endl;
 }
 
 
