@@ -1,10 +1,9 @@
+#include <icmpapi.h>
+#include <ipexport.h>
+#include <iphlpapi.h>
 #include <socket_wrapper/socket_functions.h>
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
-
-#include <iphlpapi.h>
-#include <icmpapi.h>
-#include <ipexport.h>
 
 #include <cerrno>
 #include <iostream>
@@ -12,7 +11,7 @@
 #include <vector>
 
 
-// Ping function for return ping value.
+// Ping function for return host availability time.
 enum class t_ping_func
 {
     tpf_avg,
@@ -67,8 +66,9 @@ struct t_ping_data
 };
 
 
+// cppcheck-suppress constParameterReference
 PICMP_ECHO_REPLY create_reply_buffer(
-    char *buf, unsigned short data_sz, std::vector<char> &reply_holder)  // NOLINT
+    char *buf, unsigned short data_sz, const std::vector<char> &reply_holder)  // NOLINT
 {
     auto p_reply = new (reply_holder.data()) ICMP_ECHO_REPLY;
 
@@ -134,9 +134,9 @@ bool ping(const t_ping_data *const wping)
 
     auto echo_reply = create_reply_buffer(buf.data(), static_cast<unsigned short>(buf.size()), reply_buf);  // NOLINT
     // Get an ICMP echo request handle.
-    HANDLE hndlFile = IcmpCreateFile();
+    HANDLE hndl_icmp = IcmpCreateFile();
 
-    if (INVALID_HANDLE_VALUE == hndlFile)
+    if (INVALID_HANDLE_VALUE == hndl_icmp)
     {
         throw std::system_error(errno, std::system_category(), "IcmpCreateFile() error!");
     }
@@ -146,7 +146,7 @@ bool ping(const t_ping_data *const wping)
 
     while (ai->ai_family != AF_INET)
     {
-        if (!ai->ai_next) throw std::logic_error("Cant resolve IPv4 for the host!");
+        if (!ai->ai_next) throw std::logic_error("Can't resolve IPv4 for the host!");
         ai = ai->ai_next;
     }
 
@@ -180,8 +180,7 @@ bool ping(const t_ping_data *const wping)
         {
             std::cout << "Count = " << wping->count << "\nSize  = " << wping->buf_sz + sizeof(ICMP_ECHO_REPLY)
                       << "\nDelay = " << wping->delay << "\nSending to \""
-                      << inet_ntop(AF_INET, &ia_dest.sin_addr, ip_buf.data(), ip_buf.size()) << "\"\n"
-                      << std::endl;
+                      << inet_ntop(AF_INET, &ia_dest.sin_addr, ip_buf.data(), ip_buf.size()) << "\"" << std::endl;
         }
 
         end_time = (t_ping_func::tpf_min == wping->ping_func) ? PING_MAX_TIME : 0;
@@ -194,7 +193,7 @@ bool ping(const t_ping_data *const wping)
             //              Request options, Reply buffer, Time to wait in milliseconds).
             // Replies count.
             DWORD rep_cnt = IcmpSendEcho(
-                hndlFile, reinterpret_cast<const sockaddr_in *>(&ia_dest)->sin_addr.s_addr, buf.data(),
+                hndl_icmp, reinterpret_cast<const sockaddr_in *>(&ia_dest)->sin_addr.s_addr, buf.data(),
                 static_cast<WORD>(buf.size()), &ip_info, echo_reply,
                 static_cast<DWORD>(sizeof(ICMP_ECHO_REPLY) + buf.size()), wping->delay);
             if (!(wping->opts & PING_OPT_NOSLEEP)) Sleep(wping->delay);
@@ -223,7 +222,7 @@ bool ping(const t_ping_data *const wping)
                 {
                     std::cout << "Host " << wping->host << " (resolved:\""
                               << inet_ntop(AF_INET, &ia_dest.sin_addr, ip_buf.data(), ip_buf.size())
-                              << "\") doesn't response!" << std::endl;
+                              << "\") doesn't respond!" << std::endl;
                 }
                 end_time += get_end_time(end_time, wping, wping->delay);
             }
@@ -246,7 +245,7 @@ bool ping(const t_ping_data *const wping)
             std::cout << "-1" << std::endl;
     }
 
-    IcmpCloseHandle(hndlFile);
+    IcmpCloseHandle(hndl_icmp);
     return ret_status;
 }
 
