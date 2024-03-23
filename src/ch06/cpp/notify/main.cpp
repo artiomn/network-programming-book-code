@@ -67,6 +67,8 @@ int main()
     if (WAIT_OBJECT_0 == WaitForSingleObject(overlap.hEvent, INFINITE))
         std::cout << "Routing table changed." << std::endl;
 
+    CancelIPChangeNotify(&overlap);
+
     if (NO_ERROR == GetBestRoute(google_dns_addr, my_ip_addr, &fr_row))
     {
         std::cout << "2. Iface index: " << fr_row.dwForwardIfIndex << " [" << inet_ntop(AF_INET, &fr_row.dwForwardNextHop, ip_addr.data(), ip_addr.size()) << "]" << std::endl;
