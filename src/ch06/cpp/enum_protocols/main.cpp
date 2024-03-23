@@ -41,7 +41,7 @@ int main()
             protocol_info.resize(real_buffer_len / sizeof(WSAPROTOCOL_INFO) + 1);
             real_buffer_len = protocol_info.size() * sizeof(WSAPROTOCOL_INFO);
 
-            info_count = WSAEnumProtocols(NULL, protocol_info.data(), &real_buffer_len);
+            info_count = WSAEnumProtocols(nullptr, protocol_info.data(), &real_buffer_len);
             if (SOCKET_ERROR == info_count)
             {
                 std::cerr << "WSAEnumProtocols failed with error: " << WSAGetLastError() << std::endl;
