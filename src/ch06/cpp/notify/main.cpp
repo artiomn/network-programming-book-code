@@ -1,11 +1,11 @@
 extern "C"
 {
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <iphlpapi.h>
 #include <ip2string.h>
+#include <iphlpapi.h>
 #include <mstcpip.h>
 #include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 }
 
 #include <iostream>
@@ -54,6 +54,7 @@ int main()
         if (INET_IS_ADDR_LOOPBACK(AF_INET, &row.dwAddr)) continue;
         my_ip_addr = row.dwAddr;
         std::cout << "My IP = " << inet_ntop(AF_INET, &row.dwAddr, ip_addr.data(), ip_addr.size()) << std::endl;
+        break;
     }
 
     uint32_t google_dns_addr;
@@ -61,7 +62,8 @@ int main()
 
     if (NO_ERROR == GetBestRoute(google_dns_addr, my_ip_addr, &fr_row))
     {
-        std::cout << "1. Iface index: " << fr_row.dwForwardIfIndex << " [" << inet_ntop(AF_INET, &fr_row.dwForwardNextHop, ip_addr.data(), ip_addr.size()) << "]" << std::endl;
+        std::cout << "1. Iface index: " << fr_row.dwForwardIfIndex << " ["
+                  << inet_ntop(AF_INET, &fr_row.dwForwardNextHop, ip_addr.data(), ip_addr.size()) << "]" << std::endl;
     }
 
     if (WAIT_OBJECT_0 == WaitForSingleObject(overlap.hEvent, INFINITE))
@@ -71,7 +73,8 @@ int main()
 
     if (NO_ERROR == GetBestRoute(google_dns_addr, my_ip_addr, &fr_row))
     {
-        std::cout << "2. Iface index: " << fr_row.dwForwardIfIndex << " [" << inet_ntop(AF_INET, &fr_row.dwForwardNextHop, ip_addr.data(), ip_addr.size()) << "]" << std::endl;
+        std::cout << "2. Iface index: " << fr_row.dwForwardIfIndex << " ["
+                  << inet_ntop(AF_INET, &fr_row.dwForwardNextHop, ip_addr.data(), ip_addr.size()) << "]" << std::endl;
         return EXIT_SUCCESS;
     }
     return EXIT_FAILURE;
