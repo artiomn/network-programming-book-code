@@ -3,8 +3,9 @@
 
 extern "C"
 {
-#include <ip2string.h>
+// Must not be sorted!
 #include <iphlpapi.h>
+#include <ip2string.h>
 #include <windows.h>
 }
 
@@ -15,7 +16,7 @@ extern "C"
 int main()
 {
     std::vector<IP_ADAPTER_ADDRESSES> adapters(1);
-    uint32_t out_size = adapters.size() * sizeof(IP_ADAPTER_ADDRESSES);
+    ULONG out_size = adapters.size() * sizeof(IP_ADAPTER_ADDRESSES);
     auto ret_code = GetAdaptersAddresses(AF_UNSPEC, 0, nullptr, adapters.data(), &out_size);
 
     if (ret_code != NO_ERROR)
