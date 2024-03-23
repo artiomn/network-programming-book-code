@@ -33,7 +33,12 @@ int main(int argc, const char *const argv[])
         ifinfomsg if_msg;
         // cppcheck-suppress unusedStructMember
         char attrbuf[BUF_SIZE];
-    } req = {0};
+    } req = {
+        .nh =
+            {.nlmsg_len = NLMSG_LENGTH(sizeof(ifinfomsg)),
+             .nlmsg_flags = NLM_F_REQUEST | NLM_F_ACK,
+             .nlmsg_type = RTM_NEWLINK},
+        .if_msg = {.ifi_family = AF_UNSPEC, .ifi_index = iface_index, .ifi_change = 0}};
 
     rtnl_handle rth = {0};
 
@@ -43,15 +48,6 @@ int main(int argc, const char *const argv[])
         rtnl_close(&rth);
         return EXIT_FAILURE;
     }
-
-    req.nh.nlmsg_len = NLMSG_LENGTH(sizeof(ifinfomsg));
-    req.nh.nlmsg_flags = NLM_F_REQUEST | NLM_F_ACK;
-    req.nh.nlmsg_type = RTM_NEWLINK;
-
-    req.if_msg.ifi_family = AF_UNSPEC;
-    req.if_msg.ifi_index = iface_index;
-
-    req.if_msg.ifi_change = 0;
 
     addattr32(&req.nh, BUF_SIZE, IFLA_MTU, mtu);
     //    std::copy_n(reinterpret_cast<const char *>(&mtu), sizeof(mtu), static_cast<char *>(RTA_DATA(rta)));
