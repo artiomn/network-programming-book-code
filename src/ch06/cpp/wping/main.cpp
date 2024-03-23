@@ -1,9 +1,13 @@
-#include <icmpapi.h>
-#include <ipexport.h>
-#include <iphlpapi.h>
 #include <socket_wrapper/socket_functions.h>
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
+
+extern "C"
+{
+#include <iphlpapi.h>
+#include <icmpapi.h>
+#include <ipexport.h>
+}
 
 #include <cerrno>
 #include <iostream>
@@ -68,7 +72,7 @@ struct t_ping_data
 
 // cppcheck-suppress constParameterReference
 PICMP_ECHO_REPLY create_reply_buffer(
-    char *buf, unsigned short data_sz, const std::vector<char> &reply_holder)  // NOLINT
+    char *buf, unsigned short data_sz, std::vector<char> &reply_holder)  // NOLINT
 {
     auto p_reply = new (reply_holder.data()) ICMP_ECHO_REPLY;
 
