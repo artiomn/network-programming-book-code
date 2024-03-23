@@ -109,7 +109,7 @@ int main()
         for (auto addr = adapter->FirstUnicastAddress; addr; addr = addr->Next)
         {
             std::string ip;
-            ip.resize(INET_ADDRSTRLEN * 10);
+            ip.resize(INET_ADDRSTRLEN + 1);
             DWORD sz = ip.size() - 1;
             WSAAddressToStringA(addr->Address.lpSockaddr, addr->Address.iSockaddrLength, nullptr, ip.data(), &sz);
 
