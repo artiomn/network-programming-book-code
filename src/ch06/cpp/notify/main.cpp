@@ -1,11 +1,12 @@
 extern "C"
 {
+// Must not be sorted!
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include <ip2string.h>
 #include <iphlpapi.h>
 #include <mstcpip.h>
 #include <windows.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
 }
 
 #include <iostream>
