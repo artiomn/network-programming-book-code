@@ -1,107 +1,93 @@
-#include <objbase.h>
-#include <socket_wrapper/socket_functions.h>
 #include <socket_wrapper/socket_headers.h>
+#include <socket_wrapper/socket_functions.h>
 #include <socket_wrapper/socket_wrapper.h>
-#include <stdio.h>
 
+extern "C"
+{
+#include <objbase.h>
+}
+
+#include <iostream>
 #include <vector>
 
 
 int main()
 {
-    //-----------------------------------------
-    // Declare and initialize variables
-    WSADATA wsaData;
-
-    INT iNuminfo = 0;
-
-    // LPWSAPROTOCOL_INFO lpProtocolInfo = NULL;
-
     // variables needed for converting provider GUID to a string
     WCHAR GuidString[40] = {0};
 
     socket_wrapper::SocketWrapper sw;
+    
+    // Allocate a 16K buffer to retrieve all the protocol providers.
+    std::vector<WSAPROTOCOL_INFO> protocol_info(1);
+    
+    DWORD real_buffer_len = protocol_info.size() * sizeof(WSAPROTOCOL_INFO);
 
-    WSAPROTOCOL_INFO lpProtocolInfo;
-    // Allocate a 16K buffer to retrieve all the protocol providers
-    DWORD dwBufferLen = sizeof(lpProtocolInfo);
+    auto info_count = WSAEnumProtocols(nullptr, protocol_info.data(), &real_buffer_len);
 
-    iNuminfo = WSAEnumProtocols(nullptr, &lpProtocolInfo, &dwBufferLen);
-    if (SOCKET_ERROR == iNuminfo)
+    if (SOCKET_ERROR == info_count)
     {
-        int iError = WSAGetLastError();
-        if (iError != WSAENOBUFS)
+        int e_code = WSAGetLastError();
+        if (e_code != WSAENOBUFS)
         {
-            wprintf(L"WSAEnumProtocols failed with error: %d\n", iError);
-            return 1;
+            std::cerr << "WSAEnumProtocols failed with error: " << e_code << std::endl;
+            return EXIT_FAILURE;
         }
         else
         {
-            wprintf(L"WSAEnumProtocols failed with error: WSAENOBUFS (%d)\n", iError);
-            wprintf(L"  Increasing buffer size to %d\n\n", dwBufferLen);
+            std::cerr << "WSAEnumProtocols failed with error: WSAENOBUFS " << e_code << std::endl;
+            std::cout << "Increasing buffer size to " << real_buffer_len << std::endl;
 
-            //lpProtocolInfo.resize(dwBufferLen);
-            if (nullptr == &lpProtocolInfo)
+            protocol_info.resize(real_buffer_len / sizeof(WSAPROTOCOL_INFO) + 1);
+            real_buffer_len = protocol_info.size() * sizeof(WSAPROTOCOL_INFO);
+
+            info_count = WSAEnumProtocols(NULL, protocol_info.data(), &real_buffer_len);
+            if (SOCKET_ERROR == info_count)
             {
-                wprintf(L"Memory allocation increase for buffer failed\n");
-                return 1;
-            }
-            iNuminfo = WSAEnumProtocols(NULL, &lpProtocolInfo, &dwBufferLen);
-            if (SOCKET_ERROR == iNuminfo)
-            {
-                iError = WSAGetLastError();
-                wprintf(L"WSAEnumProtocols failed with error: %d\n", iError);
-                return 1;
+                std::cerr << "WSAEnumProtocols failed with error: " << WSAGetLastError() << std::endl;
+                return EXIT_FAILURE;
             }
         }
     }
 
-    wprintf(L"WSAEnumProtocols succeeded with protocol count = %d\n\n", iNuminfo);
-    for (int i = 0; i < iNuminfo; ++i)
+    std::cout << "WSAEnumProtocols succeeded with protocol count = " << info_count << std::endl;
+    for (size_t i = 0; i < info_count; ++i)
     {
-        wprintf(L"Winsock Catalog Provider Entry #%d\n", i);
-        wprintf(L"----------------------------------------------------------\n");
-        wprintf(L"Entry type:\t\t\t ");
-        if (lpProtocolInfo[i].ProtocolChain.ChainLen == 1)
-            wprintf(L"Base Service Provider\n");
+        std::cout
+            << "Winsock Catalog Provider Entry " << i << "\n"
+            << "Catalog Entry ID: " << protocol_info[i].dwCatalogEntryId << "\n"
+            << "Version: " << protocol_info[i].iVersion << "\n"
+            << "Entry type: "
+            << ((protocol_info[i].ProtocolChain.ChainLen == 1) ? "Base Service Provider" : "Layered Chain Entry")
+            << "\n"
+            << "Protocol: " << protocol_info[i].szProtocol << "\n"
+            << "Protocol Chain length: " << protocol_info[i].ProtocolChain.ChainLen << "\n"
+            << std::endl;
+
+        std::wstring guid_string;
+        guid_string.resize(40);
+
+        if (!StringFromGUID2(protocol_info[i].ProviderId, reinterpret_cast<LPOLESTR>(guid_string.data()), guid_string.size() - 1))
+        {
+            std::cerr << "StringFromGUID2 failed" << std::endl;
+        }
         else
-            wprintf(L"Layered Chain Entry\n");
+        {
+            std::wcout << "Provider GUID: " << guid_string << std::endl;
+        }
 
-        wprintf(L"Protocol:\t\t\t %ws\n", lpProtocolInfo[i].szProtocol);
-
-        //int iRet = StringFromGUID2(
-        //    reinterpret_cast<LPWSAPROTOCOL_INFO>(lpProtocolInfo.data())[i] ProviderId, (LPOLESTR)&GuidString, 39);
-        //if (iRet == 0)
-        //    wprintf(L"StringFromGUID2 failed\n");
-        //else
-        //    wprintf(L"Provider ID:\t\t\t %ws\n", GuidString);
-
-        wprintf(L"Catalog Entry ID:\t\t %u\n", lpProtocolInfo[i].dwCatalogEntryId);
-
-        wprintf(L"Version:\t\t\t %d\n", lpProtocolInfo[i].iVersion);
-
-        wprintf(L"Address Family:\t\t\t %d\n", lpProtocolInfo[i].iAddressFamily);
-        wprintf(L"Max Socket Address Length:\t %d\n", lpProtocolInfo[i].iMaxSockAddr);
-        wprintf(L"Min Socket Address Length:\t %d\n", lpProtocolInfo[i].iMinSockAddr);
-
-        wprintf(L"Socket Type:\t\t\t %d\n", lpProtocolInfo[i].iSocketType);
-        wprintf(L"Socket Protocol:\t\t %d\n", lpProtocolInfo[i].iProtocol);
-        wprintf(L"Socket Protocol Max Offset:\t %d\n", lpProtocolInfo[i].iProtocolMaxOffset);
-
-        wprintf(L"Network Byte Order:\t\t %d\n", lpProtocolInfo[i].iNetworkByteOrder);
-        wprintf(L"Security Scheme:\t\t %d\n", lpProtocolInfo[i].iSecurityScheme);
-        wprintf(L"Max Message Size:\t\t %u\n", lpProtocolInfo[i].dwMessageSize);
-
-        wprintf(L"ServiceFlags1:\t\t\t 0x%x\n", lpProtocolInfo[i].dwServiceFlags1);
-        wprintf(L"ServiceFlags2:\t\t\t 0x%x\n", lpProtocolInfo[i].dwServiceFlags2);
-        wprintf(L"ServiceFlags3:\t\t\t 0x%x\n", lpProtocolInfo[i].dwServiceFlags3);
-        wprintf(L"ServiceFlags4:\t\t\t 0x%x\n", lpProtocolInfo[i].dwServiceFlags4);
-        wprintf(L"ProviderFlags:\t\t\t 0x%x\n", lpProtocolInfo[i].dwProviderFlags);
-
-        wprintf(L"Protocol Chain length:\t\t %d\n", lpProtocolInfo[i].ProtocolChain.ChainLen);
-
-        wprintf(L"\n");
+        std::cout
+            << "Address Family: " << protocol_info[i].iAddressFamily << "\n"
+            << "Max Socket Address Length: " << protocol_info[i].iMaxSockAddr << "\n"
+            << "Min Socket Address Length: " << protocol_info[i].iMinSockAddr << "\n"
+            << "Socket Type: " << protocol_info[i].iSocketType << "\n"
+            << "Socket Protocol: " << protocol_info[i].iProtocol << "\n"
+            << "Socket Protocol Max Offset: " << protocol_info[i].iProtocolMaxOffset << "\n"
+            << "Network Byte Order: " << protocol_info[i].iNetworkByteOrder << "\n"
+            << "Security Scheme: " << protocol_info[i].iSecurityScheme << "\n"
+            << "Max Message Size: " << protocol_info[i].dwMessageSize << "\n"
+            << std::endl;
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
