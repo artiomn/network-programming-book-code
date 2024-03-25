@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 
     while (true)
     {
-        std::cout << "Waiting for the connections..." << std::endl;
+        std::cout << "Waiting for connections..." << std::endl;
 
         if (!ConnectNamedPipe(h_pipe, nullptr))
         {
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
 
         if (!DisconnectNamedPipe(h_pipe))
         {
-            std::cerr << "Could not connect pipe." << std::endl;
+            std::cerr << "Could not disconnect pipe." << std::endl;
             CloseHandle(h_pipe);
             return EXIT_FAILURE;
         }
