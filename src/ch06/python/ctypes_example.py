@@ -4,6 +4,7 @@ import ctypes
 from ctypes import windll
 from ctypes.wintypes import DWORD, USHORT
 import ipaddress
+from socket import htonl
 
 
 def GetIpAddrTable():
@@ -35,4 +36,4 @@ def GetIpAddrTable():
 addrs = GetIpAddrTable()
 
 for i in range(addrs.dwNumEntries):
-    print(ipaddress.IPv4Address(addrs.table[i].dwAddr))
+    print(ipaddress.ip_address(htonl(addrs.table[i].dwAddr)))
