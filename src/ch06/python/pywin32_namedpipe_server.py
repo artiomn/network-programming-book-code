@@ -1,9 +1,21 @@
-from win32 import win32api, win32file, win32pipe
-from win32.win32api import GetLastError
-from win32.win32file import ReadFile, WriteFile, CloseHandle, FlushFileBuffers
-from win32.win32pipe import *
-from winerror import ERROR_MORE_DATA
+#!/usr/bin/env python3
+
 import sys
+from win32.win32api import GetLastError, ERROR_PIPE_BUSY
+from win32.win32file import ReadFile, WriteFile, CloseHandle, FlushFileBuffers
+from win32.win32pipe import (
+    ConnectNamedPipe,
+    CreateNamedPipe,
+    DisconnectNamedPipe,
+    NMPWAIT_USE_DEFAULT_WAIT,
+    PIPE_ACCESS_DUPLEX,
+    PIPE_READMODE_MESSAGE,
+    PIPE_TYPE_MESSAGE,
+    PIPE_UNLIMITED_INSTANCES,
+    PIPE_WAIT,
+    SetNamedPipeHandleState,
+)
+from winerror import ERROR_MORE_DATA
 
 
 h_pipe = None
@@ -14,13 +26,22 @@ buf_size = 1024
 # Try to open a named pipe; wait for it, if necessary.
 while True:
     # read_buffer
-    h_pipe = CreateNamedPipe(pipe_name, PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE | PIPE_WAIT, PIPE_UNLIMITED_INSTANCES, len(message) * 2, buf_size, NMPWAIT_USE_DEFAULT_WAIT, None)
+    h_pipe = CreateNamedPipe(
+        pipe_name,
+        PIPE_ACCESS_DUPLEX,
+        PIPE_TYPE_MESSAGE | PIPE_WAIT,
+        PIPE_UNLIMITED_INSTANCES,
+        len(message) * 2,
+        buf_size,
+        NMPWAIT_USE_DEFAULT_WAIT,
+        None,
+    )
 
     if h_pipe:
         break
 
     # Exit if an error other than ERROR_PIPE_BUSY occurs.
-    if GetLastError() != win32api.ERROR_PIPE_BUSY:
+    if GetLastError() != ERROR_PIPE_BUSY:
         print('Could not open pipe.')
         sys.exit(1)
 
@@ -38,7 +59,7 @@ try:
         # The pipe connected; change to message-read mode.
         try:
             SetNamedPipeHandleState(h_pipe, PIPE_READMODE_MESSAGE, None, None)
-        except:
+        except BaseException:
             print('SetNamedPipeHandleState() failed')
             sys.exit(1)
 
