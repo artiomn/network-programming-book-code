@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-from win32.win32api import GetLastError, ERROR_PIPE_BUSY
+from win32.win32api import GetLastError
 from win32.win32file import ReadFile, WriteFile, CloseHandle, FlushFileBuffers
 from win32.win32pipe import (
     ConnectNamedPipe,
@@ -15,7 +15,7 @@ from win32.win32pipe import (
     PIPE_WAIT,
     SetNamedPipeHandleState,
 )
-from winerror import ERROR_MORE_DATA
+from winerror import ERROR_MORE_DATA, ERROR_PIPE_BUSY
 
 
 h_pipe = None
