@@ -135,11 +135,6 @@ int main(int argc, char *argv[])
         }
 
         io_uring_queue_exit(&ring);
-
-        if (close(newsock) < 0)
-        {
-            throw std::system_error(errno, std::system_category(), "close(newsock)");
-        }
     }
     catch (const std::exception &e)
     {
