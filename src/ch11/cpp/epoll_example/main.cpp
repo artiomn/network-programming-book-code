@@ -65,7 +65,7 @@ int main(int argc, const char* const argv[])
     event.data.fd = server_sock;
     event.events = EPOLLIN | EPOLLET;
 
-    if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, server_sock, &event) == -1)
+    if (-1 == epoll_ctl(epoll_fd, EPOLL_CTL_ADD, server_sock, &event))
     {
         std::cerr << sock_wrap.get_last_error_string() << std::endl;
         return EXIT_FAILURE;

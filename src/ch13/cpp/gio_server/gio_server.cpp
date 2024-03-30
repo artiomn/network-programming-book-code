@@ -14,7 +14,14 @@ gboolean incoming_callback(
     g_print("Received Connection from client!\n");
     GInputStream *istream = g_io_stream_get_input_stream(G_IO_STREAM(connection));
     gchar message[1024];
+
     auto read_size = g_input_stream_read(istream, message, sizeof(message), nullptr, nullptr);
+    if (read_size < 0)
+    {
+        std::cerr << "GIO read error" << std::endl;
+        return FALSE;
+    }
+
     std::cout << "Message was: " << std::string(message, message + read_size) << std::endl;
     return FALSE;
 }
