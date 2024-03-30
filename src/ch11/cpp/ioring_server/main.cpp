@@ -54,37 +54,37 @@ int main(int argc, char *argv[])
     socket_wrapper::SocketWrapper sock_wrap;
 
     auto servinfo = socket_wrapper::get_serv_info(argv[1]);
-    socket_wrapper::Socket sock = {servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol};
+    socket_wrapper::Socket server_sock = {servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol};
 
     try
     {
-        if (sock < 0)
+        if (server_sock < 0)
         {
             throw std::system_error(errno, std::system_category(), "socket");
         }
 
-        if (bind(sock, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
+        if (bind(server_sock, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
         {
             throw std::system_error(errno, std::system_category(), "bind");
         }
 
-        if (listen(sock, 1) < 0)
+        if (listen(server_sock, 1) < 0)
         {
             throw std::system_error(errno, std::system_category(), "listen");
         }
 
         sockaddr_in cli_addr;
         __socklen_t clilen = sizeof(cli_addr);
-        socket_wrapper::Socket newsock{accept(sock, reinterpret_cast<sockaddr *>(&cli_addr), &clilen)};
+        socket_wrapper::Socket client_sock{accept(server_sock, reinterpret_cast<sockaddr *>(&cli_addr), &clilen)};
 
-        if (newsock < 0)
+        if (client_sock < 0)
         {
             throw std::system_error(errno, std::system_category(), "accept");
         }
 
         io_uring_queue_init(16, &ring, 0);
 
-        if (1 != async_read(newsock, ring, msg))
+        if (1 != async_read(client_sock, ring, msg))
         {
             throw std::system_error(errno, std::system_category(), "async_read");
         }
@@ -111,12 +111,11 @@ int main(int argc, char *argv[])
 
                 if (cqe->res < 0)
                 {
-                    if (sock > 0) close(sock);
                     throw std::system_error(errno, std::system_category(), "cqe res < 0");
                 }
 
                 std::cout << "Res = " << cqe->res << ", Data = " << data << std::endl;
-                if (1 != async_read(newsock, ring, msg))
+                if (1 != async_read(client_sock, ring, msg))
                 {
                     throw std::system_error(errno, std::system_category(), "async_read");
                 }
