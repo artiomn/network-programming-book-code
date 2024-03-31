@@ -172,7 +172,6 @@ int main(int argc, char *argv[])
                 {
                     std::cout << "Empty request." << std::endl;
                     requests.remove_if([&request](const Request &req) { return req.addr() == request; });
-                    accept_client(server_sock, ring, requests);
                 }
                 else if (cqe->res < 0)
                 {
