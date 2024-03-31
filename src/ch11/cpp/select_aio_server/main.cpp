@@ -517,31 +517,7 @@ int main(int argc, const char *const argv[])
 
     try
     {
-        auto servinfo = socket_wrapper::get_serv_info(argv[1]);
-        if (!servinfo)
-        {
-            std::cerr << "Can't get servinfo!" << std::endl;
-            return EXIT_FAILURE;
-        }
-
-        socket_wrapper::Socket server_sock = {servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol};
-
-        if (!server_sock)
-        {
-            throw std::system_error(errno, std::system_category(), "server socket");
-        }
-
-        set_reuse_addr(server_sock);
-
-        if (bind(server_sock, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
-        {
-            throw std::system_error(errno, std::system_category(), "bind");
-        }
-
-        if (listen(server_sock, clients_count) < 0)
-        {
-            throw std::system_error(errno, std::system_category(), "listen");
-        }
+        socket_wrapper::Socket server_sock = std::move(socket_wrapper::create_tcp_server(argv[1]));
 
         std::cout << "Listening on port " << argv[1] << "...\n"
                   << "Server path: " << fs::current_path() << std::endl;

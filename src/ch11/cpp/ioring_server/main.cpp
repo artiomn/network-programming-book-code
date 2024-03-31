@@ -22,14 +22,45 @@ extern "C"
 #include <string>
 
 
-int async_read(int sock, io_uring &ring, msghdr &msg)
+enum event_type
+{
+    et_accept,
+    et_recv,
+    et_send
+};
+
+
+int accept_client(
+    socket_wrapper::Socket &server_socket, io_uring &ring, sockaddr *client_addr, socklen_t &client_addr_len)
 {
     // Get an SQE and fill in a READ operation.
     io_uring_sqe *sqe = io_uring_get_sqe(&ring);
-    io_uring_prep_recvmsg(sqe, sock, &msg, 0);
-    sqe->user_data = 0;
+    io_uring_prep_accept(sqe, server_socket, client_addr, &client_addr_len, 0);
+
+    sqe->user_data = et_accept;
+    // io_uring_sqe_set_data(sqe, reinterpret_cast<void*>(et_accept));
 
     // Tell the kernel we have an SQE ready for consumption.
+    return io_uring_submit(&ring);
+}
+
+
+int async_read(int sock, io_uring &ring, msghdr &msg)
+{
+    io_uring_sqe *sqe = io_uring_get_sqe(&ring);
+    io_uring_prep_recvmsg(sqe, sock, &msg, 0);
+    sqe->user_data = et_recv;
+
+    return io_uring_submit(&ring);
+}
+
+
+int async_send(int sock, io_uring &ring, msghdr &msg)
+{
+    io_uring_sqe *sqe = io_uring_get_sqe(&ring);
+    io_uring_prep_sendmsg(sqe, sock, &msg, 0);
+    sqe->user_data = et_send;
+
     return io_uring_submit(&ring);
 }
 
@@ -52,47 +83,22 @@ int main(int argc, char *argv[])
     msghdr msg = {nullptr, 0, &iov, 1, nullptr, 0, 0};
 
     socket_wrapper::SocketWrapper sock_wrap;
-
-    auto servinfo = socket_wrapper::get_serv_info(argv[1]);
-    socket_wrapper::Socket server_sock = {servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol};
+    socket_wrapper::Socket server_sock = std::move(socket_wrapper::create_tcp_server(argv[1]));
 
     try
     {
-        if (server_sock < 0)
-        {
-            throw std::system_error(errno, std::system_category(), "socket");
-        }
-
-        if (bind(server_sock, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
-        {
-            throw std::system_error(errno, std::system_category(), "bind");
-        }
-
-        if (listen(server_sock, 1) < 0)
-        {
-            throw std::system_error(errno, std::system_category(), "listen");
-        }
-
         sockaddr_in cli_addr;
-        __socklen_t clilen = sizeof(cli_addr);
-        socket_wrapper::Socket client_sock{accept(server_sock, reinterpret_cast<sockaddr *>(&cli_addr), &clilen)};
-
-        if (client_sock < 0)
-        {
-            throw std::system_error(errno, std::system_category(), "accept");
-        }
+        __socklen_t cli_addr_len = sizeof(cli_addr);
+        int client_sock;
 
         io_uring_queue_init(16, &ring, 0);
 
-        if (1 != async_read(client_sock, ring, msg))
-        {
-            throw std::system_error(errno, std::system_category(), "async_read");
-        }
+        accept_client(server_sock, ring, reinterpret_cast<sockaddr *>(&cli_addr), cli_addr_len);
 
         while (true)
         {
             io_uring_cqe *cqe;
-            __kernel_timespec ts = {2, 0};
+            __kernel_timespec ts = {5, 0};
             int res = io_uring_wait_cqes(&ring, &cqe, 1, &ts, nullptr);
 
             if (res < 0)
@@ -100,21 +106,57 @@ int main(int argc, char *argv[])
                 throw std::system_error(-res, std::system_category(), "io_uring_wait_cqe");
             }
 
-            if (0 == cqe->user_data)
+            event_type type = (event_type)(cqe->user_data);
+
+            if (et_accept == type)
             {
-                // Read completed
+                std::cout << "Accept client." << std::endl;
+                client_sock = cqe->res;
+
+                if (client_sock < 0)
+                {
+                    throw std::system_error(errno, std::system_category(), "accept");
+                }
+
+                if (1 != async_read(client_sock, ring, msg))
+                {
+                    throw std::system_error(errno, std::system_category(), "async_read");
+                }
+            }
+            else if (et_recv == type)
+            {
+                // Receive completed.
                 // If it is the end of file we are done
                 if (!cqe->res)
                 {
-                    break;
-                }
+                    std::cout << "Empty request." << std::endl;
+                    close(client_sock);
+                    client_sock = -1;
 
-                if (cqe->res < 0)
+                    accept_client(server_sock, ring, reinterpret_cast<sockaddr *>(&cli_addr), cli_addr_len);
+                }
+                else if (cqe->res < 0)
                 {
                     throw std::system_error(errno, std::system_category(), "cqe res < 0");
                 }
+                else
+                {
+                    std::cout << "Res = " << cqe->res << ", Data = " << data << std::endl;
 
-                std::cout << "Res = " << cqe->res << ", Data = " << data << std::endl;
+                    if (1 != async_send(client_sock, ring, msg))
+                    {
+                        throw std::system_error(errno, std::system_category(), "async_read");
+                    }
+
+                    if (1 != async_read(client_sock, ring, msg))
+                    {
+                        throw std::system_error(errno, std::system_category(), "async_read");
+                    }
+                }
+            }
+            else if (et_send == type)
+            {
+                std::cout << "Data was sent" << std::endl;
                 if (1 != async_read(client_sock, ring, msg))
                 {
                     throw std::system_error(errno, std::system_category(), "async_read");
