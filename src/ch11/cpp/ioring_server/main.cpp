@@ -20,6 +20,7 @@ extern "C"
 #include <cassert>
 #include <iostream>
 #include <string>
+#include <vector>
 
 
 enum event_type
@@ -33,7 +34,7 @@ enum event_type
 int accept_client(
     socket_wrapper::Socket &server_socket, io_uring &ring, sockaddr *client_addr, socklen_t &client_addr_len)
 {
-    // Get an SQE and fill in a READ operation.
+    // Get an SQE and fill in a ACCEPT operation.
     io_uring_sqe *sqe = io_uring_get_sqe(&ring);
     io_uring_prep_accept(sqe, server_socket, client_addr, &client_addr_len, 0);
 
@@ -75,9 +76,7 @@ int main(int argc, char *argv[])
 
     io_uring ring;
 
-    std::string data;
-
-    data.resize(256);
+    std::vector<char> data(256);
 
     iovec iov = {data.data(), data.size()};
     msghdr msg = {nullptr, 0, &iov, 1, nullptr, 0, 0};
@@ -127,6 +126,7 @@ int main(int argc, char *argv[])
             {
                 // Receive completed.
                 // If it is the end of file we are done
+                std::cout << "Data received." << std::endl;
                 if (!cqe->res)
                 {
                     std::cout << "Empty request." << std::endl;
@@ -141,22 +141,20 @@ int main(int argc, char *argv[])
                 }
                 else
                 {
-                    std::cout << "Res = " << cqe->res << ", Data = " << data << std::endl;
+                    std::cout << "Res = " << cqe->res
+                              << ", Data = " << std::string(data.begin(), data.begin() + cqe->res) << std::endl;
+                    iov.iov_len = cqe->res;
 
                     if (1 != async_send(client_sock, ring, msg))
                     {
                         throw std::system_error(errno, std::system_category(), "async_send");
                     }
-
-                    if (1 != async_recv(client_sock, ring, msg))
-                    {
-                        throw std::system_error(errno, std::system_category(), "async_recv");
-                    }
                 }
             }
             else if (et_send == type)
             {
-                std::cout << "Data was sent" << std::endl;
+                std::cout << "Data was sent." << std::endl;
+                iov.iov_len = data.size();
                 if (1 != async_recv(client_sock, ring, msg))
                 {
                     throw std::system_error(errno, std::system_category(), "async_recv");
