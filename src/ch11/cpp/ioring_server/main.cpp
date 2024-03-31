@@ -45,7 +45,7 @@ int accept_client(
 }
 
 
-int async_read(int sock, io_uring &ring, msghdr &msg)
+int async_recv(int sock, io_uring &ring, msghdr &msg)
 {
     io_uring_sqe *sqe = io_uring_get_sqe(&ring);
     io_uring_prep_recvmsg(sqe, sock, &msg, 0);
@@ -118,9 +118,9 @@ int main(int argc, char *argv[])
                     throw std::system_error(errno, std::system_category(), "accept");
                 }
 
-                if (1 != async_read(client_sock, ring, msg))
+                if (1 != async_recv(client_sock, ring, msg))
                 {
-                    throw std::system_error(errno, std::system_category(), "async_read");
+                    throw std::system_error(errno, std::system_category(), "async_recv");
                 }
             }
             else if (et_recv == type)
@@ -145,21 +145,21 @@ int main(int argc, char *argv[])
 
                     if (1 != async_send(client_sock, ring, msg))
                     {
-                        throw std::system_error(errno, std::system_category(), "async_read");
+                        throw std::system_error(errno, std::system_category(), "async_send");
                     }
 
-                    if (1 != async_read(client_sock, ring, msg))
+                    if (1 != async_recv(client_sock, ring, msg))
                     {
-                        throw std::system_error(errno, std::system_category(), "async_read");
+                        throw std::system_error(errno, std::system_category(), "async_recv");
                     }
                 }
             }
             else if (et_send == type)
             {
                 std::cout << "Data was sent" << std::endl;
-                if (1 != async_read(client_sock, ring, msg))
+                if (1 != async_recv(client_sock, ring, msg))
                 {
-                    throw std::system_error(errno, std::system_category(), "async_read");
+                    throw std::system_error(errno, std::system_category(), "async_recv");
                 }
             }
             else if (LIBURING_UDATA_TIMEOUT == cqe->user_data)
