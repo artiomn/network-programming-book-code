@@ -52,26 +52,48 @@ int main(int argc, const char *const argv[])
     aiocb write_cb = {
         .aio_fildes = sock, .aio_buf = const_cast<char *>(file_path.c_str()), .aio_nbytes = file_path.size()};
 
-    aiocb read_cb = {.aio_fildes = sock, .aio_buf = &buffer[0], .aio_nbytes = buffer_size};
+    aiocb read_cb = {.aio_fildes = sock, .aio_buf = buffer.data(), .aio_nbytes = buffer.size()};
 
     if (-1 == aio_write(&write_cb))
     {
-        perror("aio_write");
-        exit(EXIT_FAILURE);
+        throw std::system_error(errno, std::system_category(), "aio_write");
     }
+
+    while (EINPROGRESS == aio_error(&write_cb))
+    {
+    }
+
+    ssize_t write_bytes = aio_return(&write_cb);
+
+    std::cout << "Written " << write_bytes << " bytes." << std::endl;
 
     if (-1 == aio_read(&read_cb))
     {
-        perror("aio_read");
-        exit(EXIT_FAILURE);
+        throw std::system_error(errno, std::system_category(), "aio_read");
     }
+
+    aiocb *rc_list[] = {&read_cb, nullptr};
 
     while (EINPROGRESS == aio_error(&read_cb))
     {
+        aio_suspend(rc_list, sizeof(rc_list) / sizeof(rc_list[0]) - 1, nullptr);
+
+        ssize_t read_bytes = aio_return(&read_cb);
+
+        if (read_bytes <= 0)
+        {
+            break;
+        }
+
+        std::cout << std::string(buffer.begin(), buffer.begin() + read_bytes) << std::flush;
+
+        if (-1 == aio_read(&read_cb))
+        {
+            throw std::system_error(errno, std::system_category(), "aio_read");
+        }
     }
 
-    ssize_t read_bytes = aio_return(&read_cb);
-    std::cout << "Read " << read_bytes << " bytes: " << buffer.data();
+    std::cout << std::endl;
 
     shutdown(sock, SHUT_RDWR);
 
