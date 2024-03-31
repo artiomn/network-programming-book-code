@@ -26,4 +26,8 @@ void set_reuse_addr(Socket &sock);
 
 // Accept client, return new socket and write console message.
 Socket accept_client(Socket &server_sock);
+
+// Create listening TCP server and return server socket.
+Socket create_tcp_server(const char *port);
+
 }  // namespace socket_wrapper

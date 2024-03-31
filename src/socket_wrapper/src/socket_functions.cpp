@@ -92,4 +92,29 @@ Socket accept_client(socket_wrapper::Socket &server_sock)
     return client_sock;
 }
 
+
+Socket create_tcp_server(const char *port)
+{
+    auto servinfo = get_serv_info(port);
+    Socket server_sock = {servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol};
+    set_reuse_addr(server_sock);
+
+    if (-1 == server_sock)
+    {
+        throw std::system_error(errno, std::system_category(), "socket");
+    }
+
+    if (-1 == bind(server_sock, servinfo->ai_addr, servinfo->ai_addrlen))
+    {
+        throw std::system_error(errno, std::system_category(), "bind");
+    }
+
+    if (-1 == listen(server_sock, SOMAXCONN))
+    {
+        throw std::system_error(errno, std::system_category(), "listen");
+    }
+
+    return std::move(server_sock);
+}
+
 }  // namespace socket_wrapper
