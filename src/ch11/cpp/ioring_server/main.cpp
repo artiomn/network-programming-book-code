@@ -24,14 +24,6 @@ extern "C"
 #include <vector>
 
 
-enum event_type
-{
-    et_accept,
-    et_recv,
-    et_send
-};
-
-
 class Request
 {
 public:
