@@ -20,6 +20,7 @@ RUN \
     cmake \
     cppzmq-dev \
     dpdk-dev \
+    erlang \
     gdb \
     gdbserver \
     golang-go \
