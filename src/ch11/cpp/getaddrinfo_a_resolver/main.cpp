@@ -86,14 +86,14 @@ void list_requests(const std::vector<gaicb *> &reqs)
         if (!ret)
         {
             addrinfo *res = reqs[i]->ar_result;
-            char host[NI_MAXHOST];
+            std::vector<char> host(NI_MAXHOST);
 
-            ret = getnameinfo(res->ai_addr, res->ai_addrlen, host, sizeof(host), nullptr, 0, NI_NUMERICHOST);
+            ret = getnameinfo(res->ai_addr, res->ai_addrlen, host.data(), host.size(), nullptr, 0, NI_NUMERICHOST);
             if (ret)
             {
                 throw std::system_error(EDOM, std::generic_category(), gai_strerror(ret));
             }
-            std::cout << host;
+            std::cout << std::string(host.begin(), host.end());
         }
         else
         {
