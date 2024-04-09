@@ -1,9 +1,12 @@
 -module(example_server).
--export([loop/0]).
+-export([main/0]).
 
-loop() ->
+
+main() ->
+    io:format("Server loop start~n"),
     receive
-	{From, Msg} ->
-	    From ! Msg,
-	    loop()
-end.
+        {From, Msg} ->
+            io:format("process ~p consuming ~p from ~p~n", [self(), Msg, From]),
+            From ! {"Message: " ++ Msg},
+            main()
+    end.
