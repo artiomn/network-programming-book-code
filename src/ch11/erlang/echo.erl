@@ -29,8 +29,9 @@ server_loop(Socket) ->
 echo_loop(Connection) ->
     receive
         {tcp, Connection, Data} ->
-	    gen_tcp:send(Connection, Data),
-	    echo_loop(Connection);
-	{tcp_closed, Connection} ->
-	    io:format("Connection closed ~p~n", [Connection])
+            io:format("Sending \"~p\" to ~p~n", [Data, Connection]),
+            gen_tcp:send(Connection, Data),
+            echo_loop(Connection);
+        {tcp_closed, Connection} ->
+            io:format("Connection closed ~p~n", [Connection])
     end.
