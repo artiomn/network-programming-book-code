@@ -32,10 +32,10 @@ with Client('opc.tcp://localhost:4840') as client:
         m_mode = multimeter.call_method('2:SetMode', 'VOLTAGE')
         # m_mode = multimeter.get_child('2:SetMode').set_value('VOLTAGE')
         voltage_value, mes_v_time = measure_value(voltage, mes_v_time)
-        print(f'Mode = {m_mode}, value = {voltage_value} V, mes. time = {ctime(mes_v_time)}')
+        print(f'Mode = {m_mode}, value = {voltage_value:g} V, mes. time = {ctime(mes_v_time)}')
 
         m_mode = multimeter.call_method('2:SetMode', 'CURRENT')
         current_value, mes_c_time = measure_value(current, mes_c_time)
 
-        print(f'Mode = {m_mode}, value = {current_value} A, mes. time = {ctime(mes_c_time)}')
+        print(f'Mode = {m_mode}, value = {current_value:g} A, mes. time = {ctime(mes_c_time)}')
         sleep(1)
