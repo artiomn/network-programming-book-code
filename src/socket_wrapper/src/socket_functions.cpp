@@ -19,6 +19,7 @@ AddrInfoResult get_serv_info(const char *port, int sock_type)
         .ai_family = AF_INET,
         .ai_socktype = sock_type,
         .ai_protocol = (sock_type == SOCK_STREAM ? IPPROTO_TCP : IPPROTO_UDP)};
+
     struct addrinfo *s_i;
     int ai_status;
 
