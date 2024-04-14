@@ -15,7 +15,7 @@ namespace socket_wrapper
 AddrInfoResult get_serv_info(const char *port, int sock_type)
 {
     struct addrinfo hints = {
-        .ai_flags = AI_PASSIVE,
+        .ai_flags = AI_PASSIVE | AI_NUMERICSERV,
         .ai_family = AF_INET,
         .ai_socktype = sock_type,
         .ai_protocol = (sock_type == SOCK_STREAM ? IPPROTO_TCP : IPPROTO_UDP)};
