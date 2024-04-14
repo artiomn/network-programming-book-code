@@ -39,15 +39,15 @@ AddrInfoResult get_client_info(const std::string &host, const std::string &port,
         .ai_family = sock_family,
         .ai_socktype = sock_type,
         .ai_protocol = (sock_type == SOCK_STREAM ? IPPROTO_TCP : IPPROTO_UDP)};
-    struct addrinfo *s_i;
+    struct addrinfo *c_i;
     int ai_status;
 
-    if ((ai_status = getaddrinfo(host.c_str(), port.c_str(), &hints, &s_i)) != 0)
+    if ((ai_status = getaddrinfo(host.c_str(), port.c_str(), &hints, &c_i)) != 0)
     {
         throw std::logic_error(gai_strerror(ai_status));
     }
 
-    return std::unique_ptr<addrinfo, decltype(&freeaddrinfo)>(s_i, freeaddrinfo);
+    return std::unique_ptr<addrinfo, decltype(&freeaddrinfo)>(c_i, freeaddrinfo);
 }
 
 
