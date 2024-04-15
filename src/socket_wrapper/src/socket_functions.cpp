@@ -98,12 +98,13 @@ Socket create_tcp_server(const char *port)
 {
     auto servinfo = get_serv_info(port);
     Socket server_sock = {servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol};
-    set_reuse_addr(server_sock);
 
-    if (-1 == server_sock)
+    if (!server_sock)
     {
         throw std::system_error(errno, std::system_category(), "socket");
     }
+
+    set_reuse_addr(server_sock);
 
     if (-1 == bind(server_sock, servinfo->ai_addr, servinfo->ai_addrlen))
     {
