@@ -19,6 +19,7 @@ extern "C"
 #endif
 
 #include <socket_wrapper/socket_class.h>
+#include <socket_wrapper/socket_functions.h>
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
 
@@ -78,13 +79,9 @@ int main(int argc, const char *const argv[])
     }
 
     const std::string host_name = {argv[1]};
-    const struct hostent *remote_host{gethostbyname(host_name.c_str())};
+    auto addrs = socket_wrapper::get_client_info(host_name, argv[2], SOCK_STREAM);
 
-    struct sockaddr_in server_addr = {.sin_family = AF_INET, .sin_port = htons(std::stoi(argv[2]))};
-
-    server_addr.sin_addr.s_addr = *reinterpret_cast<const in_addr_t *>(remote_host->h_addr);
-
-    if (connect(sock, reinterpret_cast<const sockaddr *const>(&server_addr), sizeof(server_addr)) != 0)
+    if (connect(sock, addrs->ai_addr, addrs->ai_addrlen) != 0)
     {
         std::cerr << sock_wrap.get_last_error_string() << std::endl;
         return EXIT_FAILURE;

@@ -39,37 +39,11 @@ int main(int argc, const char *const argv[])
 
     try
     {
-        auto servinfo = socket_wrapper::get_serv_info(argv[1]);
+        auto server_sock = socket_wrapper::create_tcp_server(argv[1]);
+        auto client_sock = socket_wrapper::accept_client(server_sock);
 
-        socket_wrapper::Socket server_sock = {servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol};
+        std::vector<char> data_buff(buffer_size);
 
-        if (!socket)
-        {
-            throw std::system_error(errno, std::system_category(), "socket");
-        }
-
-        if (bind(server_sock, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
-        {
-            throw std::system_error(errno, std::system_category(), "bind");
-        }
-
-        if (listen(server_sock, clients_count) < 0)
-        {
-            throw std::system_error(errno, std::system_category(), "listen");
-        }
-
-        socket_wrapper::Socket client_sock(accept(server_sock, nullptr, nullptr));
-
-        if (!client_sock)
-        {
-            throw std::system_error(errno, std::system_category(), "accept");
-        }
-
-        std::vector<char> data_buff;
-
-        data_buff.resize(buffer_size);
-
-        auto data_buff_iterator = data_buff.begin();
         char oob_data;
         bool oob_printed = false;
 
@@ -80,32 +54,34 @@ int main(int argc, const char *const argv[])
             switch (at_mark)
             {
                 case -1:
-                    perror("sockatmark");
+                    throw std::system_error(errno, std::system_category(), "sockatmark");
                     break;
                 case 1:
                     if (oob_printed) continue;
                     std::cout << "OOB data received..." << std::endl;
-                    if (recv(client_sock, &oob_data, 1, MSG_OOB) == -1)
+                    if (-1 == recv(client_sock, &oob_data, 1, MSG_OOB))
                     {
-                        perror("recv oob");
+                        throw std::system_error(errno, std::system_category(), "recv oob");
                     }
                     std::cout << "OOB data = " << oob_data << std::endl;
                     oob_printed = true;
                     break;
                 case 0:
                 {
-                    ssize_t n = recv(
-                        client_sock, &(*data_buff_iterator),
-                        data_buff.size() - (data_buff_iterator - data_buff.cbegin()) - 1, 0);
+                    ssize_t n = recv(client_sock, data_buff.data(), data_buff.size(), 0);
+
                     if (n < 0)
                     {
                         throw std::system_error(errno, std::system_category(), "recv data");
                     }
+                    else if (!n)
+                    {
+                        std::cout << "No data, exiting..." << std::endl;
+                        exit(EXIT_SUCCESS);
+                    }
 
-                    std::cout << "Ordinary data received..." << std::endl;
-                    data_buff_iterator += n;
-                    *data_buff_iterator = '\0';
-                    std::cout << n << " bytes was read: " << std::string(data_buff.begin(), data_buff.begin() + n)
+                    std::cout << "Ordinary data received...\n"
+                              << n << " bytes was read: " << std::string(data_buff.begin(), data_buff.begin() + n)
                               << std::endl;
                     oob_printed = false;
                     break;

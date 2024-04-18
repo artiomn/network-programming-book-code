@@ -8,6 +8,7 @@ extern "C"
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
 
+#include <atomic>
 #include <csignal>
 #include <functional>
 #include <iostream>
@@ -16,10 +17,6 @@ extern "C"
 #include <vector>
 
 
-namespace
-{
-
-const size_t clients_count = 10;
 const size_t buffer_size = 255;
 
 std::function<void(int)> sig_handler;
@@ -28,8 +25,6 @@ void signal_handler_wrapper(int signal)
 {
     sig_handler(signal);
 }
-
-}  // namespace
 
 
 int main(int argc, const char *const argv[])
@@ -44,96 +39,84 @@ int main(int argc, const char *const argv[])
 
     try
     {
-        auto servinfo = socket_wrapper::get_serv_info(argv[1]);
-
-        socket_wrapper::Socket server_sock = {servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol};
-
-        if (!socket)
-        {
-            throw std::system_error(errno, std::system_category(), "socket");
-        }
-
-        if (bind(server_sock, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
-        {
-            throw std::system_error(errno, std::system_category(), "bind");
-        }
-
-        if (listen(server_sock, clients_count) < 0)
-        {
-            throw std::system_error(errno, std::system_category(), "listen");
-        }
-
-        socket_wrapper::Socket client_sock(accept(server_sock, nullptr, nullptr));
-
-        if (!client_sock)
-        {
-            throw std::system_error(errno, std::system_category(), "accept");
-        }
-
-        std::vector<char> data_buff;
-        data_buff.reserve(buffer_size);
+        volatile std::atomic<bool> oob_flag = false;
 
         // cppcheck-suppress danglingLifetime
-        sig_handler = [&client_sock, &data_buff](int sig_num)
+        sig_handler = [&oob_flag](int sig_num)
         {
             std::cout << "SIGURG [" << sig_num << "] received" << std::endl;
-
-            char data;
-            int sa_result;
-
-            while ((sa_result = sockatmark(client_sock)))
-            {
-                if (-1 == sa_result)
-                {
-                    perror("sockatmark");
-                    return;
-                }
-
-                auto res = recv(client_sock, &data, sizeof(data), 0);
-                if (-1 == res)
-                {
-                    perror("recv ordinary data in handler");
-                    return;
-                }
-
-                data_buff.push_back(data);
-                std::cout << data << " ordinary data received in handler" << std::endl;
-            }
-
-            auto res = recv(client_sock, &data, sizeof(data), MSG_OOB);
-
-            if (-1 == res)
-            {
-                perror("recv ordinary data in handler");
-                return;
-            }
-
-            std::cout << data << " OOB was read" << std::endl;
+            oob_flag = true;
         };
 
         if (SIG_ERR == std::signal(SIGURG, signal_handler_wrapper))
         {
             throw std::system_error(errno, std::system_category(), "signal");
         }
+
+        std::vector<char> data_buff(buffer_size);
+
+        char oob_data;
+
+        auto server_sock = socket_wrapper::create_tcp_server(argv[1]);
+        auto client_sock = socket_wrapper::accept_client(server_sock);
+
         if (-1 == fcntl(client_sock, F_SETOWN, getpid()))
         {
             throw std::system_error(errno, std::system_category(), "fcntl");
         }
 
-        char data;
-
-        for (ssize_t n = recv(client_sock, &data, sizeof(data), 0); n; n = recv(client_sock, &data, sizeof(data), 0))
+        while (true)
         {
-            if (n < 0)
+            int at_mark = sockatmark(client_sock);
+
+            switch (at_mark)
             {
-                throw std::system_error(errno, std::system_category(), "recv");
+                case -1:
+                    throw std::system_error(errno, std::system_category(), "sockatmark");
+                    break;
+                case 1:
+                {
+                    if (!oob_flag) continue;
+                    std::cout << "OOB data received..." << std::endl;
+
+                    if (-1 == recv(client_sock, &oob_data, 1, MSG_OOB))
+                    {
+                        throw std::system_error(errno, std::system_category(), "recv oob");
+                    }
+
+                    std::cout << "OOB data = " << oob_data << std::endl;
+                    oob_flag = false;
+                }
+                break;
+                case 0:
+                {
+                    ssize_t n = recv(client_sock, data_buff.data(), data_buff.size(), 0);
+
+                    if (n < 0)
+                    {
+                        if (EINTR == errno || EAGAIN == errno)
+                        {
+                            std::cout << "recv was broken by signal!" << std::endl;
+                            continue;
+                        }
+                        throw std::system_error(errno, std::system_category(), "recv data");
+                    }
+                    else if (!n)
+                    {
+                        std::cout << "No data, exiting..." << std::endl;
+                        exit(EXIT_SUCCESS);
+                    }
+
+                    std::cout << "Ordinary data received...\n"
+                              << n << " bytes was read: " << std::string(data_buff.begin(), data_buff.begin() + n)
+                              << std::endl;
+                    break;
+                }
+                default:
+                {
+                }
             }
-
-            data_buff.push_back(data);
-            std::cout << "'" << data << "' was read in the working cycle" << std::endl;
         }
-
-        std::cout << "Result: " << std::string(data_buff.begin(), data_buff.end()) << std::endl;
     }
     catch (const std::system_error &e)
     {
