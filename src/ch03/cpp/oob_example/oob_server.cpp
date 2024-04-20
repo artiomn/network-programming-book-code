@@ -92,7 +92,7 @@ int main(int argc, const char *const argv[])
             }
         }
     }
-    catch (const std::logic_error &e)
+    catch (const std::system_error &e)
     {
         std::cerr << e.what() << ": " << sock_wrap.get_last_error_string() << "!" << std::endl;
         return EXIT_FAILURE;

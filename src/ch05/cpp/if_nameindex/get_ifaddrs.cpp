@@ -1,14 +1,17 @@
+extern "C"
+{
+#include <ifaddrs.h>
+#include <linux/if_link.h>
+#include <linux/if_packet.h>
+#include <net/if.h>
+}
+
+#include <socket_wrapper/socket_headers.h>
+
 #include <iomanip>
 #include <iostream>
 #include <memory>
 #include <vector>
-
-#include <net/if.h>
-#include <ifaddrs.h>
-#include <linux/if_link.h>
-#include <linux/if_packet.h>
-
-#include <socket_wrapper/socket_headers.h>
 
 
 void print_address(const sockaddr *ia)
@@ -23,39 +26,28 @@ void print_address(const sockaddr *ia)
             addr_buf.resize(INET_ADDRSTRLEN);
             addr = &(reinterpret_cast<const sockaddr_in *>(ia))->sin_addr;
 
-            std::cout
-                << " IPv4: "
-                << inet_ntop(ia->sa_family, addr, &addr_buf[0], addr_buf.size());
+            std::cout << " IPv4: " << inet_ntop(ia->sa_family, addr, &addr_buf[0], addr_buf.size());
         }
         else if (AF_INET6 == ia->sa_family)
         {
             addr_buf.resize(INET6_ADDRSTRLEN);
             addr = &(reinterpret_cast<const sockaddr_in6 *>(ia))->sin6_addr;
-            std::cout
-                << " IPv6: "
-                << inet_ntop(ia->sa_family, addr, &addr_buf[0], addr_buf.size());
+            std::cout << " IPv6: " << inet_ntop(ia->sa_family, addr, &addr_buf[0], addr_buf.size());
         }
         else if (AF_PACKET == ia->sa_family)
         {
-            std::cout
-                << " AF_PACKET: ";
+            std::cout << " AF_PACKET: ";
             std::ios_base::fmtflags f(std::cout.flags());
-            auto sa = reinterpret_cast<const sockaddr_ll*>(ia);
+            auto sa = reinterpret_cast<const sockaddr_ll *>(ia);
 
             for (const auto *i = sa->sll_addr; i < sa->sll_addr + sa->sll_halen; ++i)
-                std::cout
-                    << std::hex
-                    << std::setfill('0')
-                    << std::setw(2) << int(*i) << ":";
+                std::cout << std::hex << std::setfill('0') << std::setw(2) << int(*i) << ":";
             std::cout.flags(f);
-            std::cout
-                << "\n    if index = " << sa->sll_ifindex;
+            std::cout << "\n    if index = " << sa->sll_ifindex;
         }
         else
         {
-            std::cout
-                << ia->sa_family
-                << " addr type";
+            std::cout << ia->sa_family << " addr type";
         }
     }
     else
@@ -65,7 +57,7 @@ void print_address(const sockaddr *ia)
 }
 
 
-int main(int argc, const char * const argv[])
+int main(int argc, const char *const argv[])
 {
     ifaddrs *ifa;
     if (getifaddrs(&ifa) < 0)
@@ -78,8 +70,7 @@ int main(int argc, const char * const argv[])
 
     for (auto i = if_ni.get(); i->ifa_next != nullptr; i = i->ifa_next)
     {
-        std::cout
-            << i->ifa_name << ":";
+        std::cout << i->ifa_name << ":";
 
         if (i->ifa_addr)
         {
@@ -113,35 +104,31 @@ int main(int argc, const char * const argv[])
             std::cout << "\n";
             if (i->ifa_addr && AF_PACKET == i->ifa_addr->sa_family)
             {
-                auto stats = static_cast<const rtnl_link_stats*>(ifa->ifa_data);
-                std::cout
-                    << "    tx_packets = " << stats->tx_packets << "\n"
-                    << "    rx_packets = " << stats->rx_packets << "\n"
-                    << "    tx_bytes  = " << stats->tx_bytes << "\n"
-                    << "    rx_bytes   = " << stats->rx_bytes;
+                auto stats = static_cast<const rtnl_link_stats *>(ifa->ifa_data);
+                std::cout << "    tx_packets = " << stats->tx_packets << "\n"
+                          << "    rx_packets = " << stats->rx_packets << "\n"
+                          << "    tx_bytes  = " << stats->tx_bytes << "\n"
+                          << "    rx_bytes   = " << stats->rx_bytes;
             }
             /*
             else if (i->ifa_addr && AF_LINK == i->ifa_addr->sa_family)
             {
                 auto data = static_cast<const if_data*>(ifa->ifa_data);
-			    std::cout
+                std::cout
                     << "    receive_packets = " << int(data.ifi_ipackets) << "\n";
             } */
             else if (i->ifa_addr)
             {
-                std::cout
-                    << "    " << i->ifa_addr->sa_family
-                    << " - unimplemented address family to parse data";
+                std::cout << "    " << i->ifa_addr->sa_family << " - unimplemented address family to parse data";
             }
             else
             {
-                std::cout
-                    << "    address is null, but data is not.";
+                std::cout << "    address is null, but data is not.";
             }
         }
         std::cout << "\n\n";
     }
     std::cout << std::endl;
 
-   return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

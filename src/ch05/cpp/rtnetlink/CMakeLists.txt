@@ -6,4 +6,4 @@ project("${CHAPTER_NAME}rtnetlink" C CXX)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 add_executable("${PROJECT_NAME}-mtu" rtnetlink_mtu.cpp)
-target_link_libraries("${PROJECT_NAME}-mtu" netlink mnl rt util)
+target_link_libraries("${PROJECT_NAME}-mtu" netlink mnl rt)
