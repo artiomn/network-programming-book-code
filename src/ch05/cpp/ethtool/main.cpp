@@ -27,7 +27,6 @@ void print_adapter_params(const std::string& name)
     }
 
     std::copy_n(name.c_str(), std::min(static_cast<size_t>(IF_NAMESIZE), name.size()), ifr.ifr_name);
-    ifr.ifr_name[IF_NAMESIZE - 1] = '\0';
     ifr.ifr_data = reinterpret_cast<caddr_t>(&cmd);
 
     try
@@ -49,7 +48,7 @@ void print_adapter_params(const std::string& name)
         cmd.link_mode_masks_nwords = -cmd.link_mode_masks_nwords;
         if (ioctl(sock, SIOCETHTOOL, &ifr) < 0)
         {
-            throw std::logic_error("Cannot read speed on interface: " + name);
+            throw std::system_error(errno, std::system_category(), "Cannot read speed on interface: " + name);
         }
 
         if (!ethtool_validate_speed(cmd.speed))
@@ -78,9 +77,10 @@ void print_adapter_params(const std::string& name)
                   << (DUPLEX_HALF == cmd.duplex ? "half" : (DUPLEX_FULL == cmd.duplex ? "full" : "Unknown"))
                   << std::endl;
     }
-    catch (...)
+    catch (const std::exception& e)
     {
-        throw;
+        std::cerr << e.what() << std::endl;
+        exit(EXIT_FAILURE);
     }
 }
 
