@@ -5,6 +5,7 @@ extern "C"
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <unistd.h>
 }
 
 #include <algorithm>
@@ -79,9 +80,16 @@ void print_adapter_params(const std::string& name)
     }
     catch (const std::exception& e)
     {
+        close(sock);
         std::cerr << e.what() << std::endl;
         exit(EXIT_FAILURE);
     }
+    catch (...)
+    {
+        close(sock);
+    }
+
+    close(sock);
 }
 
 
