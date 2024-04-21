@@ -14,7 +14,7 @@ if [ "${EXT_UID}" -ne 0 ]; then
         chown "${USER_NAME}:${USER_NAME}" "${SOURCE_PATH}" && \
         echo "${USER_NAME} ALL=(ALL) NOPASSWD: ALL" >> "/etc/sudoers.d/${USER_NAME}" && \
         ln -s "${SOURCE_PATH}/src" "/home/${USER_NAME}" && \
-        ln -s ""${SOURCE_PATH}/src/user_config" "/home/${USER_NAME}/.config"
+        ln -s "${SOURCE_PATH}/src/user_config" "/home/${USER_NAME}/.config"
     fi
     exec gosu "${USER_NAME}" "$@"
 fi
