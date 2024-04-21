@@ -145,7 +145,7 @@ RUN \
         build-essential:native build-essential:native bison debhelper-compat dh-package-notes flex libxtables-dev libatm1-dev libcap-dev po-debconf dialog \
     && mkdir /tmp/iproute_install \
     && cd /tmp/iproute_install  \
-    && apt-get source iproute \
+    && apt-get source iproute2 \
     && cd iproute2-6.7.0/ \
     && sed -i -e '1 i\include/* /usr/include/iproute2/' -e '$a\lib/*.a /usr/lib/${DEB_HOST_MULTIARCH}/' debian/iproute2.install \
     && cp /home/developer/patches/0003-librtnetnlink-add.patch debian/patches \
