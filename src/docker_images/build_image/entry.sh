@@ -10,10 +10,11 @@ export DISPLAY=":0"
 if [ "${EXT_UID}" -ne 0 ]; then
     if ! groups | grep -q "${USER_NAME}"; then
         groupadd -g "${EXT_GID}" "${USER_NAME}" && \
-            useradd -m -u "${EXT_UID}" -g "${EXT_GID}" -Gsudo,root "${USER_NAME}" && \
-            chown "${USER_NAME}:${USER_NAME}" "${SOURCE_PATH}" && \
-            echo "${USER_NAME} ALL=(ALL) NOPASSWD: ALL" >> "/etc/sudoers.d/${USER_NAME}" && \
-            ln -s "${SOURCE_PATH}/src" "/home/${USER_NAME}"
+        useradd -m -u "${EXT_UID}" -g "${EXT_GID}" -Gsudo,root "${USER_NAME}" && \
+        chown "${USER_NAME}:${USER_NAME}" "${SOURCE_PATH}" && \
+        echo "${USER_NAME} ALL=(ALL) NOPASSWD: ALL" >> "/etc/sudoers.d/${USER_NAME}" && \
+        ln -s "${SOURCE_PATH}/src" "/home/${USER_NAME}" && \
+        ln -s ""${SOURCE_PATH}/src/user_config" "/home/${USER_NAME}/.config"
     fi
     exec gosu "${USER_NAME}" "$@"
 fi

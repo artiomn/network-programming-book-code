@@ -1,0 +1,55 @@
+Description: RTNetlink added
+ Librtnetlink is useful to communicate with Netlink sockets.
+ Library was added to build.
+ .
+ iproute2 (6.7.0-2~bpo12+1) bookworm-backports; urgency=medium
+ .
+   * Rebuild for bookworm-backports.
+Author: Luca Boccassi <bluca@debian.org>
+
+---
+The information above should follow the Patch Tagging Guidelines, please
+checkout https://dep.debian.net/deps/dep3/ to learn about the format. Here
+are templates for supplementary fields that you might want to add:
+
+Origin: (upstream|backport|vendor|other), (<patch-url>|commit:<commit-id>)
+Bug: <upstream-bugtracker-url>
+Bug-Debian: https://bugs.debian.org/<bugnumber>
+Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
+Forwarded: (no|not-needed|<patch-forwarded-url>)
+Applied-Upstream: <version>, (<commit-url>|commit:<commid-id>)
+Reviewed-By: <name and email of someone who approved/reviewed the patch>
+Last-Update: 2024-04-21
+
+--- iproute2-6.7.0.orig/Makefile
++++ iproute2-6.7.0/Makefile
+@@ -73,7 +73,7 @@ ifeq ($(HAVE_MNL),y)
+ SUBDIRS += tipc devlink rdma dcb vdpa
+ endif
+ 
+-LIBNETLINK=../lib/libutil.a ../lib/libnetlink.a
++LIBNETLINK=../lib/libutil_rtnl.a ../lib/libnetlink.a
+ LDLIBS += $(LIBNETLINK)
+ 
+ all: config.mk
+--- iproute2-6.7.0.orig/lib/Makefile
++++ iproute2-6.7.0/lib/Makefile
+@@ -22,15 +22,15 @@ ifeq ($(HAVE_MNL),y)
+ NLOBJ += mnl_utils.o
+ endif
+ 
+-all: libnetlink.a libutil.a
++all: libnetlink.a libutil_rtnl.a
+ 
+ libnetlink.a: $(NLOBJ)
+ 	$(QUIET_AR)$(AR) rcs $@ $^
+ 
+-libutil.a: $(UTILOBJ) $(ADDLIB)
++libutil_rtnl.a: $(UTILOBJ) $(ADDLIB)
+ 	$(QUIET_AR)$(AR) rcs $@ $^
+ 
+ install:
+ 
+ clean:
+-	rm -f $(NLOBJ) $(UTILOBJ) $(ADDLIB) libnetlink.a libutil.a
++	rm -f $(NLOBJ) $(UTILOBJ) $(ADDLIB) libnetlink.a libutil_rtnl.a

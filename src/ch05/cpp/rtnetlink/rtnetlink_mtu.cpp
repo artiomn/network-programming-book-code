@@ -1,7 +1,7 @@
 extern "C"
 {
 #include <asm/types.h>
-#include <libnetlink.h>
+#include <iproute2/libnetlink.h>
 #include <linux/rtnetlink.h>
 #include <net/if.h>
 #include <sys/socket.h>
@@ -35,9 +35,11 @@ int main(int argc, const char *const argv[])
         char attrbuf[BUF_SIZE];
     } req = {
         .nh =
-            {.nlmsg_len = NLMSG_LENGTH(sizeof(ifinfomsg)),
-             .nlmsg_flags = NLM_F_REQUEST | NLM_F_ACK,
-             .nlmsg_type = RTM_NEWLINK},
+            {
+                .nlmsg_len = NLMSG_LENGTH(sizeof(ifinfomsg)),
+                .nlmsg_type = RTM_NEWLINK,
+                .nlmsg_flags = NLM_F_REQUEST | NLM_F_ACK,
+            },
         .if_msg = {.ifi_family = AF_UNSPEC, .ifi_index = iface_index, .ifi_change = 0}};
 
     rtnl_handle rth = {0};

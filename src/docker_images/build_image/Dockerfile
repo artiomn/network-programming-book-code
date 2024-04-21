@@ -9,6 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive INSIDE_NB_DOCKER_CONTAINER=1 \
 RUN \
   apt-get update \
   && echo 'deb https://deb.debian.org/debian bookworm-backports main contrib non-free' >> /etc/apt/sources.list.d/backports.list \
+  && echo 'deb-src https://deb.debian.org/debian bookworm-backports main contrib non-free' >> /etc/apt/sources.list.d/backports.list \
 #  && echo 'deb http://neilalexander.s3.eu-west-2.amazonaws.com/deb/ debian yggdrasil' >> /etc/apt/sources.list.d/yggdrasil.list \
   && apt-get update \
   && apt-get -y --no-install-recommends --show-progress install \
@@ -135,6 +136,24 @@ RUN \
   && systemctl disable nginx \
   && apt-get clean
 
+COPY ./.gitconfig /home/developer/
+COPY ./patches /home/developer/patches
+
+RUN \
+    # Need for the iproute2 package build: \
+    build-essential:native build-essential:native bison debhelper-compat dh-package-notes flex libxtables-dev libatm1-dev libcap-dev po-debconf dialog \
+    && mkdir /tmp/iproute_install \
+    && cd /tmp/iproute_install  \
+    && apt-get source iproute \
+    && cd iproute2-6.7.0/ \
+    && sed -i -e '1 i\include/* /usr/include/iproute2/' -e '$a\lib/*.a /usr/lib/${DEB_HOST_MULTIARCH}/' debian/iproute2.install \
+    && cp /home/developer/patches/0003-librtnetnlink-add.patch debian/patches \
+    && echo "0003-librtnetnlink-add.patch" >>  debian/patches/series \
+    && dpkg-buildpackage -us -uc \
+    && DEBIAN_FRONTEND=noninteractive dpkg -i ../iproute2_6.7.0-2~bpo12+1_amd64.deb \
+    && cd / \
+    && rm -rf /tmp/iproute_install
+
 #RUN \
 #  git clone --recursive --depth 1 https://github.com/Kitware/CMake \
 #  && cd CMake \
@@ -143,8 +162,6 @@ RUN \
 #  && make install \
 #  && cd / \
 #  && rm -rf CMake
-COPY ./.gitconfig /home/developer/
-COPY ./patches /home/developer/patches
 
 RUN \
   git clone ${GIT_CLONE_PARAMETERS} https://github.com/uNetworking/uWebSockets \
