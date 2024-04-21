@@ -7,8 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive INSIDE_NB_DOCKER_CONTAINER=1 \
   INSTALL_PREFIX="/usr/local"
 
 RUN \
-  apt-get update \
-  && echo 'deb https://deb.debian.org/debian bookworm-backports main contrib non-free' >> /etc/apt/sources.list.d/backports.list \
+  echo 'deb https://deb.debian.org/debian bookworm-backports main contrib non-free' >> /etc/apt/sources.list.d/backports.list \
   && echo 'deb-src https://deb.debian.org/debian bookworm-backports main contrib non-free' >> /etc/apt/sources.list.d/backports.list \
 #  && echo 'deb http://neilalexander.s3.eu-west-2.amazonaws.com/deb/ debian yggdrasil' >> /etc/apt/sources.list.d/yggdrasil.list \
   && apt-get update \
@@ -141,7 +140,9 @@ COPY ./patches /home/developer/patches
 
 RUN \
     # Need for the iproute2 package build: \
-    build-essential:native build-essential:native bison debhelper-compat dh-package-notes flex libxtables-dev libatm1-dev libcap-dev po-debconf dialog \
+    apt-get update \
+    && apt-get -y --no-install-recommends --show-progress install \
+        build-essential:native build-essential:native bison debhelper-compat dh-package-notes flex libxtables-dev libatm1-dev libcap-dev po-debconf dialog \
     && mkdir /tmp/iproute_install \
     && cd /tmp/iproute_install  \
     && apt-get source iproute \
@@ -152,7 +153,8 @@ RUN \
     && dpkg-buildpackage -us -uc \
     && DEBIAN_FRONTEND=noninteractive dpkg -i ../iproute2_6.7.0-2~bpo12+1_amd64.deb \
     && cd / \
-    && rm -rf /tmp/iproute_install
+    && rm -rf /tmp/iproute_install \
+    && apt-get clean
 
 #RUN \
 #  git clone --recursive --depth 1 https://github.com/Kitware/CMake \
