@@ -220,7 +220,7 @@ RUN \
   && rm -rf restbed \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/nodejs/llhttp \
   && cd llhttp \
-  && npm install -D @types/node \
+  && npm install -D @types/node --force --legacy-peer-deps \
   && echo y|make RELEASE=8.0 release \
   && cd release \
   && cmake -B build -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DBUILD_STATIC_LIBS=ON -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} . \
