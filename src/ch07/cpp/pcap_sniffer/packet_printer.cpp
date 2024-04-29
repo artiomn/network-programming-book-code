@@ -55,8 +55,8 @@ struct sniff_ipv6
     u_short payload_len;
     u_char next_header;
     u_char hop_limit;
-    struct in6_addr src;
-    struct in6_addr dest;
+    in6_addr src;
+    in6_addr dest;
 };
 
 
@@ -259,8 +259,8 @@ void PacketPrinter::got_packet(u_char *args, const pcap_pkthdr *header, const u_
     }
 
     std::cout << std::dec << "    From: " << inet_ntop(network_proto_type, src, &proto_addr[0], proto_addr.size())
-              << "\n";
-    std::cout << "    To: " << inet_ntop(network_proto_type, dst, &proto_addr[0], proto_addr.size()) << std::endl;
+              << "\n"
+              << "    To: " << inet_ntop(network_proto_type, dst, &proto_addr[0], proto_addr.size()) << std::endl;
 
     const sniff_tcp *tcp;
     // Packet payload.
