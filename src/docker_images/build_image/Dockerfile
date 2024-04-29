@@ -135,8 +135,8 @@ RUN \
   && systemctl disable nginx \
   && apt-get clean
 
-COPY ./.gitconfig /home/developer/
-COPY ./patches /home/developer/patches
+COPY ./.gitconfig /etc/skel/
+COPY ./patches /tmp
 
 RUN \
     # Need for the iproute2 package build: \
@@ -148,7 +148,7 @@ RUN \
     && apt-get source iproute2 \
     && cd iproute2-6.7.0/ \
     && sed -i -e '1 i\include/* /usr/include/iproute2/' -e '$a\lib/*.a /usr/lib/${DEB_HOST_MULTIARCH}/' debian/iproute2.install \
-    && cp /home/developer/patches/0003-librtnetnlink-add.patch debian/patches \
+    && cp /tmp/patches/0003-librtnetnlink-add.patch debian/patches \
     && echo "0003-librtnetnlink-add.patch" >>  debian/patches/series \
     && dpkg-buildpackage -us -uc \
     && DEBIAN_FRONTEND=noninteractive dpkg -i ../iproute2_6.7.0-2~bpo12+1_amd64.deb \
@@ -297,7 +297,7 @@ RUN \
   && cd / \
   && rm -rf seastar \
   && pip3 install --break-system-packages scapy pythonping ping3 atheris curio flatbuffers gil thriftpy2 mrjob libp2p bjoern pcapy-ng pycapnp==2.0.0b1 \
-                                          eve jwt sanic pyTelegramBotAPI==4.10.0 oct2py~=5.6.0 nats.py opcua asyncua opcua-client \
+                                          eve jwt sanic pyTelegramBotAPI==4.10.0 oct2py~=5.6.0 nats.py opcua asyncua opcua-client proxy-py \
   && pip3 install --break-system-packages --extra-index-url "https://gitlab.com/api/v4/projects/19904939/packages/pypi/simple" pythonfuzz \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/matt-42/lithium.git \
   && cd lithium \
