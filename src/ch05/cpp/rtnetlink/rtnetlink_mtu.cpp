@@ -44,19 +44,29 @@ int main(int argc, const char *const argv[])
 
     rtnl_handle rth = {0};
 
-    if (rtnl_open(&rth, 0) < 0)
+    try
     {
-        perror("rtnl_open");
+        if (rtnl_open(&rth, 0) < 0)
+        {
+            throw std::system_error(errno, std::system_category(), "rtnl_open()");
+        }
+
+        addattr32(&req.nh, BUF_SIZE, IFLA_MTU, mtu);
+        //    std::copy_n(reinterpret_cast<const char *>(&mtu), sizeof(mtu), static_cast<char *>(RTA_DATA(rta)));
+
+        if (rtnl_send(&rth, &req, req.nh.nlmsg_len))
+        {
+            rtnl_close(&rth);
+            throw std::system_error(errno, std::system_category(), "rtnl_send()");
+        }
         rtnl_close(&rth);
-        return EXIT_FAILURE;
+        std::cout << "MTU set successful." << std::endl;
     }
-
-    addattr32(&req.nh, BUF_SIZE, IFLA_MTU, mtu);
-    //    std::copy_n(reinterpret_cast<const char *>(&mtu), sizeof(mtu), static_cast<char *>(RTA_DATA(rta)));
-
-    if (rtnl_send(&rth, &req, req.nh.nlmsg_len))
+    catch (const std::exception &e)
     {
-        perror("send");
+        std::cerr << "Error: " << e.what() << std::endl;
         return EXIT_FAILURE;
     }
+
+    return EXIT_SUCCESS;
 }
