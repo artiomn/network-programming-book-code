@@ -72,6 +72,19 @@ constexpr u_char ip_v(const sniff_ip *ip)
 }
 
 
+enum class tcp_flags : u_char
+{
+    th_fin = 0x01,
+    th_syn = 0x02,
+    th_rst = 0x04,
+    th_push = 0x08,
+    th_ack_f = 0x10,
+    th_urg = 0x20,
+    th_ece = 0x40,
+    th_cwr = 0x80
+};
+
+
 // TCP header.
 struct sniff_tcp
 {
@@ -86,16 +99,8 @@ struct sniff_tcp
     tcp_seq th_ack;
     // Data offset, rsvd.
     u_char th_offx2;
-    u_char th_flags;
-    const u_char th_fin = 0x01;
-    const u_char th_syn = 0x02;
-    const u_char th_rst = 0x04;
-    const u_char th_push = 0x08;
-    const u_char th_ack_f = 0x10;
-    const u_char th_urg = 0x20;
-    const u_char th_ece = 0x40;
-    const u_char th_cwr = 0x80;
-    const u_char th_flags2 = (th_fin | th_syn | th_rst | th_ack_f | th_urg | th_ece | th_cwr);
+    // cppcheck-suppress unusedStructMember
+    tcp_flags th_flags;
     u_short th_win;
     u_short th_sum;
     u_short th_urp;
@@ -117,7 +122,7 @@ void PacketPrinter::print_hex_ascii_line(const u_char *payload, int len, int off
     const u_char *ch = payload;
     for (int i = 0; i < len; ++i)
     {
-        std::cout << std::setw(2) << std::hex << *ch++ << " ";
+        std::cout << std::setw(2) << std::setfill('0') << std::hex << +*ch++ << " ";
         // Print extra space after 8th byte for visual aid.
         if (7 == i) std::cout << " ";
     }

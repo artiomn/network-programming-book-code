@@ -1,4 +1,7 @@
+extern "C"
+{
 #include <pcap.h>
+}
 
 #include <cctype>
 #include <cerrno>
@@ -25,8 +28,6 @@ int main(int argc, const char *const argv[])
     std::string dev;
     // Pcap error buffer.
     char errbuf[PCAP_ERRBUF_SIZE];
-    // Packet capture handle.
-    pcap_t *handle;
 
     std::string filter_exp = "ip or ip6";
     // Compiled filter program (expression).
@@ -49,7 +50,7 @@ int main(int argc, const char *const argv[])
                   << "    interface    Listen on <interface> for packets.\n"
                   << std::endl;
 
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
     else
     {
@@ -69,8 +70,7 @@ int main(int argc, const char *const argv[])
     if (-1 == pcap_lookupnet(dev.c_str(), &net, &mask, errbuf))
     {
         std::cerr << "Couldn't get netmask for device \"" << dev << "\": " << errbuf << std::endl;
-        net = 0;
-        mask = 0;
+        net = mask = 0;
     }
 
     // Print capture info.
@@ -80,12 +80,12 @@ int main(int argc, const char *const argv[])
               << "Number of packets: " << num_packets << "\n"
               << "Filter expression: " << filter_exp << std::endl;
 
-    // Open capture device.
-    handle = pcap_open_live(dev.c_str(), SNAP_LEN, 1, 1000, errbuf);
+    // Open capture device and get packet capture handle.
+    pcap_t *handle = pcap_open_live(dev.c_str(), SNAP_LEN, 1, 1000, errbuf);
     if (nullptr == handle)
     {
         std::cerr << "Couldn't open device \"" << dev << "\": " << errbuf << "!" << std::endl;
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
 
     int exit_code = EXIT_SUCCESS;
