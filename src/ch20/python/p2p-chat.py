@@ -6,7 +6,7 @@ import sys
 from dataclasses import dataclass, asdict
 import json
 from time import time, ctime
-from typing import Tuple, Optional, Callable, List
+from typing import Tuple, Optional, Callable
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -23,7 +23,7 @@ class ChatProtocol(asyncio.Protocol):
         print('New protocol instance was created...')
         self._on_message = on_message
         self._on_disconnect = on_disconnect
-        self.transport: Optional[asyncio.transports.Transport] = None
+        self.transport: asyncio.transports.Transport | None = None
         self._peer_name = None
 
     def connection_made(self, transport):
@@ -60,17 +60,17 @@ class Communicator:
 
     def __init__(
         self,
-        client_addr: Optional[Tuple[str, int]] = None,
-        server_addr: Optional[Tuple[str, int]] = None,
-        on_message: Optional[Callable[[ChatMessage, asyncio.transports.Transport], None]] = None,
+        client_addr: Tuple[str, int] | None = None,
+        server_addr: Tuple[str, int] | None = None,
+        on_message: Callable[[ChatMessage, asyncio.transports.Transport], None] = None,
     ):
         print(f'Client = {client_addr}, server = {server_addr}')
         self._server_addr = self._fix_params(server_addr)
         self._client_addr = self._fix_params(client_addr)
         self.on_message = on_message
-        self._server: Optional[asyncio.Server] = None
-        self._client: Optional[Tuple[asyncio.transports.Transport, ChatProtocol]] = None
-        self._protos: List[ChatProtocol] = []
+        self._server: asyncio.Server | None = None
+        self._client: Tuple[asyncio.transports.Transport, ChatProtocol] | None = None
+        self._protos: list[ChatProtocol] = []
 
     async def run(self):
         print('Starting communication layer...')
@@ -95,7 +95,7 @@ class Communicator:
         if self._client is not None:
             self._client[0].close()
 
-    def send_message(self, msg: ChatMessage, exceptions: Optional[List[Tuple[str, int]]] = None):
+    def send_message(self, msg: ChatMessage, exceptions: list[Tuple[str, int]] | None = None):
         print(f'Sending message {msg}...')
 
         if exceptions is None:
