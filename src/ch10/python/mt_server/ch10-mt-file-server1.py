@@ -8,7 +8,6 @@ from os import path
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 from threading import current_thread
-from typing import Optional
 
 try:
     from os import pathconf
@@ -47,7 +46,7 @@ class Transceiver:
 
         return True
 
-    def get_request(self) -> Optional[str]:
+    def get_request(self) -> str | None:
         print('Reading user request...')
         path_buffer = bytearray(MAX_PATH)
         buffer = memoryview(path_buffer)
@@ -82,7 +81,7 @@ class Client:
         print(f'Client [{client_sock.fileno()}] was created...')
         self._tsr = Transceiver(client_sock)
 
-    def recv_file_path(self) -> Optional[Path]:
+    def recv_file_path(self) -> Path | None:
         request_data = self._tsr.get_request()
         if not request_data:
             return None

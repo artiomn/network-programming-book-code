@@ -8,7 +8,6 @@ from os import path
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 from threading import current_thread
-from typing import Optional
 
 try:
     from os import pathconf
@@ -26,7 +25,7 @@ class Client:
         print(f'Client [{client_sock.fileno()}] was created...')
         self._sock_file = client_sock.makefile('rwb')
 
-    def recv_file_path(self) -> Optional[Path]:
+    def recv_file_path(self) -> Path | None:
         print('Reading user request...')
         request_data_bin = self._sock_file.readline()
         if not request_data_bin:

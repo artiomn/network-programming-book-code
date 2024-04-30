@@ -6,7 +6,7 @@ import sys
 from dataclasses import dataclass, asdict
 import json
 from time import time, ctime
-from typing import Tuple, Optional, Callable
+from typing import Tuple, Callable
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -114,7 +114,7 @@ class Communicator:
                 print(e)
 
     @staticmethod
-    def _fix_params(p) -> Optional[Tuple[str, int]]:
+    def _fix_params(p) -> Tuple[str, int] | None:
         return (str(p[0]), int(p[1])) if p is not None else None
 
     @staticmethod

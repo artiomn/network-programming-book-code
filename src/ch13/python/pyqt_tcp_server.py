@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from typing import Optional
 from PyQt6.QtNetwork import QTcpServer, QTcpSocket
 from PyQt6.QtCore import qDebug
 
@@ -8,9 +7,9 @@ from PyQt6.QtCore import qDebug
 class TcpServer:
     """Qt TCP server."""
 
-    def __init__(self, parent=None, port: Optional[int] = None):
+    def __init__(self, parent=None, port: int | None = None):
         self._tcp_server = QTcpServer(parent)
-        self._client_socket: Optional[QTcpSocket] = None
+        self._client_socket: QTcpSocket | None = None
         self._tcp_server.newConnection.connect(self._new_connection)
 
         port = port if port is not None else 0
