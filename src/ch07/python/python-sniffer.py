@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
-import os
 import struct
 import binascii
 import socket
-from typing import Any, Dict, List, Set
+from typing import Any, final, Final
 
 
 import sys
-from abc import abstractmethod, ABCMeta
+from abc import abstractmethod
 
 from promisc_switcher.promisc_switcher import InterfacePromiscSwitcher
 
@@ -19,57 +18,55 @@ SO_BINDTODEVICE = 25
 RECV_BUF_SIZE = 65535
 
 
-class NetworkProtocolHeaderType(ABCMeta):
-    channel_protocols: Set['NetworkProtocolHeader'] = set()
-    protocols: Dict[int, 'NetworkProtocolHeader'] = {}
+class NetworkProtocolHeader:
+    channel_protocols: Final[set[type]] = set()
+    protocols: Final[dict[int, type]] = {}
+    format_string = ''
 
-    def __new__(cls, name, bases, *args, **kwargs):
-        c = super().__new__(cls, name, bases, *args, **kwargs)
-
-        if name == 'NetworkProtocolHeader':
-            return c
-
-        # pylint: disable=E1101(no-member)
-        c.header_size: int = struct.calcsize(c.format_string)
+    @final
+    def __init_subclass__(cls):
+        cls.header_size = struct.calcsize(cls.format_string)
         try:
-            proto_code = c.protocol_code
-            proto_class = NetworkProtocolHeaderType.protocols.get(proto_code)
+            proto_code = cls.protocol_code
+        except AttributeError:
+            NetworkProtocolHeader.channel_protocols.add(cls)
+        else:
+            proto_class = NetworkProtocolHeader.protocols.get(proto_code)
 
             if proto_class is not None:
                 raise KeyError(f'Class for the protocol code {proto_code} already' f'exists [{proto_class.__name__}]!')
-            NetworkProtocolHeaderType.protocols[proto_code] = c
-        except AttributeError:
-            NetworkProtocolHeaderType.channel_protocols.add(c)
+            NetworkProtocolHeader.protocols[proto_code] = cls
 
-        return c
-
-
-class NetworkProtocolHeader(metaclass=NetworkProtocolHeaderType):
     def __init__(self, packet):
         self._packet = packet
 
+    @final
     @property
     def fields(self):
-        # pylint: disable=E1101(no-member)
         return struct.unpack(self.format_string, self._packet[: self.header_size])
 
     @property
     @abstractmethod
     def inner_protocol_code(self) -> int:
-        """Upper-layer protocol code."""
+        """Overridable protocol code."""
 
     @property
     @abstractmethod
     def payload_offset(self) -> int:
-        """Upper-layer header offset."""
+        """Overridable upper-protocol header offset."""
 
+    @final
     @classmethod
-    def unpack_packet(cls, base_protocol, packet, skip_channel_proto_check: bool = False) -> List[Any]:
-        if not isinstance(base_protocol, NetworkProtocolHeaderType):
-            raise SyntaxError(f'{base_protocol!r} is not a descendant class of the ' f'{cls.__class__.__name__}!')
-
+    def unpack_packet(cls, base_protocol, packet, skip_channel_proto_check: bool = False) -> list[Any]:
+        """Package unpacking method."""
+        if not issubclass(base_protocol, NetworkProtocolHeader):
+            raise TypeError(
+                f'{base_protocol!r} is not a descendant class of the ' f'{cls.__class__.__name__}!',
+            )
         if not skip_channel_proto_check and base_protocol not in cls.channel_protocols:
-            raise LookupError(f'{base_protocol.__name__} is not a channel ' f'protocol class!')
+            raise KeyError(
+                f'{base_protocol.__name__} is not a channel ' 'protocol class!',
+            )
 
         headers = []
 
@@ -79,15 +76,16 @@ class NetworkProtocolHeader(metaclass=NetworkProtocolHeaderType):
         while True:
             packet = packet[cur_header.payload_offset :]
             try:
-                proto_header_class = cls.protocols.get(cur_header.inner_protocol_code)
-                if proto_header_class is None:
-                    break
-
-                cur_header = proto_header_class(packet)  # type: ignore
-
-                headers.append(cur_header)
+                inner_code = cur_header.inner_protocol_code
             except NotImplementedError:
                 break
+            else:
+                proto_header_class = cls.protocols.get(inner_code)
+                if proto_header_class is None:
+                    break
+                cur_header = proto_header_class(packet)
+
+                headers.append(cur_header)
 
         return headers
 
@@ -217,6 +215,7 @@ class Ipv6Header(NetworkProtocolHeader):
 
     def __str__(self):
         spacing = ' ' * 6
+        printable_addr = socket.inet_ntop(socket.AF_INET6, self.destination_address)
         return (
             f'    [{self.__class__.__name__}]:\n'
             f'{spacing}Traffic Class: '
@@ -228,7 +227,7 @@ class Ipv6Header(NetworkProtocolHeader):
             f'{spacing}Src IP: '
             f'{socket.inet_ntop(socket.AF_INET6, self.source_address)}\n'
             f'{spacing}Dst IP: '
-            f'{socket.inet_ntop(socket.AF_INET6, self.destination_address)}'
+            f'{spacing}{printable_addr}'
         )
 
 
@@ -351,7 +350,7 @@ if len(sys.argv) != 2:
 interface_name = sys.argv[1]
 
 with InterfacePromiscSwitcher(interface_name) as ips:
-    if 'win32' == os.name:
+    if 'win32' == sys.platform:
         sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_IP)
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
         sock.setsockopt(socket.SOL_SOCKET, SO_BINDTODEVICE, interface_name.encode())

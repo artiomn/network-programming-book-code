@@ -4,7 +4,6 @@ import ctypes
 from fcntl import ioctl
 import socket
 import sys
-from typing import Optional
 
 
 class InterfacePromiscSwitcher(ctypes.Structure):
@@ -25,7 +24,7 @@ class InterfacePromiscSwitcher(ctypes.Structure):
         self.ifr_ifrn = if_name.encode()
 
     @property
-    def socket(self) -> Optional[socket.socket]:
+    def socket(self) -> socket.socket | None:
         return self._sock
 
     def set_promisc(self):
@@ -56,7 +55,7 @@ class InterfacePromiscSwitcher(ctypes.Structure):
 
 
 if '__main__' == __name__:
-    from os import popen
+    import subprocess
     from sys import argv
 
     if len(argv) != 2:
@@ -67,7 +66,7 @@ if '__main__' == __name__:
 
     with InterfacePromiscSwitcher(interface_name) as ifreq:
         print(f'Promiscuous mode for the "{interface_name}" enabled:')
-        print(popen(f'ip a show {interface_name}').readline())  # nosec B605
+        print(subprocess.check_output(['ip', 'a', 'show', interface_name], encoding='utf8'))  # nosec B605
 
     print(f'Promiscuous mode for the "{interface_name}" disabled:')
-    print(popen(f'ip a show {interface_name}').readline())  # nosec B605
+    print(subprocess.check_output(['ip', 'a', 'show', interface_name], encoding='utf8'))  # nosec B605
