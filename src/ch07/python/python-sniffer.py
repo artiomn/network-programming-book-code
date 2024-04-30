@@ -34,7 +34,7 @@ class NetworkProtocolHeader:
             proto_class = NetworkProtocolHeader.protocols.get(proto_code)
 
             if proto_class is not None:
-                raise KeyError(f'Class for the protocol code {proto_code} already' f'exists [{proto_class.__name__}]!')
+                raise KeyError(f'Class for the protocol code {proto_code} already exists [{proto_class.__name__}]!')
             NetworkProtocolHeader.protocols[proto_code] = cls
 
     def __init__(self, packet):
@@ -61,11 +61,11 @@ class NetworkProtocolHeader:
         """Package unpacking method."""
         if not issubclass(base_protocol, NetworkProtocolHeader):
             raise TypeError(
-                f'{base_protocol!r} is not a descendant class of the ' f'{cls.__class__.__name__}!',
+                f'{base_protocol!r} is not a descendant class of the {cls.__class__.__name__}!',
             )
         if not skip_channel_proto_check and base_protocol not in cls.channel_protocols:
             raise KeyError(
-                f'{base_protocol.__name__} is not a channel ' 'protocol class!',
+                f'{base_protocol.__name__} is not a channel protocol class!',
             )
 
         headers = []
