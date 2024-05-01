@@ -6,6 +6,8 @@ ENV DEBIAN_FRONTEND=noninteractive INSIDE_NB_DOCKER_CONTAINER=1 \
   GIT_CLONE_PARAMETERS="--recursive --depth 1 -j 16 --single-branch" \
   INSTALL_PREFIX="/usr/local"
 
+WORKDIR /
+
 RUN \
   echo 'deb https://deb.debian.org/debian bookworm-backports main contrib non-free' >> /etc/apt/sources.list.d/backports.list \
   && echo 'deb-src https://deb.debian.org/debian bookworm-backports main contrib non-free' >> /etc/apt/sources.list.d/backports.list \
@@ -283,7 +285,7 @@ RUN \
   && rm -rf cppkafka \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/google/mr4c \
   && cd mr4c \
-  && git apply /home/developer/patches/mr4c.patch \
+  && git apply /tmp/patches/mr4c.patch \
   && ./build_all \
   && ./deploy_all \
   && cd / \
