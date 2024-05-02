@@ -137,8 +137,8 @@ RUN \
   && systemctl disable nginx \
   && apt-get clean
 
-COPY ././.gitconfig /etc/skel/
-COPY ./patches /tmp/
+ADD ./.gitconfig /etc/skel/
+ADD ./patches /tmp/
 
 RUN \
     # Need for the iproute2 package build: \
