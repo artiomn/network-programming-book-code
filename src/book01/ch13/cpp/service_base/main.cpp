@@ -1,4 +1,4 @@
-﻿#include <socket_wrapper/socket_headers.h>
+#include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_functions.h>
 #include <socket_wrapper/socket_wrapper.h>
 

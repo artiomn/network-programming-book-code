@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-add_subdirectory(udp_server)
-add_subdirectory(ping)
+add_executable("${CHAPTER_NAME}test_byte_order" test_byte_order.cpp)
 
-if (UNIX)
-    add_subdirectory("socket_pair_test")
-    add_subdirectory("unix_socket_server")
-endif()
+add_subdirectory(resolve)
+add_subdirectory(ip_convert)
