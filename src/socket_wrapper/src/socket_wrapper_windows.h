@@ -39,9 +39,9 @@ public:
     std::string get_last_error_string() const override
     {
         // return std::strerror(std::errno);
-        char *s = NULL;
+        char *s = nullptr;
         FormatMessage(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
             get_last_error_code(), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), reinterpret_cast<LPTSTR>(&s), 0,
             nullptr);
         std::string result{s};
