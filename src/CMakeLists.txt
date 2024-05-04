@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(cpp-network-lessons)
+project(cpp-network-book)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
@@ -27,11 +27,11 @@ set(LINK_SEARCH_START_STATIC ON)
 set(BUILD_SHARED_LIBS OFF)
 # set(CMAKE_EXE_LINKER_FLAGS "-static")
 
-file(GLOB chapters LIST_DIRECTORIES true "ch[0-9][0-9]")
+file(GLOB books LIST_DIRECTORIES true "book[0-9][0-9]")
 add_subdirectory("socket_wrapper")
 
-foreach(chapter ${chapters})
-    message(STATUS "Adding code for the chapter ${chapter}")
-    get_filename_component(CHAPTER_NAME "${chapter}-" NAME)
-    add_subdirectory("${chapter}/cpp")
+foreach(book ${books})
+    message(STATUS "Adding code for the book ${book}")
+    get_filename_component(BOOK_NAME "${book}" NAME)
+    add_subdirectory("${book}")
 endforeach()

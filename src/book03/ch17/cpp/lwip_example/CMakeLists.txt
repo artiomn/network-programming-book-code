@@ -17,19 +17,19 @@ find_library(PCAP_LIBRARY NAMES pcap wpcap HINTS "${PCAP_HINTS}/lib")
 find_path(LWIP_DIR src/include/lwip/init.h ${CMAKE_CURRENT_SOURCE_DIR}/lwip)
 
 include_directories(
-	${PCAP_INCLUDE_DIR}
-	${LWIP_DIR}/src/include
+    ${PCAP_INCLUDE_DIR}
+    ${LWIP_DIR}/src/include
     ${LWIP_DIR}/contrib/ports/unix/port
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}/lwip-include
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/lwip-include
 )
 
 include(${LWIP_DIR}/src/Filelists.cmake)
 
 add_executable("${PROJECT_NAME}"
     ${LWIP_DIR}/contrib/ports/unix/port/sys_arch.c
-	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/echo.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/echo.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ping.cpp
 )
 
