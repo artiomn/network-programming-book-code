@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.10)
+
+if (UNIX)
+    add_subdirectory("lwip_example")
+    add_subdirectory("microhttpd-example")
+    add_subdirectory("libhttpserver-example")
+    add_subdirectory("cpp-httplib-example")
+    add_subdirectory("curl-download-example")
+    add_subdirectory("curl-post-example")
+#    add_subdirectory("cppserver-example")
+    add_subdirectory("llhttp-example")
+endif()

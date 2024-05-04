@@ -1,11 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
-
-if(NOT WIN32)
-    add_subdirectory(zeromq)
-    add_subdirectory(kafka)
-    add_subdirectory(nats)
-    add_subdirectory(mqtt)
-    add_subdirectory(amqp)
-    add_subdirectory(modbus)
+if (UNIX)
+    add_subdirectory("libtorrent")
+    add_subdirectory("simple_blockchain")
+#    add_subdirectory("libp2p")
 endif()

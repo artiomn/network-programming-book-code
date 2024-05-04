@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.10)
+
+if (UNIX)
+#    add_subdirectory("cppserver-example")
+    add_subdirectory("lithium-example")
+    add_subdirectory("oatpp-example")
+    add_subdirectory("restbed-example")
+    add_subdirectory("seastar-example")
+    add_subdirectory("webtoolkit-example")
+endif()
