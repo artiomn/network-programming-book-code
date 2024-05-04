@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-add_subdirectory("broadcast_client")
-add_subdirectory("broadcast_server")
+
+if(WIN32)
+    # add_subdirectory("iocp_server")
+endif()
