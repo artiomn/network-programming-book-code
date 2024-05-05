@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
 
 if (UNIX)
-    add_subdirectory("netlink")
-    add_subdirectory("rtnetlink")
-    add_subdirectory("sockdiag")
+    add_subdirectory("if_nameindex")
+    add_subdirectory("if_rename")
+    add_subdirectory("ethtool")
+    add_subdirectory("mii_example")
+endif()
 
+if (APPLE)
+    add_subdirectory(mac_if_events)
 endif()
