@@ -104,6 +104,7 @@ RUN \
     python3-pyx \
     python3-pyqt6 \
     python3-pyqt6.qtwebsockets \
+    python3-pyroute2 \
     python3-requests \
     python3-sniffio \
     python3-thrift \
