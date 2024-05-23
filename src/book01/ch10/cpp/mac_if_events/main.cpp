@@ -1,45 +1,51 @@
 extern "C"
 {
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
 #include <net/if.h>
+#include <sys/ioctl.h>
 #include <sys/kern_event.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 }
 
 
 int main(int argc, const char* const argv[])
 {
-    // Сокет PF_SYSTEM создаётся для прослушивания событий.
     int s = socket(PF_SYSTEM, SOCK_RAW, SYSPROTO_EVENT);
-    // Установим фильтр на события.
     kev_request key;
     key.vendor_code = KEV_VENDOR_APPLE;
     key.kev_class = KEV_NETWORK_CLASS;
     key.kev_subclass = KEV_ANY_SUBCLASS;
     int code = ioctl(s, SIOCSKEVFILT, &key);
+
+    if (code < 0)
+    {
+        perror("ioctl");
+        return EXIT_FAILURE;
+    }
+
     kern_event_msg msg;
-    // Цикл получения событий.
+
     while (true)
     {
-        // Обратите внимание, что здесь используется обычный recv().
         code = recv(s, &msg, sizeof(msg), 0);
-        // Реакция на разные типы событий.
-        switch(msg.event_code)
+
+        if (code < 0)
         {
-           case KEV_DL_IF_DETACHED:
-            // Интерфейс отсоединён.
-           break;
-           case KEV_DL_IF_ATTACHED:
-           // Интерфейс подсоединён.
-           break;
-           case KEV_DL_LINK_OFF:
-           // Интерфейс отключен.
-           break;
-           case KEV_DL_LINK_ON:
-            // Интерфейс подключен.
-           break;
+            perror("recv");
+            return EXIT_FAILURE;
         }
-   }
-   return EXIT_SUCCESS;
+
+        switch (msg.event_code)
+        {
+            case KEV_DL_IF_DETACHED:
+                break;
+            case KEV_DL_IF_ATTACHED:
+                break;
+            case KEV_DL_LINK_OFF:
+                break;
+            case KEV_DL_LINK_ON:
+                break;
+        }
+    }
+    return EXIT_SUCCESS;
 }
