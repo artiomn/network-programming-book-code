@@ -228,7 +228,7 @@ RUN \
   && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf restbed \
-  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/nodejs/llhttp \
+  && git clone ${GIT_CLONE_PARAMETERS} --branch v9.2.1 https://github.com/nodejs/llhttp \
   && cd llhttp \
   && npm install -D @types/node --force --legacy-peer-deps \
   && echo y|make RELEASE=8.0 release \
