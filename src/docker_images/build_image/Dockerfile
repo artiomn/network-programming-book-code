@@ -47,6 +47,13 @@ RUN \
     libmodbus-dev \
     libmosquitto-dev \
     libnats-dev \
+    libnl-3-dev \
+    libnl-cli-3-dev \
+    libnl-genl-3-dev \
+    libnl-idiag-3-dev \
+    libnl-nf-3-dev \
+    libnl-xfrm-3-dev \
+    libnl-utils \
     libpcap-dev \
     libplack-perl \
     libpoco-dev \
