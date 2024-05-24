@@ -8,7 +8,7 @@ extern "C"
 #include <iostream>
 
 
-int main(int argc, const char *const *argv)
+int main(int argc, const char *const argv[])
 {
     if (argc != 3)
     {

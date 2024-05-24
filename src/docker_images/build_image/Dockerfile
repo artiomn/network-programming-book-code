@@ -146,7 +146,7 @@ RUN \
   && apt-get clean
 
 ADD ./.gitconfig /etc/skel/
-ADD ./patches /tmp/
+ADD ./patches /tmp/patches
 
 #RUN \
 #    # Need for the iproute2 package build: \
