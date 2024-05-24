@@ -51,7 +51,7 @@ static int data_cb(const nlmsghdr *nlh, void *data)
         void *addr = mnl_attr_get_payload(tb[IFA_ADDRESS]);
         char out[INET6_ADDRSTRLEN];
 
-        if (inet_ntop(ifa->ifa_family, addr, out, sizeof(out))) printf("%s ", out);
+        if (inet_ntop(ifa->ifa_family, addr, out, sizeof(out))) std::cout << out << " ";
     }
     std::cout << " scope = ";
     switch (ifa->ifa_scope)
