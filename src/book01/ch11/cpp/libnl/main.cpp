@@ -37,7 +37,6 @@ int main(int argc, const char *const argv[])
         }
 
         std::cout << "Socket connected." << std::endl;
-        rtnl_link *change;
 
         if ((error_code = rtnl_link_alloc_cache(sock, AF_UNSPEC, &cache)) < 0)
         {
@@ -54,7 +53,7 @@ int main(int argc, const char *const argv[])
         std::cout << "Current \"" << if_name << "\" status: " << ((rtnl_link_get_flags(link) & IFF_UP) ? "up" : "down")
                   << std::endl;
 
-        change = rtnl_link_alloc();
+        rtnl_link *change = rtnl_link_alloc();
         if ("a" == if_action)
             rtnl_link_set_flags(change, IFF_UP);
         else if ("d" == if_action)

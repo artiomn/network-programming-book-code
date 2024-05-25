@@ -8,6 +8,7 @@ extern "C"
 #include <linux/rtnetlink.h>
 }
 
+#include <cerrno>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -83,27 +84,23 @@ static int data_cb(const nlmsghdr *nlh, void *data)
 
 int main(int argc, const char *argv[])
 {
-    std::string buf;
-    buf.resize(MNL_SOCKET_BUFFER_SIZE);
-
-    unsigned int seq, portid;
-    mnl_socket *nl;
-    nlmsghdr *nlh;
-    rtgenmsg *rt;
-    int ret;
-
     if (argc != 2)
     {
         std::cerr << "Usage: " << argv[0] << " <inet|inet6>" << std::endl;
         return EXIT_FAILURE;
     }
 
-    nlh = mnl_nlmsg_put_header(buf.data());
+    std::string buf;
+    buf.resize(MNL_SOCKET_BUFFER_SIZE);
+
+    unsigned int seq;
+    nlmsghdr *nlh = mnl_nlmsg_put_header(buf.data());
+
     nlh->nlmsg_type = RTM_GETADDR;
     nlh->nlmsg_flags = NLM_F_REQUEST | NLM_F_DUMP;
-    nlh->nlmsg_seq = seq = time(NULL);
+    nlh->nlmsg_seq = seq = time(nullptr);
 
-    rt = static_cast<rtgenmsg *>(mnl_nlmsg_put_extra_header(static_cast<nlmsghdr *>(nlh), sizeof(rtgenmsg)));
+    rtgenmsg *rt = static_cast<rtgenmsg *>(mnl_nlmsg_put_extra_header(static_cast<nlmsghdr *>(nlh), sizeof(rtgenmsg)));
 
     std::string s_type = argv[1];
 
@@ -112,37 +109,42 @@ int main(int argc, const char *argv[])
     else if ("inet6" == s_type)
         rt->rtgen_family = AF_INET6;
 
-    nl = mnl_socket_open(NETLINK_ROUTE);
+    mnl_socket *nl = mnl_socket_open(NETLINK_ROUTE);
     if (!nl)
     {
         perror("mnl_socket_open");
         return EXIT_FAILURE;
     }
 
-    if (mnl_socket_bind(nl, 0, MNL_SOCKET_AUTOPID) < 0)
+    try
     {
-        perror("mnl_socket_bind");
-        return EXIT_FAILURE;
-    }
-    portid = mnl_socket_get_portid(nl);
+        if (mnl_socket_bind(nl, 0, MNL_SOCKET_AUTOPID) < 0)
+        {
+            throw std::system_error(errno, std::system_category(), "mnl_socket_bind");
+        }
 
-    if (mnl_socket_sendto(nl, nlh, nlh->nlmsg_len) < 0)
-    {
-        perror("mnl_socket_sendto");
-        return EXIT_FAILURE;
-    }
+        unsigned int portid = mnl_socket_get_portid(nl);
 
-    ret = mnl_socket_recvfrom(nl, buf.data(), buf.size());
-    while (ret > 0)
-    {
-        ret = mnl_cb_run(buf.data(), ret, seq, portid, data_cb, nullptr);
-        if (ret <= MNL_CB_STOP) break;
-        ret = mnl_socket_recvfrom(nl, buf.data(), buf.size());
+        if (mnl_socket_sendto(nl, nlh, nlh->nlmsg_len) < 0)
+        {
+            throw std::system_error(errno, std::system_category(), "mnl_socket_sendto");
+        }
+
+        int ret = mnl_socket_recvfrom(nl, buf.data(), buf.size());
+        while (ret > 0)
+        {
+            ret = mnl_cb_run(buf.data(), ret, seq, portid, data_cb, nullptr);
+            if (ret <= MNL_CB_STOP) break;
+            ret = mnl_socket_recvfrom(nl, buf.data(), buf.size());
+        }
+        if (-1 == ret)
+        {
+            throw std::system_error(ret, std::system_category(), "error");
+        }
     }
-    if (-1 == ret)
+    catch (const std::system_error &e)
     {
-        perror("error");
-        return EXIT_FAILURE;
+        std::cerr << "Error [" << e.code().value() << "]: " << e.what() << std::endl;
     }
 
     mnl_socket_close(nl);
