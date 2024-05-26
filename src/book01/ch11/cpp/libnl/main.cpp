@@ -6,6 +6,7 @@ extern "C"
 }
 
 #include <iostream>
+#include <memory>
 
 
 int main(int argc, const char *const argv[])
@@ -19,8 +20,8 @@ int main(int argc, const char *const argv[])
     const std::string if_name{argv[1]};
     const std::string if_action{argv[2]};
 
-    nl_sock *sock = nl_socket_alloc();
-    nl_cache *cache;
+    std::unique_ptr<nl_sock, decltype(&nl_socket_free)> sock{nl_socket_alloc(), &nl_socket_free};
+    nl_cache *cache = nullptr;
     int error_code = 1;
 
     if (!sock)
@@ -31,37 +32,38 @@ int main(int argc, const char *const argv[])
 
     try
     {
-        if ((error_code = nl_connect(sock, NETLINK_ROUTE)) < 0)
+        if ((error_code = nl_connect(sock.get(), NETLINK_ROUTE)) < 0)
         {
             throw std::system_error(error_code, std::system_category(), "Unable to connect socket");
         }
 
         std::cout << "Socket connected." << std::endl;
 
-        if ((error_code = rtnl_link_alloc_cache(sock, AF_UNSPEC, &cache)) < 0)
+        if ((error_code = rtnl_link_alloc_cache(sock.get(), AF_UNSPEC, &cache)) < 0)
         {
             throw std::system_error(error_code, std::system_category(), "Unable to allocate cache");
         }
 
-        rtnl_link *link = rtnl_link_get_by_name(cache, if_name.c_str());
+        std::unique_ptr<rtnl_link, decltype(&rtnl_link_put)> link{
+            rtnl_link_get_by_name(cache, if_name.c_str()), &rtnl_link_put};
         if (!link)
         {
             throw std::system_error(error_code, std::iostream_category(), "Interface was not found");
         }
         std::cout << "\"" << if_name << "\" interface acquired" << std::endl;
 
-        std::cout << "Current \"" << if_name << "\" status: " << ((rtnl_link_get_flags(link) & IFF_UP) ? "up" : "down")
-                  << std::endl;
+        std::cout << "Current \"" << if_name
+                  << "\" status: " << ((rtnl_link_get_flags(link.get()) & IFF_UP) ? "up" : "down") << std::endl;
 
-        rtnl_link *change = rtnl_link_alloc();
+        std::unique_ptr<rtnl_link, decltype(&rtnl_link_put)> change{rtnl_link_alloc(), &rtnl_link_put};
         if ("a" == if_action)
-            rtnl_link_set_flags(change, IFF_UP);
+            rtnl_link_set_flags(change.get(), IFF_UP);
         else if ("d" == if_action)
-            rtnl_link_unset_flags(change, IFF_UP);
+            rtnl_link_unset_flags(change.get(), IFF_UP);
         else
             std::cerr << "Unknown action type!" << std::endl;
 
-        if ((error_code = rtnl_link_change(sock, link, change, 0)) < 0)
+        if ((error_code = rtnl_link_change(sock.get(), link.get(), change.get(), 0)) < 0)
         {
             throw std::system_error(error_code, std::iostream_category(), "Unable to change interface status");
         }
@@ -71,7 +73,7 @@ int main(int argc, const char *const argv[])
         nl_perror(e.code().value(), e.what());
     }
 
-    nl_socket_free(sock);
+    if (cache) nl_cache_free(cache);
 
     return error_code;
 }
