@@ -13,6 +13,7 @@ extern "C"
 #include <ctime>
 #include <iostream>
 #include <string>
+#include <vector>
 
 
 static int data_attr_cb(const nlattr *attr, void *data)
@@ -90,8 +91,7 @@ int main(int argc, const char *argv[])
         return EXIT_FAILURE;
     }
 
-    std::string buf;
-    buf.resize(MNL_SOCKET_BUFFER_SIZE);
+    std::vector<char> buf(MNL_SOCKET_BUFFER_SIZE);
 
     unsigned int seq;
     nlmsghdr *nlh = mnl_nlmsg_put_header(buf.data());
