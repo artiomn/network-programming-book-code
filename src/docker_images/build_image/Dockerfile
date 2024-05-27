@@ -271,7 +271,7 @@ RUN \
   && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf oatpp-curl \
-  && git clone ${GIT_CLONE_PARAMETERS} ${OATPP_VERSION} https://github.com/Thalhammer/jwt-cpp \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/Thalhammer/jwt-cpp \
   && cd jwt-cpp \
   && cmake -B build -DJWT_BUILD_TESTS=NO -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} . \
   && cmake --build build --parallel \
