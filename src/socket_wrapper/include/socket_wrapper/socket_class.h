@@ -5,7 +5,7 @@
 namespace socket_wrapper
 {
 
-class Socket
+class Socket final
 {
 public:
     Socket(int domain, int type, int protocol);
@@ -16,23 +16,23 @@ public:
     Socket &operator=(const Socket &s) = delete;
     Socket &operator=(Socket &&s);
 
-    virtual ~Socket();
+    ~Socket();
 
 public:
-    bool opened() const;
+    bool opened() const noexcept;
 
 public:
-    operator bool() const { return opened(); }
-    operator SocketDescriptorType() const { return socket_descriptor_; }
+    explicit operator bool() const noexcept { return opened(); }
+    operator SocketDescriptorType() const noexcept { return socket_descriptor_; }
 
 public:
-    int close();
+    int close() noexcept;
 
-protected:
+private:
     void open(int domain, int type, int protocol);
 
 private:
-    SocketDescriptorType socket_descriptor_;
+    SocketDescriptorType socket_descriptor_{INVALID_SOCKET};
 };
 
 }  // namespace socket_wrapper

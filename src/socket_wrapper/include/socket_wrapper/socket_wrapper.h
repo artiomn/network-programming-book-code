@@ -16,12 +16,12 @@ public:
     ~SocketWrapper();
 
 public:
-    bool initialized() const;
-    int get_last_error_code() const;
+    bool initialized() const noexcept;
+    int get_last_error_code() const noexcept;
     std::string get_last_error_string() const;
 
 private:
     std::unique_ptr<SocketWrapperImpl> impl_;
 };
 
-}
+}  // namespace socket_wrapper
