@@ -4,7 +4,7 @@ MAINTAINER artiomn
 
 ENV DEBIAN_FRONTEND=noninteractive INSIDE_NB_DOCKER_CONTAINER=1 \
   GIT_CLONE_PARAMETERS="--recursive --depth 1 -j 16 --single-branch" \
-  INSTALL_PREFIX="/usr/local"
+  INSTALL_PREFIX="/usr/local" \
   OATPP_VERSION="1.3.0-latest"
 
 WORKDIR /
