@@ -13,7 +13,7 @@ add_library(${PROJECT_NAME}-lib
 
 ## link libs
 
-find_package(oatpp 1.4.0 REQUIRED)
+find_package(oatpp 1.3.0 REQUIRED)
 
 target_link_libraries(${PROJECT_NAME}-lib
         PUBLIC oatpp::oatpp

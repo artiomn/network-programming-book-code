@@ -238,7 +238,7 @@ RUN \
   && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf llhttp \
-  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/oatpp/oatpp.git \
+  && git clone ${GIT_CLONE_PARAMETERS} --branch 1.3.0-latest https://github.com/oatpp/oatpp.git \
   && cd oatpp \
   # This is necessary to build oatpp \
   && mkdir build \
