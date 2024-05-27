@@ -5,6 +5,7 @@ MAINTAINER artiomn
 ENV DEBIAN_FRONTEND=noninteractive INSIDE_NB_DOCKER_CONTAINER=1 \
   GIT_CLONE_PARAMETERS="--recursive --depth 1 -j 16 --single-branch" \
   INSTALL_PREFIX="/usr/local"
+  OATPP_VERSION="1.3.0-latest"
 
 WORKDIR /
 
@@ -238,7 +239,7 @@ RUN \
   && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf llhttp \
-  && git clone ${GIT_CLONE_PARAMETERS} --branch 1.3.0-latest https://github.com/oatpp/oatpp.git \
+  && git clone ${GIT_CLONE_PARAMETERS} --branch ${OATPP_VERSION} https://github.com/oatpp/oatpp.git \
   && cd oatpp \
   # This is necessary to build oatpp \
   && mkdir build \
@@ -249,28 +250,28 @@ RUN \
   && cmake --install . --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf oatpp \
-  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/oatpp/oatpp-websocket.git \
+  && git clone ${GIT_CLONE_PARAMETERS} --branch ${OATPP_VERSION} https://github.com/oatpp/oatpp-websocket.git \
   && cd oatpp-websocket \
   && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DOATPP_BUILD_TESTS=OFF . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf oatpp-websocket \
-  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/oatpp/oatpp-swagger.git \
+  && git clone ${GIT_CLONE_PARAMETERS} ${OATPP_VERSION} https://github.com/oatpp/oatpp-swagger.git \
   && cd oatpp-swagger \
   && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DOATPP_BUILD_TESTS=OFF . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf oatpp-swagger \
-  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/oatpp/oatpp-curl.git \
+  && git clone ${GIT_CLONE_PARAMETERS} ${OATPP_VERSION} https://github.com/oatpp/oatpp-curl.git \
   && cd oatpp-curl \
   && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DOATPP_BUILD_TESTS=OFF . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf oatpp-curl \
-  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/Thalhammer/jwt-cpp \
+  && git clone ${GIT_CLONE_PARAMETERS} ${OATPP_VERSION} https://github.com/Thalhammer/jwt-cpp \
   && cd jwt-cpp \
   && cmake -B build -DJWT_BUILD_TESTS=NO -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} . \
   && cmake --build build --parallel \
