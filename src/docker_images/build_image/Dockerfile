@@ -257,14 +257,14 @@ RUN \
   && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf oatpp-websocket \
-  && git clone ${GIT_CLONE_PARAMETERS} ${OATPP_VERSION} https://github.com/oatpp/oatpp-swagger.git \
+  && git clone ${GIT_CLONE_PARAMETERS} --branch ${OATPP_VERSION} https://github.com/oatpp/oatpp-swagger.git \
   && cd oatpp-swagger \
   && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DOATPP_BUILD_TESTS=OFF . \
   && cmake --build build --parallel \
   && cmake --install build --prefix "${INSTALL_PREFIX}" \
   && cd / \
   && rm -rf oatpp-swagger \
-  && git clone ${GIT_CLONE_PARAMETERS} ${OATPP_VERSION} https://github.com/oatpp/oatpp-curl.git \
+  && git clone ${GIT_CLONE_PARAMETERS} --branch ${OATPP_VERSION} https://github.com/oatpp/oatpp-curl.git \
   && cd oatpp-curl \
   && cmake -B build -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} -DOATPP_BUILD_TESTS=OFF . \
   && cmake --build build --parallel \
