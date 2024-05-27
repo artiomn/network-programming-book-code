@@ -23,13 +23,13 @@ SocketWrapper::~SocketWrapper()
 }
 
 
-bool SocketWrapper::initialized() const
+bool SocketWrapper::initialized() const noexcept
 {
     return impl_->initialized();
 }
 
 
-int SocketWrapper::get_last_error_code() const
+int SocketWrapper::get_last_error_code() const noexcept
 {
     return impl_->get_last_error_code();
 }
@@ -40,5 +40,4 @@ std::string SocketWrapper::get_last_error_string() const
     return impl_->get_last_error_string();
 }
 
-}
-
+}  // namespace socket_wrapper

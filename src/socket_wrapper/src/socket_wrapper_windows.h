@@ -2,12 +2,14 @@
 
 #include <windows.h>
 
+#include <cassert>
 #include <cerrno>
 #include <cstring>
 #include <stdexcept>
 #include <string>
 #include <system_error>
 
+#include "scope_guard.h"
 #include "socket_wrapper_impl.h"
 
 
@@ -17,41 +19,40 @@ namespace socket_wrapper
 class SocketWrapperImpl : ISocketWrapperImpl
 {
 public:
-    SocketWrapperImpl() : initialized_(false) {}
-
     void initialize() override
     {
         WSADATA wsaData;
         // Initialize Winsock
-        auto result = WSAStartup(MAKEWORD(2, 2), &wsaData);
-        if (result != 0)
+        if (auto result = WSAStartup(MAKEWORD(2, 2), &wsaData); result != 0)
         {
-            throw std::system_error(errno, std::system_category(), "WSAStartup()");
+            throw std::system_error(result, std::system_category(), "WSAStartup()");
         }
     }
 
-    bool initialized() const override { return initialized_; }
+    bool initialized() const noexcept override { return initialized_; }
 
-    void deinitialize() override { WSACleanup(); }
+    void deinitialize() noexcept override { WSACleanup(); }
 
-    int get_last_error_code() const override { return WSAGetLastError(); }
+    int get_last_error_code() const noexcept override { return WSAGetLastError(); }
 
     std::string get_last_error_string() const override
     {
-        // return std::strerror(std::errno);
         char *s = nullptr;
-        FormatMessage(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
-            get_last_error_code(), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), reinterpret_cast<LPTSTR>(&s), 0,
-            nullptr);
-        std::string result{s};
-        LocalFree(s);
+        if (!FormatMessage(
+                FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
+                get_last_error_code(), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), reinterpret_cast<LPTSTR>(&s), 0,
+                nullptr))
+        {
+            throw std::system_error(GetLastError(), std::system_category(), "FormatMessage()");
+        }
 
-        return result;
+        const auto on_scope_exit = scope_guard([s](void *) { LocalFree(s); });
+        assert(s != nullptr);
+        return std::string(s);
     };
 
 private:
-    bool initialized_;
+    bool initialized_{false};
 };
 
 }  // namespace socket_wrapper

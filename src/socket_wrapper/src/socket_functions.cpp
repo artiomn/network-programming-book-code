@@ -12,7 +12,7 @@
 namespace socket_wrapper
 {
 
-AddrInfoResult get_serv_info(const char *port, int sock_type)
+AddrInfoResult get_serv_info(const std::string &port, int sock_type)
 {
     struct addrinfo hints = {
         .ai_flags = AI_PASSIVE | AI_NUMERICSERV,
@@ -20,15 +20,14 @@ AddrInfoResult get_serv_info(const char *port, int sock_type)
         .ai_socktype = sock_type,
         .ai_protocol = (sock_type == SOCK_STREAM ? IPPROTO_TCP : IPPROTO_UDP)};
 
-    struct addrinfo *s_i;
-    int ai_status;
+    struct addrinfo *s_i = nullptr;
 
-    if ((ai_status = getaddrinfo(nullptr, port, &hints, &s_i)) != 0)
+    if (int ai_status = getaddrinfo(nullptr, port.c_str(), &hints, &s_i); ai_status != 0)
     {
         throw std::logic_error(gai_strerror(ai_status));
     }
 
-    return std::unique_ptr<addrinfo, decltype(&freeaddrinfo)>(s_i, freeaddrinfo);
+    return AddrInfoResult(s_i, freeaddrinfo);
 }
 
 
@@ -39,15 +38,14 @@ AddrInfoResult get_client_info(const std::string &host, const std::string &port,
         .ai_family = sock_family,
         .ai_socktype = sock_type,
         .ai_protocol = (sock_type == SOCK_STREAM ? IPPROTO_TCP : IPPROTO_UDP)};
-    struct addrinfo *c_i;
-    int ai_status;
+    struct addrinfo *c_i = nullptr;
 
-    if ((ai_status = getaddrinfo(host.c_str(), port.c_str(), &hints, &c_i)) != 0)
+    if (int ai_status = getaddrinfo(host.c_str(), port.c_str(), &hints, &c_i); ai_status != 0)
     {
         throw std::logic_error(gai_strerror(ai_status));
     }
 
-    return std::unique_ptr<addrinfo, decltype(&freeaddrinfo)>(c_i, freeaddrinfo);
+    return AddrInfoResult(c_i, freeaddrinfo);
 }
 
 
@@ -59,7 +57,7 @@ AddrInfoResult get_client_info(const std::string &host, unsigned short port, int
 
 void set_reuse_addr(Socket &sock)
 {
-    const int flag = 1;
+    constexpr int flag = 1;
 
     // Allow reuse of port.
     if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&flag), sizeof(flag)) < 0)
@@ -73,7 +71,6 @@ Socket accept_client(socket_wrapper::Socket &server_sock)
 {
     struct sockaddr_storage client_addr;
     socklen_t client_addr_length = sizeof(client_addr);
-    std::array<char, INET_ADDRSTRLEN> addr;
 
     Socket client_sock(accept(server_sock, reinterpret_cast<sockaddr *>(&client_addr), &client_addr_length));
 
@@ -84,6 +81,7 @@ Socket accept_client(socket_wrapper::Socket &server_sock)
 
     assert(sizeof(sockaddr_in) == client_addr_length);
 
+    std::array<char, INET_ADDRSTRLEN> addr;
     std::cout << "Client from "
               << inet_ntop(
                      AF_INET, &(reinterpret_cast<const sockaddr_in *const>(&client_addr)->sin_addr), &addr[0],
@@ -94,9 +92,9 @@ Socket accept_client(socket_wrapper::Socket &server_sock)
 }
 
 
-Socket create_tcp_server(const char *port)
+Socket create_tcp_server(const std::string &port)
 {
-    auto servinfo = get_serv_info(port);
+    const auto servinfo = get_serv_info(port);
     Socket server_sock = {servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol};
 
     if (!server_sock)
@@ -116,7 +114,7 @@ Socket create_tcp_server(const char *port)
         throw std::system_error(errno, std::system_category(), "listen");
     }
 
-    return std::move(server_sock);
+    return server_sock;
 }
 
 }  // namespace socket_wrapper

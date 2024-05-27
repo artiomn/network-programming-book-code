@@ -4,11 +4,9 @@
 #include <utility>
 
 #ifdef _WIN32
-    constexpr auto close_type = SD_BOTH;
-#   define close_socket closesocket
+#    define close_socket closesocket
 #else
-    constexpr auto close_type = SHUT_RDWR;
-#   define close_socket ::close
+#    define close_socket ::close
 #endif
 
 
@@ -21,9 +19,7 @@ Socket::Socket(int domain, int type, int protocol) : socket_descriptor_(INVALID_
 }
 
 
-Socket::Socket(SocketDescriptorType socket_descriptor) : socket_descriptor_(socket_descriptor)
-{
-}
+Socket::Socket(SocketDescriptorType socket_descriptor) : socket_descriptor_(socket_descriptor) {}
 
 
 Socket::Socket(Socket &&s)
@@ -50,7 +46,7 @@ Socket::~Socket()
 }
 
 
-bool Socket::opened() const
+bool Socket::opened() const noexcept
 {
     return socket_descriptor_ != INVALID_SOCKET;
 }
@@ -63,16 +59,11 @@ void Socket::open(int domain, int type, int protocol)
 }
 
 
-int Socket::close()
+int Socket::close() noexcept
 {
-    int status = 0;
-
-    status = close_socket(socket_descriptor_);
+    const int status = close_socket(socket_descriptor_);
     socket_descriptor_ = INVALID_SOCKET;
-
     return status;
-
 }
 
-}
-
+}  // namespace socket_wrapper
