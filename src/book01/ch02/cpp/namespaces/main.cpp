@@ -69,6 +69,8 @@ static int child(void *arg)
 
     auto sock = make_socket(8080);
 
+    if (-1 == sock) return EXIT_FAILURE;
+
     sleep(1);
     close(sock);
 
@@ -92,7 +94,8 @@ int main(int argc, char *argv[])
     char *stack_top = stack + stack_size;
 
 
-    auto sock = make_socket(8080);
+    const auto sock = make_socket(8080);
+    if (-1 == sock) return EXIT_FAILURE;
 
     std::string new_hostname{"new_host"};
 

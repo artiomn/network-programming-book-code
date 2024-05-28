@@ -8,13 +8,14 @@ extern "C"
 
 
 #include <algorithm>
+#include <cassert>
 #include <cerrno>
 #include <filesystem>
 #include <iostream>
 #include <string>
 
 
-const std::string SOCK_PATH = "_socket_path";
+constexpr char SOCK_PATH[]{"_socket_path"};
 
 
 int main(void)
@@ -30,8 +31,13 @@ int main(void)
     }
 
     sock_address.sun_family = AF_UNIX;
-    std::copy(SOCK_PATH.begin(), SOCK_PATH.end(), sock_address.sun_path);
-    std::remove(SOCK_PATH.c_str());
+    assert(sizeof(SOCK_PATH) < sizeof(sock_address.sun_path));
+    std::copy(std::begin(SOCK_PATH), std::end(SOCK_PATH), sock_address.sun_path);
+    if (std::remove(SOCK_PATH) != 0)
+    {
+        perror("remove");
+        return EXIT_FAILURE;
+    }
 
     if (-1 == bind(sock, reinterpret_cast<const sockaddr *>(&sock_address), sizeof(sock_address)))
     {
@@ -39,15 +45,11 @@ int main(void)
         return EXIT_FAILURE;
     }
 
-    std::string buf;
-
-    buf.resize(1024);
+    std::string buf(1024, 0);
 
     while (true)
     {
-        ssize_t bytes_read = read(sock, &buf[0], buf.size());
-
-        if (bytes_read < 0)
+        if (read(sock, &buf[0], buf.size()) < 0)
         {
             perror("server read");
             return EXIT_FAILURE;

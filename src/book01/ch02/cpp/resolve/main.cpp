@@ -1,6 +1,8 @@
+#include <socket_wrapper/socket_functions.h>
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
 
+#include <array>
 #include <cassert>
 #include <chrono>
 #include <cstdlib>
@@ -32,15 +34,13 @@ int print_ips_with_getaddrinfo(const std::string& host_name)
 
     addrinfo* s_i = nullptr;
 
-    int status = 0;
-
-    if ((status = getaddrinfo(host_name.c_str(), nullptr, &hints, &s_i)) != 0)
+    if (int status = getaddrinfo(host_name.c_str(), nullptr, &hints, &s_i); status != 0)
     {
         std::cerr << "getaddrinfo error: " << gai_strerror(status) << std::endl;
         return EXIT_FAILURE;
     }
 
-    std::unique_ptr<addrinfo, decltype(&freeaddrinfo)> servinfo(s_i, freeaddrinfo);
+    const socket_wrapper::AddrInfoResult servinfo(s_i, freeaddrinfo);
 
     for (auto const* s = servinfo.get(); s != nullptr; s = s->ai_next)
     {
@@ -53,20 +53,19 @@ int print_ips_with_getaddrinfo(const std::string& host_name)
 
         if (AF_INET == s->ai_family)
         {
-            char ip[INET_ADDRSTRLEN];
+            std::array<char, INET_ADDRSTRLEN> ip;
             std::cout << "AF_INET\n";
             sockaddr_in const* const sin = reinterpret_cast<const sockaddr_in* const>(s->ai_addr);
             std::cout << "Address length: " << sizeof(sin->sin_addr) << "\n";
-            std::cout << "IP Address: " << inet_ntop(AF_INET, &(sin->sin_addr), ip, INET_ADDRSTRLEN) << "\n";
+            std::cout << "IP Address: " << inet_ntop(AF_INET, &(sin->sin_addr), ip.data(), ip.size()) << "\n";
         }
         else if (AF_INET6 == s->ai_family)
         {
-            char ip6[INET6_ADDRSTRLEN];
-
+            std::array<char, INET6_ADDRSTRLEN> ip6;
             std::cout << "AF_INET6\n";
             const sockaddr_in6* const sin = reinterpret_cast<const sockaddr_in6* const>(s->ai_addr);
             std::cout << "Address length: " << sizeof(sin->sin6_addr) << "\n";
-            std::cout << "IP Address: " << inet_ntop(AF_INET6, &(sin->sin6_addr), ip6, INET6_ADDRSTRLEN) << "\n";
+            std::cout << "IP Address: " << inet_ntop(AF_INET6, &(sin->sin6_addr), ip6.data(), ip6.size()) << "\n";
         }
         else
         {
@@ -145,6 +144,7 @@ int main(int argc, const char* argv[])
     const std::string host_name = {argv[1]};
 
     print_ips_with_getaddrinfo(host_name);
+    // This slows down frequency of requests to DNS
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     print_ips_with_gethostbyname(host_name);
 
