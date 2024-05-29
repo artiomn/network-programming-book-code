@@ -12,28 +12,32 @@ extern "C"
 #include <thread>
 
 
-const size_t buf_size = 1024;
+constexpr size_t buf_size = 1024;
 
 
 void child(int socket)
 {
-    std::string buf;
+    std::string buf(buf_size, 0);
 
-    buf.resize(buf_size);
-
-    ssize_t res = read(socket, &buf[0], buf.size());
-
+    const ssize_t res = read(socket, &buf[0], buf.size());
     if (res < 0)
     {
         perror("child read");
         return;
     }
 
-    std::cout << "Child received: '" << buf << "'" << std::endl;
+    std::cout << "Child received: '" << buf << "' (" << res << " bytes)" << std::endl;
 
     const std::string msg("Hello parent, I am child");
 
-    write(socket, msg.c_str(), msg.size());
+    if (write(socket, msg.c_str(), msg.size()) < 0)
+    {
+        perror("child write");
+        return;
+    }
+
+    // Close could not be called,
+    // but socket will be closed on process shutdown anyway
     close(socket);
 }
 
@@ -44,16 +48,13 @@ void parent(int socket)
 
     buf.resize(buf_size);
 
-    ssize_t res = write(socket, buf.c_str(), buf.size());
-
-    if (res < 0)
+    if (write(socket, buf.c_str(), buf.size()) < 0)
     {
         perror("parent write");
         return;
     }
 
-    res = read(socket, &buf[0], buf.size());
-
+    const ssize_t res = read(socket, &buf[0], buf.size());
     if (res < 0)
     {
         perror("parent read");
@@ -62,8 +63,10 @@ void parent(int socket)
 
     buf.resize(res);
 
-    std::cout << "Parent received: '" << buf << "'" << std::endl;
+    std::cout << "Parent received: '" << buf << "' (" << res << " bytes)" << std::endl;
 
+    // Close could not be called,
+    // but socket will be closed on process shutdown anyway
     close(socket);
 }
 
@@ -71,13 +74,16 @@ void parent(int socket)
 int main()
 {
     int fd[2];
-    const int parent_socket = 0;
-    const int child_socket = 1;
-    pid_t pid;
+    constexpr int parent_socket = 0;
+    constexpr int child_socket = 1;
 
-    socketpair(PF_LOCAL, SOCK_DGRAM, 0, fd);
+    if (-1 == socketpair(PF_LOCAL, SOCK_DGRAM, 0, fd))
+    {
+        perror("socketpair");
+        return EXIT_FAILURE;
+    }
 
-    pid = fork();
+    const pid_t pid = fork();
 
     if (0 == pid)
     {

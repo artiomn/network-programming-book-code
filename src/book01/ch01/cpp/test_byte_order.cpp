@@ -2,11 +2,13 @@
  * Get byte-order for the machine.
  */
 
-#include <iostream>
 #include <cstdint>
+#include <iostream>
 
 int main()
 {
     uint16_t x = 0x0001;
-    std::cout << (*((uint8_t*) &x) ? "little" : "big") << "-endian" << std::endl;
+    // cppcheck-suppress knownConditionTrueFalse
+    std::cout << (*(reinterpret_cast<uint8_t*>(&x)) ? "little" : "big") << "-endian" << std::endl;
+    return EXIT_SUCCESS;
 }
