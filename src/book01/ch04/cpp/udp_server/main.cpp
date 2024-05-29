@@ -4,6 +4,7 @@
 #include <socket_wrapper/socket_wrapper.h>
 
 #include <algorithm>
+#include <array>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
@@ -28,7 +29,7 @@ int main(int argc, char const *argv[])
 
     socket_wrapper::SocketWrapper sock_wrap;
 
-    socket_wrapper::Socket sock = {AF_INET, SOCK_DGRAM, IPPROTO_UDP};
+    const socket_wrapper::Socket sock = {AF_INET, SOCK_DGRAM, IPPROTO_UDP};
 
     if (!sock)
     {
@@ -36,7 +37,7 @@ int main(int argc, char const *argv[])
         return EXIT_FAILURE;
     }
 
-    auto addrs = socket_wrapper::get_serv_info(argv[1], SOCK_DGRAM);
+    const auto addrs = socket_wrapper::get_serv_info(argv[1], SOCK_DGRAM);
 
     if (bind(sock, addrs->ai_addr, addrs->ai_addrlen) != 0)
     {
@@ -47,31 +48,31 @@ int main(int argc, char const *argv[])
 
     std::cout << "Starting echo server on the port " << argv[1] << "...\n";
 
-    char buffer[256];
+    std::array<char, 256> buffer;
 
     // socket address used to store client address
     sockaddr_in client_address = {0};
     socklen_t client_address_len = sizeof(sockaddr_in);
 
     std::cout << "Running echo server...\n" << std::endl;
-    char client_address_buf[INET_ADDRSTRLEN];
+    std::array<char, INET_ADDRSTRLEN> client_address_buf;
 
     while (true)
     {
         // Read content into buffer from an incoming client.
-        ssize_t recv_len = recvfrom(
-            sock, buffer, sizeof(buffer) - 1, 0, reinterpret_cast<sockaddr *>(&client_address), &client_address_len);
+        const ssize_t recv_len = recvfrom(
+            sock, buffer.data(), buffer.size() - 1, 0, reinterpret_cast<sockaddr *>(&client_address),
+            &client_address_len);
 
         if (recv_len > 0)
         {
             buffer[recv_len] = '\0';
             std::cout << "Client with address "
                       << inet_ntop(
-                             AF_INET, &client_address.sin_addr, client_address_buf,
-                             sizeof(client_address_buf) / sizeof(client_address_buf[0]))
+                             AF_INET, &client_address.sin_addr, client_address_buf.data(), client_address_buf.size())
                       << ":" << ntohs(client_address.sin_port) << " sent datagram "
                       << "[length = " << recv_len << "]:\n'''\n"
-                      << buffer << "\n'''" << std::endl;
+                      << buffer.data() << "\n'''" << std::endl;
             // if ("exit" == command_string) run = false;
             // send(sock, &buf, readden, 0);
 
@@ -80,7 +81,9 @@ int main(int argc, char const *argv[])
                         std::cout << command_string << std::endl;
             */
             // Send same content back to the client ("echo").
-            sendto(sock, buffer, recv_len, 0, reinterpret_cast<const sockaddr *>(&client_address), client_address_len);
+            sendto(
+                sock, buffer.data(), recv_len, 0, reinterpret_cast<const sockaddr *>(&client_address),
+                client_address_len);
         }
         else if (recv_len < 0)
             perror("recvfrom");
