@@ -1,3 +1,5 @@
+#include <array>
+#include <cassert>
 #include <chrono>
 #include <exception>
 #include <iomanip>
@@ -14,7 +16,6 @@ extern "C"
 {
 #    include <netinet/tcp.h>
 #    include <sys/ioctl.h>
-    // #   include <fcntl.h>
 }
 #endif
 
@@ -26,37 +27,56 @@ extern "C"
 
 using std::chrono_literals::operator""ms;
 
-const auto MAX_RECV_BUFFER_SIZE = 256;
+constexpr auto MAX_RECV_BUFFER_SIZE = 256;
 
 
-bool send_request(socket_wrapper::Socket &sock, const std::string &request)
+bool send_request(const socket_wrapper::Socket &sock, const std::string &request)
 {
     size_t req_pos = 0;
-    // cppcheck-suppress variableScope
-    ssize_t bytes_count;
-    auto const req_buffer = &(request.c_str()[0]);
-    auto const req_length = request.length();
+    const auto req_length = request.length();
 
-    while (true)
+    while (req_pos < req_length)
     {
-        if ((bytes_count = send(sock, req_buffer + req_pos, req_length - req_pos, 0)) < 0)
+        if (ssize_t bytes_count = send(sock, request.c_str() + req_pos, req_length - req_pos, 0); bytes_count < 0)
         {
             if (EINTR == errno) continue;
             return false;
         }
         else
         {
-            if (!bytes_count) break;
-
             req_pos += bytes_count;
-
-            if (req_pos >= req_length)
-            {
-                break;
-            }
         }
     }
 
+    return true;
+}
+
+bool recv_request(const socket_wrapper::Socket &sock)
+{
+    std::array<char, MAX_RECV_BUFFER_SIZE> buffer;
+    while (true)
+    {
+        const auto recv_bytes = recv(sock, buffer.data(), buffer.size() - 1, 0);
+
+        std::cout << recv_bytes << " was received..." << std::endl;
+
+        if (recv_bytes > 0)
+        {
+            buffer[recv_bytes] = '\0';
+            std::cout << "------------\n"
+                      << std::string(buffer.begin(), std::next(buffer.begin(), recv_bytes)) << std::endl;
+            continue;
+        }
+        else if (-1 == recv_bytes)
+        {
+            if (EINTR == errno) continue;
+            if (0 == errno) break;
+            if (EAGAIN == errno) break;
+            return false;
+        }
+
+        break;
+    }
     return true;
 }
 
@@ -69,8 +89,8 @@ int main(int argc, const char *const argv[])
         return EXIT_FAILURE;
     }
 
-    socket_wrapper::SocketWrapper sock_wrap;
-    socket_wrapper::Socket sock = {AF_INET, SOCK_STREAM, IPPROTO_TCP};
+    const socket_wrapper::SocketWrapper sock_wrap;
+    const socket_wrapper::Socket sock = {AF_INET, SOCK_STREAM, IPPROTO_TCP};
 
     if (!sock)
     {
@@ -78,7 +98,10 @@ int main(int argc, const char *const argv[])
         return EXIT_FAILURE;
     }
 
+    assert(argv[1]);
     const std::string host_name = {argv[1]};
+
+    assert(argv[2]);
     auto addrs = socket_wrapper::get_client_info(host_name, argv[2], SOCK_STREAM);
 
     if (connect(sock, addrs->ai_addr, addrs->ai_addrlen) != 0)
@@ -87,16 +110,12 @@ int main(int argc, const char *const argv[])
         return EXIT_FAILURE;
     }
 
-    std::string request;
-    std::vector<char> buffer;
-    buffer.resize(MAX_RECV_BUFFER_SIZE);
-
     std::cout << "Connected to \"" << host_name << "\"..." << std::endl;
 
-    const IoctlType flag = 1;
+    IoctlType flag = 1;
 
     // Put the socket in non-blocking mode:
-    if (ioctl(sock, FIONBIO, const_cast<IoctlType *>(&flag)) < 0)
+    if (ioctl(sock, FIONBIO, &flag) < 0)
     {
         std::cerr << sock_wrap.get_last_error_string() << std::endl;
         return EXIT_FAILURE;
@@ -111,6 +130,7 @@ int main(int argc, const char *const argv[])
 
     std::cout << "Waiting for the user input..." << std::endl;
 
+    std::string request;
     while (true)
     {
         std::cout << "> " << std::flush;
@@ -130,28 +150,10 @@ int main(int argc, const char *const argv[])
 
         std::this_thread::sleep_for(2ms);
 
-        while (true)
+        if (!recv_request(sock))
         {
-            auto recv_bytes = recv(sock, buffer.data(), buffer.size() - 1, 0);
-
-            std::cout << recv_bytes << " was received..." << std::endl;
-
-            if (recv_bytes > 0)
-            {
-                buffer[recv_bytes] = '\0';
-                std::cout << "------------\n"
-                          << std::string(buffer.begin(), std::next(buffer.begin(), recv_bytes)) << std::endl;
-                continue;
-            }
-            else if (-1 == recv_bytes)
-            {
-                if (EINTR == errno) continue;
-                if (0 == errno) break;
-                if (EAGAIN == errno) break;
-                throw std::system_error(errno, std::system_category(), "recv");
-            }
-
-            break;
+            std::cerr << sock_wrap.get_last_error_string() << std::endl;
+            return EXIT_FAILURE;
         }
     }
 
