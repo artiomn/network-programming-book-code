@@ -14,13 +14,13 @@ namespace socket_wrapper
 
 AddrInfoResult get_serv_info(const std::string &port, int sock_type)
 {
-    struct addrinfo hints = {
+    addrinfo hints = {
         .ai_flags = AI_PASSIVE | AI_NUMERICSERV,
         .ai_family = AF_INET,
         .ai_socktype = sock_type,
         .ai_protocol = (sock_type == SOCK_STREAM ? IPPROTO_TCP : IPPROTO_UDP)};
 
-    struct addrinfo *s_i = nullptr;
+    addrinfo *s_i = nullptr;
 
     if (int ai_status = getaddrinfo(nullptr, port.c_str(), &hints, &s_i); ai_status != 0)
     {
@@ -38,7 +38,7 @@ AddrInfoResult get_client_info(const std::string &host, const std::string &port,
         .ai_family = sock_family,
         .ai_socktype = sock_type,
         .ai_protocol = (sock_type == SOCK_STREAM ? IPPROTO_TCP : IPPROTO_UDP)};
-    struct addrinfo *c_i = nullptr;
+    addrinfo *c_i = nullptr;
 
     if (int ai_status = getaddrinfo(host.c_str(), port.c_str(), &hints, &c_i); ai_status != 0)
     {
@@ -69,7 +69,7 @@ void set_reuse_addr(Socket &sock)
 
 Socket accept_client(socket_wrapper::Socket &server_sock)
 {
-    struct sockaddr_storage client_addr;
+    sockaddr_storage client_addr;
     socklen_t client_addr_length = sizeof(client_addr);
 
     Socket client_sock(accept(server_sock, reinterpret_cast<sockaddr *>(&client_addr), &client_addr_length));

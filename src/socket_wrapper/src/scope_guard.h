@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <utility>
 
+
 template <typename F>
 auto scope_guard(F&& f)
 {
