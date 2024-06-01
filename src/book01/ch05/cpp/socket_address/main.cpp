@@ -3,6 +3,7 @@
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
 
+#include <cassert>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -16,8 +17,8 @@ int main(int argc, const char *const argv[])
         return EXIT_FAILURE;
     }
 
-    socket_wrapper::SocketWrapper sock_wrap;
-    socket_wrapper::Socket sock = {AF_INET, SOCK_STREAM, IPPROTO_TCP};
+    const socket_wrapper::SocketWrapper sock_wrap;
+    const socket_wrapper::Socket sock = {AF_INET, SOCK_STREAM, IPPROTO_TCP};
 
     if (!sock)
     {
@@ -25,8 +26,11 @@ int main(int argc, const char *const argv[])
         return EXIT_FAILURE;
     }
 
+    assert(argv[1]);
     const std::string host_name = {argv[1]};
-    auto addrs = socket_wrapper::get_client_info(host_name, argv[2], SOCK_STREAM);
+
+    assert(argv[2]);
+    const auto addrs = socket_wrapper::get_client_info(host_name, argv[2], SOCK_STREAM);
 
     if (connect(sock, addrs->ai_addr, addrs->ai_addrlen) != 0)
     {
@@ -52,25 +56,20 @@ int main(int argc, const char *const argv[])
         return EXIT_FAILURE;
     }
 
-    std::string my_ip;
-    my_ip.resize(INET_ADDRSTRLEN);
-
+    std::string my_ip(INET_ADDRSTRLEN, 0);
     inet_ntop(AF_INET, &my_address.sin_addr, &my_ip[0], my_ip.size());
 
-    std::string his_ip;
-    his_ip.resize(INET_ADDRSTRLEN);
-
+    std::string his_ip(INET_ADDRSTRLEN, 0);
     inet_ntop(AF_INET, &his_address.sin_addr, &his_ip[0], his_ip.size());
 
-    std::string user_passed_ip;
-    user_passed_ip.resize(INET_ADDRSTRLEN);
-
+    std::string user_passed_ip(INET_ADDRSTRLEN, 0);
     auto si = reinterpret_cast<const sockaddr_in *>(addrs->ai_addr);
-    inet_ntop(addrs->ai_family, &si->sin_addr, user_passed_ip.data(), user_passed_ip.size());
+    inet_ntop(addrs->ai_family, &si->sin_addr, &user_passed_ip[0], user_passed_ip.size());
 
-    std::cout << "User passed address: " << user_passed_ip << " (" << host_name << "):" << argv[2] << "\n"
-              << "My address: " << my_ip << ":" << ntohs(my_address.sin_port) << "\n"
-              << "Another host address: " << his_ip << ":" << ntohs(his_address.sin_port) << std::endl;
+    std::cout << "User passed address: " << user_passed_ip.c_str() << " (" << host_name.c_str() << "):" << argv[2]
+              << "\n"
+              << "My address: " << my_ip.c_str() << ":" << ntohs(my_address.sin_port) << "\n"
+              << "Another host address: " << his_ip.c_str() << ":" << ntohs(his_address.sin_port) << std::endl;
 
     return EXIT_SUCCESS;
 }
