@@ -2,4 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 add_subdirectory(resolve)
 add_subdirectory(ip_convert)
-add_subdirectory(namespaces)
+
+if (NOT WIN32)
+	add_subdirectory(namespaces)
+endif()
