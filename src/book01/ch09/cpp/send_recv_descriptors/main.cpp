@@ -1,3 +1,16 @@
+#include <socket_wrapper/socket_class.h>
+#include <socket_wrapper/socket_functions.h>
+#include <socket_wrapper/socket_headers.h>
+#include <socket_wrapper/socket_wrapper.h>
+
+extern "C"
+{
+#include <fcntl.h>
+#include <sys/param.h>
+#include <unistd.h>
+}
+
+#include <array>
 #include <filesystem>
 #include <functional>
 #include <iostream>
@@ -7,36 +20,13 @@
 #include <string>
 #include <vector>
 
-#include <socket_wrapper/socket_functions.h>
-#include <socket_wrapper/socket_headers.h>
-#include <socket_wrapper/socket_wrapper.h>
-#include <socket_wrapper/socket_class.h>
-
-extern "C"
-{
-#include <fcntl.h>
-#include <sys/param.h>
-#include <unistd.h>
-}
-
-
-namespace
-{
-
-const size_t buffer_size = 255;
-
-} // namespace
-
 
 std::filesystem::path get_path_from_fd(int fd)
 {
     char filename[PATH_MAX];
 
-    std::stringstream ss;
-
-    ss << "/proc/self/fd/" << fd;
-
-    if (readlink(ss.str().c_str(), filename, sizeof(filename)) < 0)
+    const std::string link = "/proc/self/fd/" + std::to_string(fd);
+    if (readlink(link.c_str(), filename, sizeof(filename)) < 0)
         throw std::system_error(errno, std::system_category(), "readlink");
 
     return std::filesystem::path(filename);
@@ -45,63 +35,55 @@ std::filesystem::path get_path_from_fd(int fd)
 
 void send_descriptors(int socket, int fd)
 {
-    struct msghdr msg = { 0 };
-    std::vector<char> buf(1);
-    std::vector<char> ancil_buf(CMSG_SPACE(sizeof(fd)));
+    msghdr msg = {};
+    std::array<char, 1> buf;
+    std::array<char, CMSG_SPACE(sizeof(fd))> ancil_buf;
 
-    struct iovec io = { .iov_base = &buf[0], .iov_len = buf.size() };
+    iovec io = {.iov_base = &buf[0], .iov_len = buf.size()};
 
     msg.msg_iov = &io;
     msg.msg_iovlen = 1;
     msg.msg_control = &ancil_buf[0];
     msg.msg_controllen = ancil_buf.size();
 
-    struct cmsghdr * cmsg = CMSG_FIRSTHDR(&msg);
+    cmsghdr *cmsg = CMSG_FIRSTHDR(&msg);
     cmsg->cmsg_level = SOL_SOCKET;
     cmsg->cmsg_type = SCM_RIGHTS;
     cmsg->cmsg_len = CMSG_LEN(sizeof(fd));
 
     *reinterpret_cast<int *>(CMSG_DATA(cmsg)) = fd;
 
-    if (sendmsg(socket, &msg, 0) < 0)
-        throw std::system_error(errno, std::system_category(), "sendmsg");
+    if (sendmsg(socket, &msg, 0) < 0) throw std::system_error(errno, std::system_category(), "sendmsg");
 }
 
 
 int receive_descriptors(int socket)
 {
-    struct msghdr msgh = {0};
+    msghdr msgh = {};
 
-    std::vector<char> buffer(buffer_size);
-    struct iovec io = { .iov_base = &buffer[0], .iov_len = buffer.size() };
+    std::array<char, 255> buffer;
+    iovec io = {.iov_base = &buffer[0], .iov_len = buffer.size()};
     msgh.msg_iov = &io;
     msgh.msg_iovlen = 1;
 
-    std::vector<char> c_buffer(buffer_size);
+    std::array<char, 255> c_buffer;
     msgh.msg_control = &c_buffer[0];
     msgh.msg_controllen = c_buffer.size();
 
-    if (recvmsg(socket, &msgh, 0) < 0)
-        throw std::system_error(errno, std::system_category(), "recvmsg");
-
-    cmsghdr *cmsg;
+    if (recvmsg(socket, &msgh, 0) < 0) throw std::system_error(errno, std::system_category(), "recvmsg");
 
     int received_descriptor = -1;
 
     // Get ancillary data.
-    for (cmsg = CMSG_FIRSTHDR(&msgh); cmsg != nullptr;
-         cmsg = CMSG_NXTHDR(&msgh, cmsg))
+    for (cmsghdr *cmsg = CMSG_FIRSTHDR(&msgh); cmsg != nullptr; cmsg = CMSG_NXTHDR(&msgh, cmsg))
     {
         if (SOL_SOCKET == cmsg->cmsg_level && SCM_RIGHTS == cmsg->cmsg_type)
         {
             if (received_descriptor < 0)
             {
-                std::copy(CMSG_DATA(cmsg), CMSG_DATA(cmsg) + sizeof(received_descriptor),
-                          &received_descriptor);
+                std::copy(CMSG_DATA(cmsg), CMSG_DATA(cmsg) + sizeof(received_descriptor), &received_descriptor);
 
-                std::cout
-                    << "Descriptor was received: " << received_descriptor
-                    << std::endl;
+                std::cout << "Descriptor was received: " << received_descriptor << std::endl;
             }
             else
             {
@@ -130,22 +112,19 @@ void parent(int sock)
 
     // Descriptor.
     // open(local_file.string().c_str(), O_RDWR | O_CREAT);
-    int file_fd = mkstemp(f_tmpl);
+    const int file_fd = mkstemp(f_tmpl);
 
-    if (file_fd < 0)
-        throw std::system_error(errno, std::system_category(), "Parent opening local file");
+    if (file_fd < 0) throw std::system_error(errno, std::system_category(), "Parent opening local file");
 
-    const std::filesystem::path local_file(std::move(get_path_from_fd(file_fd)));
+    const std::filesystem::path local_file(get_path_from_fd(file_fd));
 
-    std::cout
-        << "Parent opened file with descriptor = " << file_fd
-        << " [" << local_file << "]"
-        << std::endl;
+    std::cout << "Parent opened file with descriptor = " << file_fd << " [" << local_file << "]" << std::endl;
 
     send_descriptors(sock, file_fd);
 
+    // File could not be closed and removed due to exceptions,
+    // anyway it will be removed from tmp dir automatically
     close(file_fd);
-
     std::filesystem::remove(local_file);
 
     std::cout << "Parent exited" << std::endl;
@@ -157,21 +136,21 @@ void child(int sock)
     // Child process.
     std::cout << "Child" << std::endl;
 
-    int fd = receive_descriptors(sock);
+    const int fd = receive_descriptors(sock);
 
-    std::cout
-        << "Child received descriptor = " << fd
-        << " [" << get_path_from_fd(fd) << "]"
-        << std::endl;
+    std::cout << "Child received descriptor = " << fd << " [" << get_path_from_fd(fd) << "]" << std::endl;
 
-    char buffer[256];
-    ssize_t nbytes;
+    std::array<char, 256> buffer;
 
     std::cout << "Reading from a file in the child..." << std::endl;
 
-    while ((nbytes = read(fd, buffer, sizeof(buffer))) > 0)
-        write(1, buffer, nbytes);
+    for (ssize_t nbytes = read(fd, buffer.data(), buffer.size()); nbytes > 0;)
+    {
+        write(1, buffer.data(), nbytes);
+    }
 
+    // File could not be closed and removed due to exceptions,
+    // anyway it will be closed on process shutdown
     close(fd);
     std::cout << "Child exited" << std::endl;
 }
@@ -179,7 +158,7 @@ void child(int sock)
 
 int main(int argc, char **argv)
 {
-    socket_wrapper::SocketWrapper sock_wrap;
+    const socket_wrapper::SocketWrapper sock_wrap;
 
     try
     {
@@ -187,8 +166,7 @@ int main(int argc, char **argv)
         if (socketpair(AF_UNIX, SOCK_DGRAM, 0, sp) != 0)
             throw std::system_error(errno, std::system_category(), "socketpair");
 
-        int pid = fork();
-        if (pid > 0)
+        if (fork() > 0)
         {
             close(sp[1]);
             parent(sp[0]);
@@ -212,4 +190,3 @@ int main(int argc, char **argv)
 
     return EXIT_SUCCESS;
 }
-

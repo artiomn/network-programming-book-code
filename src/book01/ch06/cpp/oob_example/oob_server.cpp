@@ -8,6 +8,8 @@ extern "C"
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
 
+#include <array>
+#include <cassert>
 #include <csignal>
 #include <fstream>
 #include <functional>
@@ -18,14 +20,8 @@ extern "C"
 #include <vector>
 
 
-namespace
-{
-
-const size_t clients_count = 10;
-const size_t buffer_size = 255;
-
-}  // namespace
-
+constexpr size_t clients_count = 10;
+constexpr size_t buffer_size = 255;
 
 int main(int argc, const char *const argv[])
 {
@@ -35,16 +31,16 @@ int main(int argc, const char *const argv[])
         return EXIT_FAILURE;
     }
 
-    socket_wrapper::SocketWrapper sock_wrap;
+    const socket_wrapper::SocketWrapper sock_wrap;
 
     try
     {
+        assert(argv[1]);
         auto server_sock = socket_wrapper::create_tcp_server(argv[1]);
         auto client_sock = socket_wrapper::accept_client(server_sock);
 
-        std::vector<char> data_buff(buffer_size);
+        std::array<char, buffer_size> data_buff;
 
-        char oob_data;
         bool oob_printed = false;
 
         while (true)
@@ -59,6 +55,8 @@ int main(int argc, const char *const argv[])
                 case 1:
                     if (oob_printed) continue;
                     std::cout << "OOB data received..." << std::endl;
+
+                    char oob_data;
                     if (-1 == recv(client_sock, &oob_data, 1, MSG_OOB))
                     {
                         throw std::system_error(errno, std::system_category(), "recv oob");
@@ -67,10 +65,7 @@ int main(int argc, const char *const argv[])
                     oob_printed = true;
                     break;
                 case 0:
-                {
-                    ssize_t n = recv(client_sock, data_buff.data(), data_buff.size(), 0);
-
-                    if (n < 0)
+                    if (ssize_t n = recv(client_sock, data_buff.data(), data_buff.size(), 0); n < 0)
                     {
                         throw std::system_error(errno, std::system_category(), "recv data");
                     }
@@ -79,16 +74,16 @@ int main(int argc, const char *const argv[])
                         std::cout << "No data, exiting..." << std::endl;
                         exit(EXIT_SUCCESS);
                     }
-
-                    std::cout << "Ordinary data received...\n"
-                              << n << " bytes was read: " << std::string(data_buff.begin(), data_buff.begin() + n)
-                              << std::endl;
+                    else
+                    {
+                        std::cout << "Ordinary data received...\n"
+                                  << n << " bytes was read: " << std::string(data_buff.begin(), data_buff.begin() + n)
+                                  << std::endl;
+                    }
                     oob_printed = false;
                     break;
-                }
                 default:
-                {
-                }
+                    throw std::runtime_error("unexpected sockatmark");
             }
         }
     }
