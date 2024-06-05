@@ -15,14 +15,14 @@ extern "C"
 
 int main(int argc, const char *const argv[])
 {
-    socket_wrapper::SocketWrapper sock_wrap;
+    const socket_wrapper::SocketWrapper sock_wrap;
 
     try
     {
         int ttl_val = 0;
         socklen_t ttl_val_len = sizeof(ttl_val);
 
-        auto sock = socket_wrapper::Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        const auto sock = socket_wrapper::Socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
         if (getsockopt(sock, SOL_IP, IP_TTL, &ttl_val, &ttl_val_len) != 0)
         {

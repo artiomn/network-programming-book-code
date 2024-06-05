@@ -3,20 +3,14 @@
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
 
+#include <array>
+#include <cassert>
 #include <functional>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
-
-
-namespace
-{
-
-const size_t buffer_size = 255;
-
-}  // namespace
 
 
 int main(int argc, const char *const argv[])
@@ -27,22 +21,23 @@ int main(int argc, const char *const argv[])
         return EXIT_FAILURE;
     }
 
-    socket_wrapper::SocketWrapper sock_wrap;
+    const socket_wrapper::SocketWrapper sock_wrap;
 
     try
     {
+        assert(argv[1]);
         auto servinfo = socket_wrapper::get_serv_info(argv[1], SOCK_DGRAM);
 
-        socket_wrapper::Socket sock = {servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol};
+        const socket_wrapper::Socket sock = {servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol};
 
         if (bind(sock, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
         {
             throw std::system_error(errno, std::system_category(), "bind");
         }
 
-        std::vector<char> data_buff(buffer_size);
+        std::array<char, 255> data_buff;
         // For the TTL.
-        std::vector<char> ancil_data_buff(CMSG_SPACE(sizeof(uint32_t)));
+        std::array<char, CMSG_SPACE(sizeof(uint32_t))> ancil_data_buff;
 
         iovec iov[1] = {{&data_buff[0], data_buff.size()}};
 
@@ -73,7 +68,7 @@ int main(int argc, const char *const argv[])
 
             std::cout << n << " bytes was read: " << std::string(data_buff.begin(), data_buff.begin() + n) << std::endl;
 
-            cmsghdr *cmsg;
+            cmsghdr *cmsg = nullptr;
 
             // Get ancillary data.
             for (cmsg = CMSG_FIRSTHDR(&msgh); cmsg != nullptr; cmsg = CMSG_NXTHDR(&msgh, cmsg))

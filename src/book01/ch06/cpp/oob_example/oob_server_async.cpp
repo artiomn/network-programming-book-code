@@ -8,7 +8,9 @@ extern "C"
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
 
+#include <array>
 #include <atomic>
+#include <cassert>
 #include <csignal>
 #include <functional>
 #include <iostream>
@@ -17,13 +19,14 @@ extern "C"
 #include <vector>
 
 
-const size_t buffer_size = 255;
+constexpr size_t buffer_size = 255;
 
-std::function<void(int)> sig_handler;
+std::atomic<bool> oob_flag = false;
 
 void signal_handler_wrapper(int signal)
 {
-    sig_handler(signal);
+    std::cout << "SIGURG [" << signal << "] received" << std::endl;
+    oob_flag = true;
 }
 
 
@@ -35,28 +38,18 @@ int main(int argc, const char *const argv[])
         return EXIT_FAILURE;
     }
 
-    socket_wrapper::SocketWrapper sock_wrap;
+    const socket_wrapper::SocketWrapper sock_wrap;
 
     try
     {
-        volatile std::atomic<bool> oob_flag = false;
-
-        // cppcheck-suppress danglingLifetime
-        sig_handler = [&oob_flag](int sig_num)
-        {
-            std::cout << "SIGURG [" << sig_num << "] received" << std::endl;
-            oob_flag = true;
-        };
-
         if (SIG_ERR == std::signal(SIGURG, signal_handler_wrapper))
         {
             throw std::system_error(errno, std::system_category(), "signal");
         }
 
-        std::vector<char> data_buff(buffer_size);
+        std::array<char, buffer_size> data_buff;
 
-        char oob_data;
-
+        assert(argv[1]);
         auto server_sock = socket_wrapper::create_tcp_server(argv[1]);
         auto client_sock = socket_wrapper::accept_client(server_sock);
 
@@ -67,32 +60,28 @@ int main(int argc, const char *const argv[])
 
         while (true)
         {
-            int at_mark = sockatmark(client_sock);
-
-            switch (at_mark)
+            switch (sockatmark(client_sock))
             {
                 case -1:
                     throw std::system_error(errno, std::system_category(), "sockatmark");
                     break;
                 case 1:
-                {
                     if (!oob_flag) continue;
                     std::cout << "OOB data received..." << std::endl;
 
-                    if (-1 == recv(client_sock, &oob_data, 1, MSG_OOB))
+                    if (char oob_data = recv(client_sock, &oob_data, 1, MSG_OOB); -1 == oob_data)
                     {
                         throw std::system_error(errno, std::system_category(), "recv oob");
                     }
+                    else
+                    {
+                        std::cout << "OOB data = " << oob_data << std::endl;
+                    }
 
-                    std::cout << "OOB data = " << oob_data << std::endl;
                     oob_flag = false;
-                }
-                break;
+                    break;
                 case 0:
-                {
-                    ssize_t n = recv(client_sock, data_buff.data(), data_buff.size(), 0);
-
-                    if (n < 0)
+                    if (ssize_t n = recv(client_sock, data_buff.data(), data_buff.size(), 0); n < 0)
                     {
                         if (EINTR == errno || EAGAIN == errno)
                         {
@@ -106,15 +95,15 @@ int main(int argc, const char *const argv[])
                         std::cout << "No data, exiting..." << std::endl;
                         exit(EXIT_SUCCESS);
                     }
-
-                    std::cout << "Ordinary data received...\n"
-                              << n << " bytes was read: " << std::string(data_buff.begin(), data_buff.begin() + n)
-                              << std::endl;
+                    else
+                    {
+                        std::cout << "Ordinary data received...\n"
+                                  << n << " bytes was read: " << std::string(data_buff.begin(), data_buff.begin() + n)
+                                  << std::endl;
+                    }
                     break;
-                }
                 default:
-                {
-                }
+                    throw std::runtime_error("unexpected sockatmark");
             }
         }
     }
