@@ -8,6 +8,8 @@ extern "C"
 #include <linux/rtnetlink.h>
 }
 
+#include <array>
+#include <cassert>
 #include <cerrno>
 #include <cstdlib>
 #include <ctime>
@@ -18,8 +20,11 @@ extern "C"
 
 static int data_attr_cb(const nlattr *attr, void *data)
 {
+    assert(attr);
+    assert(data);
+
     const nlattr **tb = static_cast<const nlattr **>(data);
-    int type = mnl_attr_get_type(attr);
+    const int type = mnl_attr_get_type(attr);
 
     /* skip unsupported attribute in user-space */
     if (mnl_attr_type_valid(attr, IFA_MAX) < 0) return MNL_CB_OK;
@@ -41,6 +46,9 @@ static int data_attr_cb(const nlattr *attr, void *data)
 
 static int data_cb(const nlmsghdr *nlh, void *data)
 {
+    assert(nlh);
+    assert(data);
+
     nlattr *tb[IFA_MAX + 1] = {};
     ifaddrmsg *ifa = static_cast<ifaddrmsg *>(mnl_nlmsg_get_payload(static_cast<const nlmsghdr *>(nlh)));
 
@@ -51,9 +59,9 @@ static int data_cb(const nlmsghdr *nlh, void *data)
     if (tb[IFA_ADDRESS])
     {
         void *addr = mnl_attr_get_payload(tb[IFA_ADDRESS]);
-        char out[INET6_ADDRSTRLEN];
+        std::array<char, INET6_ADDRSTRLEN> out{};
 
-        if (inet_ntop(ifa->ifa_family, addr, out, sizeof(out))) std::cout << out << " ";
+        if (inet_ntop(ifa->ifa_family, addr, out.data(), out.size())) std::cout << out.data() << " ";
     }
     std::cout << " scope = ";
     switch (ifa->ifa_scope)
@@ -93,23 +101,25 @@ int main(int argc, const char *argv[])
 
     std::vector<char> buf(MNL_SOCKET_BUFFER_SIZE);
 
-    unsigned int seq;
-    nlmsghdr *nlh = mnl_nlmsg_put_header(buf.data());
+    unsigned int seq = 0;
+    nlmsghdr *const nlh = mnl_nlmsg_put_header(buf.data());
 
     nlh->nlmsg_type = RTM_GETADDR;
     nlh->nlmsg_flags = NLM_F_REQUEST | NLM_F_DUMP;
     nlh->nlmsg_seq = seq = time(nullptr);
 
-    rtgenmsg *rt = static_cast<rtgenmsg *>(mnl_nlmsg_put_extra_header(static_cast<nlmsghdr *>(nlh), sizeof(rtgenmsg)));
+    rtgenmsg *const rt =
+        static_cast<rtgenmsg *>(mnl_nlmsg_put_extra_header(static_cast<nlmsghdr *>(nlh), sizeof(rtgenmsg)));
 
-    std::string s_type = argv[1];
+    assert(argv[1]);
+    const std::string s_type = argv[1];
 
     if ("inet" == s_type)
         rt->rtgen_family = AF_INET;
     else if ("inet6" == s_type)
         rt->rtgen_family = AF_INET6;
 
-    mnl_socket *nl = mnl_socket_open(NETLINK_ROUTE);
+    mnl_socket *const nl = mnl_socket_open(NETLINK_ROUTE);
     if (!nl)
     {
         perror("mnl_socket_open");
@@ -123,7 +133,7 @@ int main(int argc, const char *argv[])
             throw std::system_error(errno, std::system_category(), "mnl_socket_bind");
         }
 
-        unsigned int portid = mnl_socket_get_portid(nl);
+        const unsigned int portid = mnl_socket_get_portid(nl);
 
         if (mnl_socket_sendto(nl, nlh, nlh->nlmsg_len) < 0)
         {

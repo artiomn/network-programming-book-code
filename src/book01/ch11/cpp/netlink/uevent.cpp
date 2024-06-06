@@ -6,20 +6,21 @@ extern "C"
 #include <unistd.h>
 }
 
+#include <array>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
 
 
-const auto BUF_SIZE = 4096;
+constexpr auto BUF_SIZE = 4096;
 
 
 int main()
 {
-    char buf[BUF_SIZE];
+    std::array<char, BUF_SIZE> buf;
     sockaddr_nl nls = {0};
 
-    auto fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_KOBJECT_UEVENT);
+    const auto fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_KOBJECT_UEVENT);
     if (-1 == fd)
     {
         return EXIT_FAILURE;
@@ -29,19 +30,17 @@ int main()
     nls.nl_pid = getpid();
     nls.nl_groups = 1;
 
-    auto res = bind(fd, (struct sockaddr *)&nls, sizeof(nls));
-
-    if (-1 == res)
+    if (-1 == bind(fd, (struct sockaddr *)&nls, sizeof(nls)))
     {
         return EXIT_FAILURE;
     }
 
     while (true)
     {
-        auto len = recv(fd, buf, sizeof(buf), 0);
+        const auto len = recv(fd, buf.data(), buf.size(), 0);
 
         std::cout << "\n<START>\n" << len << " bytes received..." << std::endl;
-        for (int i = 0; i < len; ++i)
+        for (ssize_t i = 0; i < len; ++i)
         {
             if (buf[i] == 0)
             {
@@ -53,7 +52,7 @@ int main()
             }
             else
             {
-                std::cout << static_cast<char>(buf[i]);
+                std::cout << buf[i];
             }
         }
         std::cout << "<END>" << std::endl;

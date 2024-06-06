@@ -5,6 +5,7 @@ extern "C"
 #include <netlink/route/link.h>
 }
 
+#include <cassert>
 #include <iostream>
 #include <memory>
 
@@ -17,18 +18,21 @@ int main(int argc, const char *const argv[])
         return EXIT_FAILURE;
     }
 
+    assert(argv[1]);
     const std::string if_name{argv[1]};
+
+    assert(argv[2]);
     const std::string if_action{argv[2]};
 
-    std::unique_ptr<nl_sock, decltype(&nl_socket_free)> sock{nl_socket_alloc(), &nl_socket_free};
-    nl_cache *cache = nullptr;
-    int error_code = 1;
-
+    const std::unique_ptr<nl_sock, decltype(&nl_socket_free)> sock{nl_socket_alloc(), &nl_socket_free};
     if (!sock)
     {
         std::cerr << "Can't allocate socket!" << std::endl;
         return EXIT_FAILURE;
     }
+
+    nl_cache *cache = nullptr;
+    int error_code = 1;
 
     try
     {
@@ -44,7 +48,7 @@ int main(int argc, const char *const argv[])
             throw std::system_error(error_code, std::system_category(), "Unable to allocate cache");
         }
 
-        std::unique_ptr<rtnl_link, decltype(&rtnl_link_put)> link{
+        const std::unique_ptr<rtnl_link, decltype(&rtnl_link_put)> link{
             rtnl_link_get_by_name(cache, if_name.c_str()), &rtnl_link_put};
         if (!link)
         {
@@ -55,7 +59,7 @@ int main(int argc, const char *const argv[])
         std::cout << "Current \"" << if_name
                   << "\" status: " << ((rtnl_link_get_flags(link.get()) & IFF_UP) ? "up" : "down") << std::endl;
 
-        std::unique_ptr<rtnl_link, decltype(&rtnl_link_put)> change{rtnl_link_alloc(), &rtnl_link_put};
+        const std::unique_ptr<rtnl_link, decltype(&rtnl_link_put)> change{rtnl_link_alloc(), &rtnl_link_put};
         if ("a" == if_action)
             rtnl_link_set_flags(change.get(), IFF_UP);
         else if ("d" == if_action)

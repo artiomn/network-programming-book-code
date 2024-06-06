@@ -13,7 +13,7 @@ extern "C"
 #include <iostream>
 
 
-const auto BUF_SIZE = 1024;
+constexpr auto BUF_SIZE = 1024;
 
 
 int main(int argc, const char *const argv[])
@@ -52,7 +52,6 @@ int main(int argc, const char *const argv[])
         }
 
         addattr32(&req.nh, BUF_SIZE, IFLA_MTU, mtu);
-        //    std::copy_n(reinterpret_cast<const char *>(&mtu), sizeof(mtu), static_cast<char *>(RTA_DATA(rta)));
 
         if (rtnl_send(&rth, &req, req.nh.nlmsg_len))
         {

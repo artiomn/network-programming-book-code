@@ -9,6 +9,7 @@ extern "C"
 }
 
 #include <algorithm>
+#include <cassert>
 #include <cstdint>
 #include <iostream>
 #include <map>
@@ -20,7 +21,7 @@ void print_adapter_params(const std::string& name)
     ethtool_link_settings cmd = {.cmd = ETHTOOL_GLINKSETTINGS};
     ifreq ifr = {0};
 
-    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    const int sock = socket(AF_INET, SOCK_DGRAM, 0);
 
     if (sock < 0)
     {
@@ -62,9 +63,9 @@ void print_adapter_params(const std::string& name)
             throw std::logic_error("Incorrect duplex!");
         }
 
-        const std::map<int, std::string> s_map = {{SPEED_10, "10 Mb/s"},    {SPEED_100, "100 Mb/s"},
-                                                  {SPEED_1000, "1 Gb/s"},   {SPEED_2500, "2.5 Gb/s"},
-                                                  {SPEED_10000, "10 Gb/s"}, {SPEED_UNKNOWN, "Unknown"}};
+        static const std::map<int, std::string> s_map = {{SPEED_10, "10 Mb/s"},    {SPEED_100, "100 Mb/s"},
+                                                         {SPEED_1000, "1 Gb/s"},   {SPEED_2500, "2.5 Gb/s"},
+                                                         {SPEED_10000, "10 Gb/s"}, {SPEED_UNKNOWN, "Unknown"}};
 
         const auto speed = s_map.find(cmd.speed);
         if (s_map.end() == speed)
@@ -87,6 +88,8 @@ void print_adapter_params(const std::string& name)
     catch (...)
     {
         close(sock);
+        std::cerr << "Unknown exception" << std::endl;
+        exit(EXIT_FAILURE);
     }
 
     close(sock);
@@ -101,6 +104,7 @@ int main(int argc, const char* const argv[])
         return EXIT_FAILURE;
     }
 
+    assert(argv[1]);
     print_adapter_params(argv[1]);
 
     return EXIT_SUCCESS;
