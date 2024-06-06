@@ -5,6 +5,7 @@
 #include <cassert>
 #include <cerrno>
 #include <cstring>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <system_error>
@@ -37,7 +38,7 @@ public:
 
     std::string get_last_error_string() const override
     {
-        char *s = nullptr;
+        TCHAR *s = nullptr;
         if (!FormatMessage(
                 FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
                 get_last_error_code(), MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), reinterpret_cast<LPTSTR>(&s), 0,
@@ -48,7 +49,18 @@ public:
 
         const auto on_scope_exit = scope_guard([s](void *) { LocalFree(s); });
         assert(s != nullptr);
+
+#if defined(UNICODE)
+        std::ostringstream res;
+
+        while (wchar_t *st = s; st != L'\0')
+        {
+            res << std::use_facet<std::ctype<wchar_t>>(loc).narrow(*st++, '?');
+        }
+        return res.str();
+#else
         return std::string(s);
+#endif
     };
 
 private:
