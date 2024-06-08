@@ -78,13 +78,6 @@ class NetworkInterface:
             f'\n    netmask IPv6 = {self.netmask.get(socket.AF_INET6)}'
         )
 
-    def __repr__(self):
-        return (
-            f'[name = {self.name}, index = {self.index}, '
-            f'IPv4 = {self.addresses.get(socket.AF_INET)}, '
-            f'IPv6 = {self.addresses.get(socket.AF_INET6)}]'
-        )
-
 
 class NetworkInterfaces:
     def __init__(self):

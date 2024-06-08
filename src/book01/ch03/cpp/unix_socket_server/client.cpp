@@ -22,7 +22,7 @@ int main(void)
 {
     sockaddr_un sock_address;
 
-    int sock = socket(AF_UNIX, SOCK_DGRAM, 0);
+    const int sock = socket(AF_UNIX, SOCK_DGRAM, 0);
 
     if (-1 == sock)
     {

@@ -2,7 +2,7 @@ extern "C"
 {
 #include <sys/socket.h>
 
-// Для read() и write().
+// For read() and write().
 #include <unistd.h>
 }
 

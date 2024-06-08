@@ -15,7 +15,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
 
     sock.setsockopt(socket.IPPROTO_IP, IP_RECVTTL, 1)
 
-    ttl: int = 0
+    ttl = 0
     ttl_size = 4
 
     msg, ancdata, flags, addr = sock.recvmsg(255, socket.CMSG_LEN(ttl_size))
