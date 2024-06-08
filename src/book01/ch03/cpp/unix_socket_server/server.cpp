@@ -33,7 +33,8 @@ int main(void)
     sock_address.sun_family = AF_UNIX;
     assert(sizeof(SOCK_PATH) < sizeof(sock_address.sun_path));
     std::copy(std::begin(SOCK_PATH), std::end(SOCK_PATH), sock_address.sun_path);
-    if (std::remove(SOCK_PATH) != 0)
+
+    if (std::filesystem::exists(SOCK_PATH) && std::remove(SOCK_PATH) != 0)
     {
         perror("remove");
         return EXIT_FAILURE;
