@@ -14,9 +14,9 @@ repos:
     hooks:
       - id: check-case-conflict
       - id: trailing-whitespace
-        exclude: \.(output|patch)
+        exclude: \.(output|patch)|npcap-sdk-1.12/.*
       - id: end-of-file-fixer
-        exclude: \.(cp?p?$|output|patch)
+        exclude: \.(cp?p?$|output|patch)|npcap-sdk-1.12/.*
       - id: check-added-large-files
       - id: check-executables-have-shebangs
       - id: check-shebang-scripts-are-executable
@@ -44,9 +44,11 @@ repos:
           [clang-format==15.0.7]
       - id: cppcheck
         args: ["-v", "-x", "c++", "--inline-suppr", "--suppress-xml=src/.cppcheck-suppress.xml"]
+        exclude: npcap-sdk-1.12/.*|book01/ch18/cpp/pil/.*
 
       - id: cpplint
-        args: ["--exclude=src/ch14/cpp/flatbuffers/*_generated.*", "--exclude=src/docker_images/build_image/patches", "--root", "src"]
+        args: ["--root", "src"]
+        exclude: src/docker_images/build_image/patches|flatbuffers/.*_generated\..*|npcap-sdk-1.12/.*|book01/ch18/cpp/pil/.*
         additional_dependencies:
           [cpplint==1.6.1]
       # - id: include-what-you-use
