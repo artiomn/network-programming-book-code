@@ -5,13 +5,13 @@ extern "C"
 }
 
 
+#include <array>
 #include <cassert>
 #include <iostream>
 #include <string>
-#include <vector>
 
 
-int main(int argc, char* argv[])
+int main()
 {
     LANA_ENUM l_enum;
 
@@ -27,9 +27,9 @@ int main(int argc, char* argv[])
 
     std::cout << "LANA count = " << +l_enum.length << std::endl;
 
-    std::vector<UCHAR> data_buffer(1024);
+    std::array<UCHAR, 1024> data_buffer;
 
-    std::string local_name = "corp.node_name.com";
+    constexpr char local_name[] = "corp.node_name.com";
 
     for (int i = 0; i < l_enum.length; ++i)
     {
@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
         ncb.ncb_buffer = data_buffer.data();
         ncb.ncb_length = data_buffer.size();
 
-        std::copy(local_name.c_str(), local_name.c_str() + local_name.size(), ncb.ncb_callname);
+        std::copy(std::begin(local_name), std::end(local_name), ncb.ncb_callname);
 
         Netbios(&ncb);
 

@@ -13,12 +13,8 @@ extern "C"
 
 int main()
 {
-    // variables needed for converting provider GUID to a string
-    WCHAR GuidString[40] = {0};
+    const socket_wrapper::SocketWrapper sw;
 
-    socket_wrapper::SocketWrapper sw;
-
-    // Allocate a 16K buffer to retrieve all the protocol providers.
     std::vector<WSAPROTOCOL_INFO> protocol_info(1);
 
     DWORD real_buffer_len = protocol_info.size() * sizeof(WSAPROTOCOL_INFO);
@@ -27,8 +23,7 @@ int main()
 
     if (SOCKET_ERROR == info_count)
     {
-        int e_code = WSAGetLastError();
-        if (e_code != WSAENOBUFS)
+        if (int e_code = WSAGetLastError(); e_code != WSAENOBUFS)
         {
             std::cerr << "WSAEnumProtocols failed with error: " << e_code << std::endl;
             return EXIT_FAILURE;
@@ -63,8 +58,7 @@ int main()
                   << "Protocol Chain length: " << protocol_info[i].ProtocolChain.ChainLen << "\n"
                   << std::endl;
 
-        std::wstring guid_string;
-        guid_string.resize(40);
+        std::wstring guid_string(40, 0);
 
         if (!StringFromGUID2(
                 protocol_info[i].ProviderId, reinterpret_cast<LPOLESTR>(guid_string.data()), guid_string.size() - 1))
