@@ -53,9 +53,9 @@ int main(int argc, char const *argv[])
     // socket address used to store client address
     sockaddr_in client_address = {0};
     socklen_t client_address_len = sizeof(sockaddr_in);
+    std::array<char, INET_ADDRSTRLEN> client_address_buf;
 
     std::cout << "Running echo server...\n" << std::endl;
-    std::array<char, INET_ADDRSTRLEN> client_address_buf;
 
     while (true)
     {
