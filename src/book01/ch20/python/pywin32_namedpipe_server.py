@@ -19,8 +19,8 @@ from winerror import ERROR_MORE_DATA, ERROR_PIPE_BUSY
 
 
 h_pipe = None
-message = 'I\'m server: '
-pipe_name = R'\\.\pipe\test_pipe'
+message = "I'm server: "
+pipe_name = r'\\.\pipe\test_pipe'
 buf_size = 1024
 
 # Try to open a named pipe; wait for it, if necessary.
