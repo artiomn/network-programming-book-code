@@ -4,4 +4,5 @@ from pythonping import ping
 
 
 if '__main__' == __name__:
-    print(f'Ping:\n{ping("google.com")}')
+    result = ping('google.com')
+    print(f'Ping:\n{result}')
