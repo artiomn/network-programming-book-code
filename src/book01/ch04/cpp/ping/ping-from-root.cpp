@@ -1,5 +1,6 @@
 #include "ping.h"
 
+
 int main(int argc, const char *argv[])
 {
     if (argc != 2)
@@ -18,12 +19,13 @@ int main(int argc, const char *argv[])
 
     std::cout << "Pinging \"" << host_name << "\" [" << addr_p << "]" << std::endl;
 
-    const socket_wrapper::Socket sock = {AF_INET, SOCK_RAW, IPPROTO_ICMP};
+    const int sock_type = SOCK_RAW;
+
+    const socket_wrapper::Socket sock = {AF_INET, sock_type, IPPROTO_ICMP};
 
     if (!sock)
     {
         std::cerr << "Can't create raw socket: " << sock_wrap.get_last_error_string() << std::endl;
-
         return EXIT_FAILURE;
     }
     else
@@ -33,7 +35,9 @@ int main(int argc, const char *argv[])
 
     std::cout << "Starting to send packets..." << std::endl;
     // Send pings continuously.
-    send_ping(sock, host_name, *reinterpret_cast<const sockaddr_in *>(addrs->ai_addr), true /*ip_headers_enabled*/);
+    send_ping(
+        sock, host_name, *reinterpret_cast<const sockaddr_in *>(addrs->ai_addr),
+        SOCK_RAW == sock_type /*ip_headers_enabled*/);
 
     return EXIT_SUCCESS;
 }

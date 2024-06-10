@@ -1,5 +1,6 @@
 #include "ping.h"
 
+
 int main(int argc, const char *argv[])
 {
     if (argc != 2)
@@ -12,14 +13,15 @@ int main(int argc, const char *argv[])
     const std::string host_name = {argv[1]};
     auto addrs = socket_wrapper::get_client_info(host_name, 0, SOCK_DGRAM);
 
-    std::string addr_p;
-    addr_p.resize(INET6_ADDRSTRLEN);
+    std::string addr_p(INET6_ADDRSTRLEN, 0);
     auto si = reinterpret_cast<const sockaddr_in *>(addrs->ai_addr);
     inet_ntop(addrs->ai_family, &si->sin_addr, addr_p.data(), addr_p.size());
 
     std::cout << "Pinging \"" << host_name << "\" [" << addr_p << "]" << std::endl;
 
-    socket_wrapper::Socket sock = {AF_INET, SOCK_DGRAM, IPPROTO_ICMP};
+    const int sock_type = SOCK_DGRAM;
+
+    socket_wrapper::Socket sock = {AF_INET, sock_type, IPPROTO_ICMP};
 
     if (!sock)
     {
@@ -34,8 +36,8 @@ int main(int argc, const char *argv[])
     std::cout << "Starting to send packets..." << std::endl;
     // Send pings continuously.
     send_ping(
-        sock, host_name, *reinterpret_cast<const sockaddr_in *>(addrs->ai_addr), false /*ip_headers_enabled*/,
-        true /*set_recv_timeout*/);
+        sock, host_name, *reinterpret_cast<const sockaddr_in *>(addrs->ai_addr),
+        SOCK_RAW == sock_type /*ip_headers_enabled*/);
 
     return EXIT_SUCCESS;
 }

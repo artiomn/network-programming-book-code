@@ -12,7 +12,7 @@
 #include <utility>
 #include <vector>
 
-#ifdef _WIN32
+#if defined(_WIN32)
 #    include <process.h>
 #    ifndef getpid
 #        define getpid _getpid
@@ -26,6 +26,7 @@
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
 
+
 using namespace std::chrono_literals;
 
 // Define the Packet Constants.
@@ -37,10 +38,10 @@ constexpr auto ping_sleep_rate = 1000000us;
 constexpr auto recv_timeout = 1s;
 
 // Echo Request.
-constexpr int icmp_echo = 8;
+constexpr int ICMP_ECHO = 8;
 
 // Echo Response.
-constexpr int icmp_echo_reply = 0;
+constexpr int ICMP_ECHO_REPLY = 0;
 
 
 #pragma pack(push, 1)
@@ -65,6 +66,7 @@ struct icmphdr
             uint16_t __unused;
             // cppcheck-suppress unusedStructMember
             uint16_t mtu;
+            // cppcheck-suppress unusedStructMember
         } frag; /* path mtu discovery */
     } un;
 };
@@ -157,10 +159,10 @@ public:
 
         // Checksum field in the packet must be equal to 0 before checksum calculation.
         real_header->checksum = 0;
-        auto result = checksum();
+        auto new_checksum = checksum();
         real_header->checksum = old_checksum;
 
-        return old_checksum == result;
+        return old_checksum == new_checksum;
     }
 
 private:
@@ -172,14 +174,14 @@ private:
 
     void create_new_packet(uint16_t packet_id, uint16_t packet_sequence_number, size_t packet_size)
     {
-        static_assert(sizeof(BufferType::value_type) == 1);
+        static_assert(1 == sizeof(BufferType::value_type));
         assert(packet_size > sizeof(icmphdr));
 
         data_buffer_.resize(packet_size);
 
         auto p_header = get_header_from_buffer();
 
-        p_header->type = icmp_echo;
+        p_header->type = ICMP_ECHO;
         p_header->code = 0;
         p_header->checksum = 0;
         p_header->un.echo.id = htons(packet_id);
@@ -226,14 +228,17 @@ private:
     uint16_t sequence_number_{0};
 };
 
+
 inline void send_ping(
     const socket_wrapper::Socket &sock, const std::string &hostname, const sockaddr_in &host_address,
-    bool ip_headers_enabled = true, bool set_recv_timeout = false)
+    bool ip_headers_enabled = true)
 {
     using namespace std::chrono;
 
+    socket_wrapper::SocketWrapper sock_wrap;
+
 #if !defined(WIN32)
-    struct timeval tv = {
+    timeval tv = {
         .tv_sec = std::chrono::duration<int64_t>(duration_cast<seconds>(recv_timeout)).count(),
         // Ugly, but it will work.
         .tv_usec =
@@ -250,14 +255,14 @@ inline void send_ping(
     constexpr int ttl_val = 255;
     if (setsockopt(sock, IPPROTO_IP, IP_TTL, reinterpret_cast<const char *>(&ttl_val), sizeof(ttl_val)) != 0)
     {
-        throw std::runtime_error("TTL setting failed!");
+        throw std::system_error(sock_wrap.get_last_error_code(), std::system_category(), "TTL setting failed!");
     }
 
     // Setting timeout of recv setting.
-    if (set_recv_timeout &&
-        setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char *>(&tv), sizeof(tv)) != 0)
+    if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char *>(&tv), sizeof(tv)) != 0)
     {
-        throw std::runtime_error("Recv timeout setting failed!");
+        throw std::system_error(
+            sock_wrap.get_last_error_code(), std::system_category(), "Recv timeout setting failed!");
     }
 
     std::cout << "TTL = " << ttl_val << "\n";
@@ -280,10 +285,9 @@ inline void send_ping(
 
         if (sendto(
                 sock, static_cast<const char *>(request), request.size(), 0,
-                reinterpret_cast<const struct sockaddr *>(&host_address), sizeof(host_address)) < request.size())
+                reinterpret_cast<const sockaddr *>(&host_address), sizeof(host_address)) < request.size())
         {
-            std::cerr << "Packet sending failed: \""
-                      << "\"" << std::endl;
+            std::cerr << "Packet sending failed: \"" << sock_wrap.get_last_error_string() << "\"" << std::endl;
             continue;
         }
 
@@ -297,21 +301,24 @@ inline void send_ping(
 
         const auto start_time = std::chrono::steady_clock::now();
 
-        if (recvfrom(sock, buffer.data(), buffer.size(), 0, reinterpret_cast<struct sockaddr *>(&r_addr), &addr_len) <
-            buffer.size())
+        if (recvfrom(sock, buffer.data(), buffer.size(), 0, reinterpret_cast<sockaddr *>(&r_addr), &addr_len) < 0)
         {
-            std::cerr << "Packet receiving failed: \""
-                      << "\"" << std::endl;
+            std::cerr << "Packet receiving failed: \"" << sock_wrap.get_last_error_string() << "\"" << std::endl;
             continue;
         }
 
         const auto ip_header_len = [&buffer]()
-        { return (reinterpret_cast<const struct ip_hdr *>(buffer.data())->ip_verlen & 0x0f) * sizeof(uint32_t); };
+        { return (reinterpret_cast<const ip_hdr *>(buffer.data())->ip_verlen & 0x0f) * sizeof(uint32_t); };
         auto response = ip_headers_enabled
                             ? ping_factory.create_response(buffer.begin() + ip_header_len(), buffer.end())
                             : ping_factory.create_response(std::move(buffer));
 
-        if ((icmp_echo_reply == response.header().type) && (0 == response.header().code))
+        if (!response)
+        {
+            std::cerr << "Bad response checksum!" << std::endl;
+        }
+
+        if ((ICMP_ECHO_REPLY == response.header().type) && (0 == response.header().code))
         {
             const auto end_time = std::chrono::steady_clock::now();
             const auto &response_echo_header = response.header().un.echo;
