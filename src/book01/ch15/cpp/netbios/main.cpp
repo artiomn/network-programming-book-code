@@ -1,7 +1,7 @@
 extern "C"
 {
-#include <nb30.h>
 #include <windows.h>
+#include <nb30.h>
 }
 
 

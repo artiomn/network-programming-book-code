@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
         while (true)
         {
             WSAQUERYSET test_query = {};
-            size_t length = sizeof(test_query);
+            DWORD length = sizeof(test_query);
 
             if (SUCCEEDED(WSALookupServiceNext(h_lookup, 0, &length, &test_query)))
             {

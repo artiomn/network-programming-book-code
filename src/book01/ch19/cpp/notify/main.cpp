@@ -1,6 +1,7 @@
 extern "C"
 {
 // Must not be sorted!
+#include <ws2tcpip.h>
 #include <ip2string.h>
 #include <iphlpapi.h>
 #include <mstcpip.h>

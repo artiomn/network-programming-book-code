@@ -4,9 +4,9 @@
 
 extern "C"
 {
-#include <icmpapi.h>
 #include <ipexport.h>
 #include <iphlpapi.h>
+#include <icmpapi.h>
 }
 
 #include <cerrno>
