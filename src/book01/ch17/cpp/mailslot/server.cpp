@@ -3,8 +3,8 @@ extern "C"
 #include <windows.h>
 }
 
+#include <array>
 #include <iostream>
-#include <vector>
 
 
 int main()
@@ -17,18 +17,16 @@ int main()
         std::cerr << "CreateMailslot failed" << std::endl;
         return EXIT_FAILURE;
     }
-    else
-    {
-        std::cout << "Mailslot created successfully." << std::endl;
-        std::vector<char> buffer(2048);
-        DWORD bytes_read;
 
-        while (ReadFile(h_slot, &buffer[0], buffer.size(), &bytes_read, nullptr))
-        {
-            std::cout << "Received: " << std::string(buffer.begin(), buffer.begin() + bytes_read) << std::endl;
-        }
-        CloseHandle(h_slot);
+    std::cout << "Mailslot created successfully." << std::endl;
+    std::array<char, 2048> buffer;
+    DWORD bytes_read = 0;
+
+    while (ReadFile(h_slot, &buffer[0], buffer.size(), &bytes_read, nullptr))
+    {
+        std::cout << "Received: " << std::string(buffer.begin(), buffer.begin() + bytes_read) << std::endl;
     }
 
+    CloseHandle(h_slot);
     return EXIT_SUCCESS;
 }
