@@ -4,7 +4,7 @@ extern "C"
 }
 
 #include <iostream>
-#include <vector>
+#include <string>
 
 
 int main()
@@ -21,15 +21,16 @@ int main()
 
     const std::string msg = "Test message...";
 
-    DWORD bytes_written;
+    DWORD bytes_written = 0;
 
-    if (WriteFile(h_slot, msg.c_str(), msg.size(), &bytes_written, nullptr))
+    if (!WriteFile(h_slot, msg.c_str(), msg.size(), &bytes_written, nullptr))
     {
-        std::cout << "Ok" << std::endl;
+        std::cerr << "Failed " << GetLastError() << std::endl;
+        CloseHandle(h_slot);
+        return EXIT_FAILURE;
     }
-    else
-        std::cerr << "Failed" << std::endl;
 
+    std::cout << "Ok" << std::endl;
     CloseHandle(h_slot);
     return EXIT_SUCCESS;
 }
