@@ -33,7 +33,7 @@ AddrInfoResult get_serv_info(const std::string &port, int sock_type)
 
 AddrInfoResult get_client_info(const std::string &host, const std::string &port, int sock_type, int sock_family)
 {
-    struct addrinfo hints = {
+    addrinfo hints = {
         .ai_flags = AI_CANONNAME | AI_NUMERICSERV,
         .ai_family = sock_family,
         .ai_socktype = sock_type,

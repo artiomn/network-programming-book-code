@@ -51,6 +51,7 @@ bool send_request(const socket_wrapper::Socket &sock, const std::string &request
     return true;
 }
 
+
 bool recv_request(const socket_wrapper::Socket &sock)
 {
     std::array<char, MAX_RECV_BUFFER_SIZE> buffer;
