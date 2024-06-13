@@ -7,6 +7,29 @@ from array import array
 MAX_RECV_BUFFER_SIZE: int = 256
 
 
+def recv_request(sock: socket.socket) -> bool:  # pylint: disable=redefined-outer-name
+    """Receive request from the socket."""
+
+    buffer = array('b', [0] * MAX_RECV_BUFFER_SIZE)
+
+    while True:
+        try:
+            recv_bytes = sock.recv_into(buffer, len(buffer) - 1, 0)
+            print(f'{recv_bytes} was received...')
+        except BlockingIOError:
+            print('BlockingIOError was caught...')
+            return True
+
+        if recv_bytes < 0:
+            return False
+        if recv_bytes == 0:
+            return True
+
+        buffer[recv_bytes] = 0
+        print('------------')
+        print(buffer.tobytes())
+
+
 if '__main__' == __name__:
     parser = argparse.ArgumentParser(description='Telnet example.')
     parser.add_argument('host', type=str, help='host name')
@@ -31,19 +54,5 @@ if '__main__' == __name__:
         sock.sendall(user_request.encode())
 
         print('Request was sent, reading response...')
-        buffer = array('b', [0] * MAX_RECV_BUFFER_SIZE)
-
-        while True:
-            try:
-                recv_bytes = sock.recv_into(buffer, len(buffer) - 1, 0)
-                print(f'{recv_bytes} was received...')
-            except BlockingIOError:
-                print('BlockingIOError was caught...')
-                break
-            else:
-                if recv_bytes <= 0:
-                    break
-
-                buffer[recv_bytes] = 0
-                print('------------')
-                print(buffer.tobytes().decode())
+        if not recv_request(sock):
+            break
