@@ -20,10 +20,10 @@ extern "C"
 
 
 constexpr size_t buffer_size = 255;
-
 std::atomic<bool> oob_flag = false;
 
-void signal_handler_wrapper(int signal)
+
+void signal_handler(int signal)
 {
     std::cout << "SIGURG [" << signal << "] received" << std::endl;
     oob_flag = true;
@@ -42,7 +42,7 @@ int main(int argc, const char *const argv[])
 
     try
     {
-        if (SIG_ERR == std::signal(SIGURG, signal_handler_wrapper))
+        if (SIG_ERR == std::signal(SIGURG, signal_handler))
         {
             throw std::system_error(errno, std::system_category(), "signal");
         }
@@ -63,15 +63,15 @@ int main(int argc, const char *const argv[])
             switch (sockatmark(client_sock))
             {
                 case -1:
-                    throw std::system_error(errno, std::system_category(), "sockatmark");
+                    throw std::system_error(sock_wrap.get_last_error_code(), std::system_category(), "sockatmark");
                     break;
                 case 1:
                     if (!oob_flag) continue;
                     std::cout << "OOB data received..." << std::endl;
-
-                    if (char oob_data = recv(client_sock, &oob_data, 1, MSG_OOB); -1 == oob_data)
+                    char oob_data;
+                    if (recv(client_sock, &oob_data, 1, MSG_OOB) < 0)
                     {
-                        throw std::system_error(errno, std::system_category(), "recv oob");
+                        throw std::system_error(sock_wrap.get_last_error_code(), std::system_category(), "recv oob");
                     }
                     else
                     {
@@ -83,12 +83,13 @@ int main(int argc, const char *const argv[])
                 case 0:
                     if (ssize_t n = recv(client_sock, data_buff.data(), data_buff.size(), 0); n < 0)
                     {
-                        if (EINTR == errno || EAGAIN == errno)
+                        auto e_code = sock_wrap.get_last_error_code();
+                        if (EINTR == e_code || EAGAIN == e_code)
                         {
                             std::cout << "recv was broken by signal!" << std::endl;
                             continue;
                         }
-                        throw std::system_error(errno, std::system_category(), "recv data");
+                        throw std::system_error(e_code, std::system_category(), "recv data");
                     }
                     else if (!n)
                     {

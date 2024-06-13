@@ -59,7 +59,7 @@ int main(int argc, const char *const argv[])
                     char oob_data;
                     if (-1 == recv(client_sock, &oob_data, 1, MSG_OOB))
                     {
-                        throw std::system_error(errno, std::system_category(), "recv oob");
+                        throw std::system_error(sock_wrap.get_last_error_code(), std::system_category(), "recv oob");
                     }
                     std::cout << "OOB data = " << oob_data << std::endl;
                     oob_printed = true;
@@ -67,7 +67,7 @@ int main(int argc, const char *const argv[])
                 case 0:
                     if (ssize_t n = recv(client_sock, data_buff.data(), data_buff.size(), 0); n < 0)
                     {
-                        throw std::system_error(errno, std::system_category(), "recv data");
+                        throw std::system_error(sock_wrap.get_last_error_code(), std::system_category(), "recv data");
                     }
                     else if (!n)
                     {
