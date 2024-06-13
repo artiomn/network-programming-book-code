@@ -126,8 +126,9 @@ void PrintInterfaceList()
 }
 
 
-int main(int argc, const char* const argv[])
+int main()
 {
     socket_wrapper::SocketWrapper sw;
     PrintInterfaceList();
+    return EXIT_SUCCESS;
 }

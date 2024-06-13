@@ -17,9 +17,9 @@ int main()
 {
     std::vector<IP_ADAPTER_ADDRESSES> adapters(1);
     ULONG out_size = adapters.size() * sizeof(IP_ADAPTER_ADDRESSES);
-    auto ret_code = GetAdaptersAddresses(AF_UNSPEC, 0, nullptr, adapters.data(), &out_size);
 
-    if (ret_code != NO_ERROR)
+    if (const auto ret_code = GetAdaptersAddresses(AF_UNSPEC, 0, nullptr, adapters.data(), &out_size);
+        ret_code != NO_ERROR)
     {
         if (ERROR_BUFFER_OVERFLOW == ret_code)
         {
@@ -40,8 +40,6 @@ int main()
             return EXIT_FAILURE;
         }
     }
-
-    SOCKADDR adapter_addr = {0};
 
     // Network initialization need for the address conversion.
     socket_wrapper::SocketWrapper sw;
@@ -104,20 +102,20 @@ int main()
             case IfOperStatusLowerLayerDown:
                 std::cout << "IfOperStatusLowerLayerDown\n";
                 break;
+            default:
+                std::cout << "Other\n";
         };
 
         for (auto addr = adapter->FirstUnicastAddress; addr; addr = addr->Next)
         {
-            std::string ip;
-            ip.resize(INET_ADDRSTRLEN + 1);
-            DWORD sz = ip.size() - 1;
-            WSAAddressToString(addr->Address.lpSockaddr, addr->Address.iSockaddrLength, nullptr, ip.data(), &sz);
-
-            std::cout << "My address = " << ip.c_str() << std::endl;
+            std::string ip(INET_ADDRSTRLEN, 0);
+            DWORD sz = ip.size();
+            if (WSAAddressToString(addr->Address.lpSockaddr, addr->Address.iSockaddrLength, nullptr, &ip[0], &sz) == 0)
+                std::cout << "My address = " << ip.c_str() << std::endl;
         }
 
         std::cout << std::endl;
     }
 
-    return EXIT_FAILURE;
+    return EXIT_SUCCESS;
 }
