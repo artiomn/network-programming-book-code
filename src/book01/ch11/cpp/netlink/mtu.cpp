@@ -11,7 +11,7 @@ extern "C"
 #include <iostream>
 
 
-const auto BUF_SIZE = 1024;
+constexpr auto BUF_SIZE = 1024;
 
 
 int main(int argc, const char *const argv[])
@@ -32,7 +32,7 @@ int main(int argc, const char *const argv[])
         char attrbuf[BUF_SIZE];
     } req = {0};
 
-    int rtnetlink_sk = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
+    const int rtnetlink_sk = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
 
     if (rtnetlink_sk < 0)
     {
@@ -62,4 +62,6 @@ int main(int argc, const char *const argv[])
         perror("send");
         return EXIT_FAILURE;
     }
+
+    return EXIT_SUCCESS;
 }

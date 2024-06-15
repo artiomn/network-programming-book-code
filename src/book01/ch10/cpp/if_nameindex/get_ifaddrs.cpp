@@ -16,57 +16,56 @@ extern "C"
 
 void print_address(const sockaddr *ia)
 {
-    if (ia)
+    if (!ia)
     {
-        std::vector<char> addr_buf;
-        const void *addr;
+        std::cout << ": nullptr, but flag is set";
+        return;
+    }
 
-        if (AF_INET == ia->sa_family)
-        {
-            addr_buf.resize(INET_ADDRSTRLEN);
-            addr = &(reinterpret_cast<const sockaddr_in *>(ia))->sin_addr;
+    std::vector<char> addr_buf;
+    const void *addr = nullptr;
 
-            std::cout << " IPv4: " << inet_ntop(ia->sa_family, addr, &addr_buf[0], addr_buf.size());
-        }
-        else if (AF_INET6 == ia->sa_family)
-        {
-            addr_buf.resize(INET6_ADDRSTRLEN);
-            addr = &(reinterpret_cast<const sockaddr_in6 *>(ia))->sin6_addr;
-            std::cout << " IPv6: " << inet_ntop(ia->sa_family, addr, &addr_buf[0], addr_buf.size());
-        }
-        else if (AF_PACKET == ia->sa_family)
-        {
-            std::cout << " AF_PACKET: ";
-            std::ios_base::fmtflags f(std::cout.flags());
-            auto sa = reinterpret_cast<const sockaddr_ll *>(ia);
+    if (AF_INET == ia->sa_family)
+    {
+        addr_buf.resize(INET_ADDRSTRLEN);
+        addr = &(reinterpret_cast<const sockaddr_in *>(ia))->sin_addr;
 
-            for (const auto *i = sa->sll_addr; i < sa->sll_addr + sa->sll_halen; ++i)
-                std::cout << std::hex << std::setfill('0') << std::setw(2) << int(*i) << ":";
-            std::cout.flags(f);
-            std::cout << "\n    if index = " << sa->sll_ifindex;
-        }
-        else
-        {
-            std::cout << ia->sa_family << " addr type";
-        }
+        std::cout << " IPv4: " << inet_ntop(ia->sa_family, addr, &addr_buf[0], addr_buf.size());
+    }
+    else if (AF_INET6 == ia->sa_family)
+    {
+        addr_buf.resize(INET6_ADDRSTRLEN);
+        addr = &(reinterpret_cast<const sockaddr_in6 *>(ia))->sin6_addr;
+        std::cout << " IPv6: " << inet_ntop(ia->sa_family, addr, &addr_buf[0], addr_buf.size());
+    }
+    else if (AF_PACKET == ia->sa_family)
+    {
+        std::cout << " AF_PACKET: ";
+        std::ios_base::fmtflags f(std::cout.flags());
+        auto sa = reinterpret_cast<const sockaddr_ll *>(ia);
+
+        for (const auto *i = sa->sll_addr; i < sa->sll_addr + sa->sll_halen; ++i)
+            std::cout << std::hex << std::setfill('0') << std::setw(2) << int(*i) << ":";
+        std::cout.flags(f);
+        std::cout << "\n    if index = " << sa->sll_ifindex;
     }
     else
     {
-        std::cout << ": nullptr, but flag is set";
+        std::cout << ia->sa_family << " addr type";
     }
 }
 
 
 int main(int argc, const char *const argv[])
 {
-    ifaddrs *ifa;
+    ifaddrs *ifa = nullptr;
     if (getifaddrs(&ifa) < 0)
     {
         perror("getifaddrs");
         return EXIT_FAILURE;
     }
 
-    std::unique_ptr<ifaddrs, decltype(&freeifaddrs)> if_ni(ifa, &freeifaddrs);
+    const std::unique_ptr<ifaddrs, decltype(&freeifaddrs)> if_ni(ifa, &freeifaddrs);
 
     for (auto i = if_ni.get(); i->ifa_next != nullptr; i = i->ifa_next)
     {

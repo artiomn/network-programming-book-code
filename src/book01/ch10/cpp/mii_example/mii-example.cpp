@@ -12,6 +12,7 @@ extern "C"
 }
 
 #include <algorithm>
+#include <cassert>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -25,6 +26,7 @@ int main(int argc, const char *const argv[])
         return EXIT_FAILURE;
     }
 
+    assert(argv[1]);
     std::string iface_name{argv[1]};
 
     std::cout << "Interface: " << iface_name << std::endl;
@@ -32,7 +34,7 @@ int main(int argc, const char *const argv[])
     ifreq ifr = {0};
     std::copy_n(iface_name.c_str(), std::min(static_cast<size_t>(IF_NAMESIZE - 1), iface_name.size()), ifr.ifr_name);
 
-    int sock = socket(PF_INET, SOCK_DGRAM, 0);
+    const int sock = socket(PF_INET, SOCK_DGRAM, 0);
 
     if (sock < 0)
     {

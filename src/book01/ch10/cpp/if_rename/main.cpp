@@ -8,6 +8,7 @@ extern "C"
 }
 
 #include <algorithm>
+#include <cassert>
 #include <exception>
 #include <iostream>
 #include <string>
@@ -20,7 +21,7 @@ std::string set_interface_name(const std::string &old_name, const std::string &n
         throw std::logic_error("Incorrect name size");
     }
 
-    int sock = socket(PF_INET, SOCK_DGRAM, 0);
+    const int sock = socket(PF_INET, SOCK_DGRAM, 0);
 
     if (sock < 0)
     {
@@ -34,7 +35,7 @@ std::string set_interface_name(const std::string &old_name, const std::string &n
 
     if (ioctl(sock, SIOCSIFNAME, &ifr) != 0)
     {
-        auto e = errno;
+        const auto e = errno;
         close(sock);
         throw std::system_error(e, std::generic_category(), "SIOCSIFNAME ioctl failed");
     }
@@ -53,6 +54,8 @@ int main(int argc, const char *const argv[])
 
     try
     {
+        assert(argv[1]);
+        assert(argv[2]);
         std::cout << set_interface_name(argv[1], argv[2]) << std::endl;
     }
     catch (const std::system_error &e)

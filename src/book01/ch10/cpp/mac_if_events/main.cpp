@@ -10,16 +10,23 @@ extern "C"
 
 int main(int argc, const char* const argv[])
 {
-    int s = socket(PF_SYSTEM, SOCK_RAW, SYSPROTO_EVENT);
+    // TODO: use SocketWrapper instead
+    const int s = socket(PF_SYSTEM, SOCK_RAW, SYSPROTO_EVENT);
+    if (s < 0)
+    {
+        perror("socket");
+        return EXIT_FAILURE;
+    }
+
     kev_request key;
     key.vendor_code = KEV_VENDOR_APPLE;
     key.kev_class = KEV_NETWORK_CLASS;
     key.kev_subclass = KEV_ANY_SUBCLASS;
-    int code = ioctl(s, SIOCSKEVFILT, &key);
 
-    if (code < 0)
+    if (ioctl(s, SIOCSKEVFILT, &key) < 0)
     {
         perror("ioctl");
+        close(s);
         return EXIT_FAILURE;
     }
 
@@ -27,11 +34,10 @@ int main(int argc, const char* const argv[])
 
     while (true)
     {
-        code = recv(s, &msg, sizeof(msg), 0);
-
-        if (code < 0)
+        if (recv(s, &msg, sizeof(msg), 0) < 0)
         {
             perror("recv");
+            close(s);
             return EXIT_FAILURE;
         }
 
@@ -47,5 +53,7 @@ int main(int argc, const char* const argv[])
                 break;
         }
     }
+
+    close(s);
     return EXIT_SUCCESS;
 }

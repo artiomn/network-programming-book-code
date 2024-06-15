@@ -10,7 +10,7 @@ extern "C"
 
 int main()
 {
-    std::unique_ptr<struct if_nameindex, decltype(&if_freenameindex)> if_ni(if_nameindex(), &if_freenameindex);
+    const std::unique_ptr<struct if_nameindex, decltype(&if_freenameindex)> if_ni(if_nameindex(), &if_freenameindex);
 
     if (nullptr == if_ni)
     {
