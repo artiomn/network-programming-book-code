@@ -3,6 +3,7 @@
 #include <socket_wrapper/socket_wrapper.h>
 #include <svcguid.h>
 
+#include <array>
 #include <cassert>
 #include <iostream>
 

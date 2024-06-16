@@ -20,6 +20,9 @@ int main()
 #if defined(IOV_MAX)
         buf_count = IOV_MAX;
         std::cout << "Buffers count got via IOV_MAX\n";
+#else
+        std::cerr << "Can't get IOV_MAX" << std::endl;
+        return EXIT_FAILURE;
 #endif
     }
     else
