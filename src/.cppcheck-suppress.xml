@@ -1,23 +1,26 @@
 <?xml version="1.0"?>
 <suppressions>
   <suppress>
+      <fileName>src/book01/ch09/cpp/ancil_data_recv/main.cpp</fileName>
+      <id>normalCheckLevelMaxBranches</id>
+  </suppress>
+  <suppress>
     <!-- Skip "unused members" in the interface structures -->
     <id>unusedStructMember</id>
     <fileName>src/include/*</fileName>
   </suppress>
   <suppress>
     <id>unusedStructMember</id>
-    <fileName>src/ch17/lwip_example/*</fileName>
-    <fileName>src/ch17/mTCP-src_2020-03-07/*</fileName>
-    <fileName>src/ch17/TurboC-source/*</fileName>
+    <fileName>src/book03/ch09/lwip_example/*</fileName>
+    <fileName>src/book03/ch09/mTCP-src_2020-03-07/*</fileName>
   </suppress>
   <suppress>
     <id>toomanyconfigs</id>
-    <fileName>src/ch17/cpp/gpp-httplib-example/client.cpp</fileName>
+    <fileName>src/book03/ch09/cpp/cpp-httplib-example/client.cpp</fileName>
   </suppress>
   <suppress>
     <id>noValidConfiguration</id>
-    <fileName>src/ch17/cpp/cpp-httplib-example/client.cpp</fileName>
+    <fileName>src/book03/ch09/cpp/cpp-httplib-example/client.cpp</fileName>
   </suppress>
   <suppress>
     <id>*</id>
@@ -25,7 +28,7 @@
   </suppress>
   <suppress>
     <id>cppcheckError</id>
-    <fileName>src/ch19/cpp/zeromq/pub-sub.cpp</fileName>
+    <fileName>src/book03/ch15/cpp/zeromq/pub-sub.cpp</fileName>
   </suppress>
   <suppress>
     <id>*</id>

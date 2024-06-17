@@ -164,7 +164,7 @@ int main(int argc, char **argv)
     {
         int sp[2];
         if (socketpair(AF_UNIX, SOCK_DGRAM, 0, sp) != 0)
-            throw std::system_error(errno, std::system_category(), "socketpair");
+            throw std::system_error(sock_wrap.get_last_error_code(), std::system_category(), "socketpair");
 
         if (fork() > 0)
         {

@@ -32,7 +32,15 @@ int main(int argc, const char *const argv[])
 
         if (bind(sock, servinfo->ai_addr, servinfo->ai_addrlen) < 0)
         {
-            throw std::system_error(errno, std::system_category(), "bind");
+            throw std::system_error(sock_wrap.get_last_error_code(), std::system_category(), "bind");
+        }
+
+        int recv_ttl = 1;
+
+        // Enable IP_RECVTTL option.
+        if (setsockopt(sock, IPPROTO_IP, IP_RECVTTL, &recv_ttl, sizeof(recv_ttl)) != 0)
+        {
+            throw std::system_error(sock_wrap.get_last_error_code(), std::system_category(), "Set IP_RECVTTL");
         }
 
         std::array<char, 255> data_buff;
@@ -50,20 +58,12 @@ int main(int argc, const char *const argv[])
             .msg_controllen = ancil_data_buff.size(),
             .msg_flags = 0};
 
-        int recv_ttl = 1;
-
-        // Enable IP_RECVTTL option.
-        if (setsockopt(sock, IPPROTO_IP, IP_RECVTTL, &recv_ttl, sizeof(recv_ttl)) != 0)
-        {
-            throw std::system_error(errno, std::system_category(), "Set IP_RECVTTL");
-        }
-
         // Receive auxiliary data in msgh.
         for (ssize_t n = recvmsg(sock, &msgh, 0); n; n = recvmsg(sock, &msgh, 0))
         {
             if (n < 0)
             {
-                throw std::system_error(errno, std::system_category(), "recvmsg");
+                throw std::system_error(sock_wrap.get_last_error_code(), std::system_category(), "recvmsg");
             }
 
             std::cout << n << " bytes was read: " << std::string(data_buff.begin(), data_buff.begin() + n) << std::endl;
@@ -86,7 +86,8 @@ int main(int argc, const char *const argv[])
             if (nullptr == cmsg)
             {
                 // Error: IP_TTL was not enabled or small buffer or I/O error.
-                throw std::system_error(errno, std::system_category(), "IP_RECVTTL receiving");
+                throw std::system_error(
+                    sock_wrap.get_last_error_code(), std::system_category(), "IP_RECVTTL receiving");
             }
 
             break;
