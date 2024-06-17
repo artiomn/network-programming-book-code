@@ -9,10 +9,38 @@ extern "C"
 #include <icmpapi.h>
 }
 
+#include <cassert>
 #include <cerrno>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <vector>
+
+
+struct IcmpHandle
+{
+    IcmpHandle()
+        : handle(IcmpCreateFile())
+    {
+        if (INVALID_HANDLE_VALUE == handle)
+        {
+            throw std::system_error(GetLastError(), std::system_category(), "IcmpCreateFile() error!");
+        }
+    }
+
+    ~IcmpHandle()
+    {
+        if (!IcmpCloseHandle(handle))
+        {
+            std::cerr << "IcmpCloseHandle failed with code " << GetLastError() << std::endl;
+        }
+    }
+
+    operator HANDLE() const noexcept { return handle; }
+
+private:
+    const HANDLE handle;
+};
 
 
 // Ping function for return host availability time.
@@ -25,7 +53,6 @@ enum class t_ping_func
 
 
 // Ping options.
-
 enum ping_options : unsigned char
 {
     // Checking availability.
@@ -41,52 +68,52 @@ enum ping_options : unsigned char
 //
 
 // Delay between pings in ms.
-const auto PING_DEF_DELAY = 1000;
+constexpr auto PING_DEF_DELAY = 1000;
 // Packets count.
-const auto PING_DEF_COUNT = 3;
+constexpr auto PING_DEF_COUNT = 3;
 // Packet size in bytes.
-const auto PING_DEF_DATA_SIZE = 32;
+constexpr auto PING_DEF_DATA_SIZE = 32;
 // Default ping function.
-const auto PING_DEF_FUNC = t_ping_func::tpf_max;
+constexpr auto PING_DEF_FUNC = t_ping_func::tpf_max;
 
 //
 // Limitations.
 //
 
-const auto PING_MAX_DATA_SIZE = 0xffe0;
+constexpr auto PING_MAX_DATA_SIZE = 0xffe0;
 // Maximum ping time (maximum retransmission time about 4 min.)
-const auto PING_MAX_TIME = 250000;
+constexpr auto PING_MAX_TIME = 250000;
 
 
 struct t_ping_data
 {
-    char *host;
-    DWORD opts;
-    t_ping_func ping_func;
-    int count;
-    int delay;
-    size_t buf_sz;
-    char pattern;
+    char *host{0};
+    DWORD opts{0};
+    t_ping_func ping_func{t_ping_func::tpf_avg};
+    int count{0};
+    int delay{0};
+    size_t buf_sz{0};
+    char pattern{0};
 };
 
 
 // cppcheck-suppress constParameterReference
-PICMP_ECHO_REPLY create_reply_buffer(char *buf, unsigned short data_sz, std::vector<char> &reply_holder)  // NOLINT
+PICMP_ECHO_REPLY create_reply_buffer(std::vector<char> &buf, std::vector<char> &reply_holder)  // NOLINT
 {
     auto p_reply = new (reply_holder.data()) ICMP_ECHO_REPLY;
 
-    // Already zeroed.
-    // std::fill(reinterpret_cast<char*>(p_reply), reinterpret_cast<char*>(p_reply) + sizeof(ICMP_ECHO_REPLY), 0);
+    p_reply->Data = buf.data();
 
-    p_reply->Data = buf;
-    p_reply->DataSize = data_sz;
+    assert(buf.size() <= (std::numeric_limits<USHORT>::max)());
+    p_reply->DataSize = static_cast<USHORT>(buf.size());
 
     return p_reply;
 }
 
 
-int get_end_time(const DWORD end_time, const t_ping_data *const wping, const DWORD rtt)
+int get_end_time(DWORD end_time, const t_ping_data *const wping, DWORD rtt)
 {
+    assert(wping);
     switch (wping->ping_func)
     {
         case t_ping_func::tpf_max:
@@ -108,15 +135,10 @@ int get_end_time(const DWORD end_time, const t_ping_data *const wping, const DWO
 bool ping(const t_ping_data *const wping)
 {
     // IP options.
-    IP_OPTION_INFORMATION ip_info;
+    IP_OPTION_INFORMATION ip_info{};
     std::vector<char> buf;
 
-    bool ret_status = false;
-    // Reply time.
-    int end_time;
-    // Ping with responses.
-    DWORD good_packets_cnt = 0;
-
+    assert(wping);
     if (wping->buf_sz > 0)
     {
         if (wping->buf_sz > PING_MAX_DATA_SIZE)
@@ -135,14 +157,9 @@ bool ping(const t_ping_data *const wping)
 
     std::vector<char> reply_buf(sizeof(ICMP_ECHO_REPLY) + buf.size());
 
-    auto echo_reply = create_reply_buffer(buf.data(), static_cast<unsigned short>(buf.size()), reply_buf);  // NOLINT
+    auto echo_reply = create_reply_buffer(buf, reply_buf);  // NOLINT
     // Get an ICMP echo request handle.
-    HANDLE hndl_icmp = IcmpCreateFile();
-
-    if (INVALID_HANDLE_VALUE == hndl_icmp)
-    {
-        throw std::system_error(errno, std::system_category(), "IcmpCreateFile() error!");
-    }
+    IcmpHandle hndl_icmp;
 
     auto addrs = socket_wrapper::get_client_info(wping->host, 0, SOCK_STREAM, AF_INET);
     addrinfo *ai = addrs.get();
@@ -163,9 +180,13 @@ bool ping(const t_ping_data *const wping)
         throw std::logic_error("Can't lookup destination!");
     }
 
-    std::string ip_buf;
-    ip_buf.resize(INET_ADDRSTRLEN);
+    std::string ip_buf(INET_ADDRSTRLEN, 0);
 
+    bool ret_status = false;
+    // Reply time.
+    int end_time = 0;
+    // Ping with responses.
+    DWORD good_packets_cnt = 0;
     while (true)
     {
         // Lookup destination
@@ -248,7 +269,6 @@ bool ping(const t_ping_data *const wping)
             std::cout << "-1" << std::endl;
     }
 
-    IcmpCloseHandle(hndl_icmp);
     return ret_status;
 }
 
@@ -261,8 +281,8 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    socket_wrapper::SocketWrapper sw;
-    struct t_ping_data wping;
+    const socket_wrapper::SocketWrapper sw;
+    t_ping_data wping;
 
     wping.opts = PING_OPT_VERBOSE;  // PING_OPT_NOSLEEP, PING_OPT_AVAIL
     wping.count = PING_DEF_COUNT;
