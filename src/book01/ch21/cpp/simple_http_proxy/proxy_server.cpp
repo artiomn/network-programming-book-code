@@ -4,27 +4,35 @@
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
 
+#include <array>
 #include <cassert>
 #include <exception>
+#include <iostream>
 #include <memory>
+#include <regex>
 #include <sstream>
+#include <thread>
 #include <utility>
 
+
 // https://stackoverflow.com/questions/27745/getting-parts-of-a-url-regex .
-const std::regex ProxyServer::uri_regexp(
+const std::regex uri_regexp(
     R"_((?:([^\:]*)\://)?(?:([^\:\@]*)(?:\:([^\@]*))?\@)?(?:([^/\:]*)\.(?=[^\./\:]*\.[^\./\:]*))?([^\./\:]*)(?:\.([^/\.\:]*))?(?:\:([0-9]*))?(/[^\?#]*(?=.*?/)/)?([^\?#]*)?(?:\?([^#]*))?(?:#(.*))?)_",
     std::regex_constants::ECMAScript | std::regex_constants::icase);
 
+constexpr size_t back_log = 10;
+constexpr std::uint16_t default_target_port = 80;
+
 // Necessary headers.
-const std::string user_agent_hdr =  // NOLINT
+constexpr char user_agent_hdr[] =
     "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:93.0) Gecko/20100101 Firefox/93.0\r\n";
-const std::string accept_hdr = "Accept: text/html,application/xhtml+xml,application/xml;\r\n";  // NOLINT
-const std::string accept_encoding_hdr = "Accept-Encoding: identity\r\n";                        // NOLINT
-const std::string connection_hdr = "Connection: close\r\n";                                     // NOLINT
-const std::string proxy_conn_hdr = "Proxy-Connection: close\r\n";                               // NOLINT
+constexpr char accept_hdr[] = "Accept: text/html,application/xhtml+xml,application/xml;\r\n";
+constexpr char accept_encoding_hdr[] = "Accept-Encoding: identity\r\n";
+constexpr char connection_hdr[] = "Connection: close\r\n";
+constexpr char proxy_conn_hdr[] = "Proxy-Connection: close\r\n";
 
 
-static inline std::string &rtrim(std::string &s)
+inline std::string &rtrim(std::string &s)
 {
     s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), s.end());
 
@@ -32,7 +40,7 @@ static inline std::string &rtrim(std::string &s)
 }
 
 
-ProxyServer::ProxyServer(unsigned short port) : port_(port), sock_(AF_INET, SOCK_STREAM, IPPROTO_TCP)
+ProxyServer::ProxyServer(std::uint16_t port) : port_(port), sock_(AF_INET, SOCK_STREAM, IPPROTO_TCP)
 {
     if (!sock_)
     {
@@ -41,21 +49,14 @@ ProxyServer::ProxyServer(unsigned short port) : port_(port), sock_(AF_INET, SOCK
 }
 
 
-ProxyServer::~ProxyServer()
+std::string ProxyServer::read_line(const socket_wrapper::Socket &s) const
 {
-    stop();
-}
-
-
-std::string ProxyServer::read_line(socket_wrapper::Socket &s) const
-{
-    ssize_t read_bytes;
     std::string result;
-    char ch;
 
     for (;;)
     {
-        read_bytes = ::recv(s, &ch, 1, 0);
+        char ch = 0;
+        const ssize_t read_bytes = ::recv(s, &ch, 1, 0);
 
         if (-1 == read_bytes)
         {
@@ -64,7 +65,7 @@ std::string ProxyServer::read_line(socket_wrapper::Socket &s) const
             if (EINTR == errno)
                 continue;
             else
-#endif
+#endif  // _WIN32
                 throw std::system_error(errno, std::system_category(), "recv");
         }
         // EOF.
@@ -84,10 +85,23 @@ std::string ProxyServer::read_line(socket_wrapper::Socket &s) const
 
 
 void ProxyServer::client_error(
-    socket_wrapper::Socket &sock, const std::string &cause, int err_num, const std::string &short_message,
+    const socket_wrapper::Socket &sock, const std::string &cause, int err_num, const std::string &short_message,
     const std::string &long_message) const
 {
     std::string err_headers = "HTTP/1.0 " + std::to_string(err_num) + " " + short_message + "\r\n";
+
+    // Print the HTTP response.
+    if (send(sock, &err_headers.at(0), err_headers.size(), 0) == -1)
+    {
+        throw std::system_error(errno, std::system_category(), "send");
+    }
+
+    err_headers = "Content-type: text/html\r\n";
+    if (send(sock, &err_headers.at(0), err_headers.size(), 0) == -1)
+    {
+        throw std::system_error(errno, std::system_category(), "send");
+    }
+
     std::stringstream err_body_s;
     err_body_s << "<html><title>Proxy Error</title>"
                << "<body bgcolor=0xffffff>\r\n"
@@ -96,17 +110,17 @@ void ProxyServer::client_error(
                << "<hr><em>Example Proxy Server</em>\r\n"
                << "</body></html>\r\n";
 
-    // Print the HTTP response.
-    send(sock, &err_headers.at(0), err_headers.size(), 0);
-
-    err_headers = "Content-type: text/html\r\n";
-    send(sock, &err_headers.at(0), err_headers.size(), 0);
-
     auto err_body = err_body_s.str();
 
     err_headers = "Content-length: " + std::to_string(err_body.size()) + "\r\n\r\n";
-    send(sock, &err_headers.at(0), err_headers.size(), 0);
-    send(sock, &err_body.at(0), err_body.size(), 0);
+    if (send(sock, &err_headers.at(0), err_headers.size(), 0) == -1)
+    {
+        throw std::system_error(errno, std::system_category(), "send");
+    }
+    if (send(sock, &err_body.at(0), err_body.size(), 0) == -1)
+    {
+        throw std::system_error(errno, std::system_category(), "send");
+    }
 }
 
 
@@ -121,7 +135,7 @@ ProxyServer::uri_data ProxyServer::parse_uri(const std::string &uri) const
     host_name_s << uri_match[5];
     if (uri_match[6].matched) host_name_s << "." << uri_match[6];
 
-    std::string path = uri_match[9].str();
+    const std::string path = uri_match[9].str();
     std::string host_name = host_name_s.str();
     rtrim(host_name);
 
@@ -130,13 +144,13 @@ ProxyServer::uri_data ProxyServer::parse_uri(const std::string &uri) const
 }
 
 
-std::tuple<std::string, std::string> ProxyServer::parse_request_headers(socket_wrapper::Socket &s) const
+std::pair<std::string, std::string> ProxyServer::parse_request_headers(const socket_wrapper::Socket &s) const
 {
     std::string line;
     std::stringstream result;
     std::string host_name;
 
-    static const std::string host_header_name = "Host: ";
+    static constexpr char host_header_name[] = "Host: ";
 
     do
     {
@@ -154,21 +168,20 @@ std::tuple<std::string, std::string> ProxyServer::parse_request_headers(socket_w
 
         if (line.find("Proxy-Connection:") != std::string::npos) continue;
 
-        auto host_pos = line.find(host_header_name);
-        if (host_pos != std::string::npos)
+        if (const auto host_pos = line.find(host_header_name); host_pos != std::string::npos)
         {
-            host_name = line.substr(host_pos + host_header_name.length());
+            host_name = line.substr(host_pos + std::size(host_header_name) - 1);
             continue;
         }
 
         result << line;
     } while ((line != "\r\n") && (line != "\n"));
 
-    return make_tuple(result.str(), host_name);
+    return make_pair(result.str(), host_name);
 }
 
 
-bool ProxyServer::try_to_connect(socket_wrapper::Socket &s, const sockaddr *sa, size_t sa_size)
+bool ProxyServer::try_to_connect(const socket_wrapper::Socket &s, const sockaddr *sa, size_t sa_size)
 {
     if (connect(s, sa, sa_size) == -1)
     {
@@ -180,17 +193,15 @@ bool ProxyServer::try_to_connect(socket_wrapper::Socket &s, const sockaddr *sa, 
 }
 
 
-socket_wrapper::Socket ProxyServer::connect_to_target_server(const std::string &host_name, unsigned short port)
+socket_wrapper::Socket ProxyServer::connect_to_target_server(const std::string &host_name, std::uint16_t port)
 {
-    auto servinfo = socket_wrapper::get_client_info(host_name, port);
+    const auto servinfo = socket_wrapper::get_client_info(host_name, port);
 
     for (auto const *s = servinfo.get(); s != nullptr; s = s->ai_next)
     {
         assert(s->ai_family == s->ai_addr->sa_family);
         if (AF_INET == s->ai_family)
         {
-            char ip[INET_ADDRSTRLEN];
-
             sockaddr_in *const sin = reinterpret_cast<sockaddr_in *const>(s->ai_addr);
             in_addr addr;
             addr.s_addr = *reinterpret_cast<const in_addr_t *>(&sin->sin_addr);
@@ -198,7 +209,8 @@ socket_wrapper::Socket ProxyServer::connect_to_target_server(const std::string &
             sin->sin_family = AF_INET;
             sin->sin_port = htons(port);
 
-            std::cout << "Trying IP Address: " << inet_ntop(AF_INET, &addr, ip, INET_ADDRSTRLEN) << std::endl;
+            std::array<char, INET_ADDRSTRLEN> ip;
+            std::cout << "Trying IP Address: " << inet_ntop(AF_INET, &addr, ip.data(), ip.size()) << std::endl;
             socket_wrapper::Socket sock = {AF_INET, SOCK_STREAM, IPPROTO_TCP};
 
             if (try_to_connect(sock, reinterpret_cast<const sockaddr *>(sin), sizeof(sockaddr_in)))
@@ -208,14 +220,13 @@ socket_wrapper::Socket ProxyServer::connect_to_target_server(const std::string &
         }
         else if (AF_INET6 == s->ai_family)
         {
-            char ip6[INET6_ADDRSTRLEN];
-
             sockaddr_in6 *const sin = reinterpret_cast<sockaddr_in6 *const>(s->ai_addr);
 
             sin->sin6_family = AF_INET6;
             sin->sin6_port = htons(port);
 
-            std::cout << "Trying IPv6 Address: " << inet_ntop(AF_INET6, &(sin->sin6_addr), ip6, INET6_ADDRSTRLEN)
+            std::array<char, INET6_ADDRSTRLEN> ip6;
+            std::cout << "Trying IPv6 Address: " << inet_ntop(AF_INET6, &(sin->sin6_addr), ip6.data(), ip6.size())
                       << std::endl;
             socket_wrapper::Socket sock = {AF_INET6, SOCK_STREAM, IPPROTO_TCP};
 
@@ -241,9 +252,7 @@ void ProxyServer::proxify(socket_wrapper::Socket client_socket)
         std::string version;
 
         auto line = read_line(client_socket);
-        rtrim(line);
-
-        std::stringstream ss(line);
+        std::stringstream ss(rtrim(line));
         ss >> method >> uri >> version;
 
         std::cout << "Client request: \"" << line << "\" parsed.\n"
@@ -254,9 +263,8 @@ void ProxyServer::proxify(socket_wrapper::Socket client_socket)
         // This proxy currently only supports the GET call.
         if (method != "GET")
         {
-            std::cerr << "Unknown method: \"" << method << "\"" << std::endl;
             client_error(client_socket, method, 501, "Not implemented", "This proxy does not implement this method");
-            return;
+            throw std::invalid_argument("Unknown method \"" + method + "\"");
         }
 
         // Parse the HTTP request to extract the hostname, path and port.
@@ -303,10 +311,8 @@ void ProxyServer::proxify(socket_wrapper::Socket client_socket)
 
         if (send(proxy_to_server_socket, &new_request.at(0), new_request.size(), 0) < 0)
         {
-            auto s = sock_wrap_.get_last_error_string();
-            std::cerr << s << std::endl;
-            client_error(client_socket, method, 503, "Internal error", s);
-            return;
+            client_error(client_socket, method, 503, "Internal error", sock_wrap_.get_last_error_string());
+            throw std::system_error(sock_wrap_.get_last_error_code(), std::system_category(), "send");
         }
 
         std::cout << "Request was written.\n\n"
@@ -330,7 +336,10 @@ void ProxyServer::proxify(socket_wrapper::Socket client_socket)
 
         std::cout << "Forwarding response to the client..." << std::endl;
 
-        send(client_socket, &response.at(0), response.size(), 0);
+        if (send(client_socket, &response.at(0), response.size(), 0) < 0)
+        {
+            throw std::system_error(errno, std::system_category(), "send");
+        }
     }
     catch (const std::exception &e)
     {
@@ -338,20 +347,13 @@ void ProxyServer::proxify(socket_wrapper::Socket client_socket)
     }
     catch (...)
     {
-        std::cerr << "Unknown exception in the client thread!" << std::endl;
+        std::cerr << "Unknown exception in the client!" << std::endl;
     }
 }
 
 
 void ProxyServer::start()
 {
-    if (!sock_)
-    {
-        throw std::logic_error(sock_wrap_.get_last_error_string());
-    }
-
-    started_ = true;
-
     sockaddr_in addr = {.sin_family = PF_INET, .sin_port = htons(port_)};
 
     addr.sin_addr.s_addr = INADDR_ANY;
@@ -362,14 +364,16 @@ void ProxyServer::start()
     }
 
     // Start listening on port 'port' for incoming requests and serve them.
-    if (listen(sock_, ProxyServer::back_log) < 0)
+    if (listen(sock_, back_log) < 0)
     {
         throw std::logic_error("Can't listen on the socket!");
     }
 
     std::cout << "Listening on port " << port_ << "..." << std::endl;
 
-    while (started_)
+    // For now the only way to shutdown the server is interreption signal.
+    // For proper asynchronous server shutdown flag could be handled gracefully.
+    while (true)
     {
         struct sockaddr_storage client_addr = {0};
 
@@ -385,16 +389,17 @@ void ProxyServer::start()
         }
 
         // Start a new thread for every new request.
+        // Threads are not necessary here, because "proxify" call is synchronous anyway.
+        // For proper multithreading examples see further examples.
         std::thread client_thread(&ProxyServer::proxify, this, std::move(client_sock));
         std::cout << "Creating client thread..." << std::endl;
         client_thread.join();
     }
-
-    sock_.close();
 }
 
-
-void ProxyServer::stop()
+void ProxyServer::stop() noexcept
 {
-    started_ = false;
+    // TODO: implement
+    // For now it's impossible to shutdown server gracefully.
+    // Asynchronous/multithreading server will be implemented in further examples.
 }

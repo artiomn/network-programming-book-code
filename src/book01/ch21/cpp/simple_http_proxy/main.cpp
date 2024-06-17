@@ -1,3 +1,4 @@
+#include <cassert>
 #include <exception>
 #include <iomanip>
 #include <iostream>
@@ -6,21 +7,22 @@
 
 extern "C"
 {
-#    include <signal.h>  // NOLINT
+#    include <signal.h>
 }
 
 
-class thread_exit_exception : public std::exception
+class exit_exception : public std::exception
 {
 };
 
-void sigpipe_handler(int sig)
+void sigpipe_handler(int s)
 {
-    std::cout << "SIGPIPE signal trapped. Exiting thread." << std::endl;
-    throw thread_exit_exception();
+    std::cout << "SIGPIPE signal trapped. Terminating." << std::endl;
+    // TODO: This is not fatal, please use proper handling
+    throw exit_exception();
 }
 
-#endif
+#endif  // _WIN32
 
 #include <socket_wrapper/socket_wrapper.h>
 
@@ -32,7 +34,7 @@ int main(int argc, const char *const argv[])
 #if !defined(_WIN32)
     // Ignore SIGPIPE.
     ::signal(SIGPIPE, sigpipe_handler);
-#endif
+#endif  // _WIN32
 
     if (argc != 2)
     {
@@ -42,10 +44,9 @@ int main(int argc, const char *const argv[])
 
     try
     {
-        socket_wrapper::SocketWrapper sock_wrap;
-        ProxyServer proxy(std::stoi(argv[1]));
-
-        proxy.start();
+        const socket_wrapper::SocketWrapper sock_wrap;
+        assert(argv[1]);
+        ProxyServer(std::stoi(argv[1])).start();
     }
     catch (const std::exception &e)
     {
