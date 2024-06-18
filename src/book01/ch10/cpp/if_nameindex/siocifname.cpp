@@ -23,11 +23,12 @@ int main(int argc, const char *const argv[])
         return EXIT_FAILURE;
     }
 
-    ifreq ifr = {0};
     const socket_wrapper::SocketWrapper sock_wrap;
+
 
     try
     {
+        ifreq ifr = {};
         const socket_wrapper::Socket sock = {AF_INET, SOCK_DGRAM, IPPROTO_UDP};
 
         if (!sock)
@@ -46,7 +47,7 @@ int main(int argc, const char *const argv[])
 
             if (ioctl(sock, SIOCGIFINDEX, &ifr) < 0)
             {
-                throw std::logic_error("SIOCGIFINDEX");
+                throw std::system_error(errno, std::system_category(), "SIOCGIFINDEX");
             }
             std::cout << "Interface \"" << argv[2] << "\""
                       << " index: " << ifr.ifr_ifindex << std::endl;
@@ -58,7 +59,7 @@ int main(int argc, const char *const argv[])
 
             if (ioctl(sock, SIOCGIFNAME, &ifr) < 0)
             {
-                throw std::logic_error("SIOCGIFNAME");
+                throw std::system_error(errno, std::system_category(), "SIOCGIFNAME");
             }
             std::cout << "interface " << if_index << " name: \"" << ifr.ifr_name << "\"" << std::endl;
         }
@@ -69,7 +70,7 @@ int main(int argc, const char *const argv[])
             return EXIT_FAILURE;
         }
     }
-    catch (const std::logic_error &e)
+    catch (const std::system_error &e)
     {
         std::cerr << e.what() << ": " << sock_wrap.get_last_error_string() << "!" << std::endl;
         return EXIT_FAILURE;

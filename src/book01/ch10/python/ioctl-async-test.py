@@ -7,6 +7,7 @@ import sys
 import time
 from termios import FIONBIO
 
+
 if len(sys.argv) < 3:
     print(f'{sys.argv[0]} <port> <async_mode_flag>')
     sys.exit(1)

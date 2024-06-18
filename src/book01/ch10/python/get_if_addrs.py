@@ -137,6 +137,6 @@ class NetworkInterfaces:
         return self._get_network_interfaces()
 
 
-if __name__ == '__main__':
+if '__main__' == __name__:
     for ni in NetworkInterfaces().interfaces:
         print(f'{str(ni)}\n')

@@ -6,7 +6,3 @@ if (UNIX)
     add_subdirectory("ethtool")
     add_subdirectory("mii_example")
 endif()
-
-if (APPLE)
-    add_subdirectory(mac_if_events)
-endif()

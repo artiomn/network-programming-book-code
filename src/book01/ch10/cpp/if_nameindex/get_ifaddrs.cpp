@@ -59,6 +59,7 @@ void print_address(const sockaddr *ia)
 int main(int argc, const char *const argv[])
 {
     ifaddrs *ifa = nullptr;
+
     if (getifaddrs(&ifa) < 0)
     {
         perror("getifaddrs");
@@ -103,16 +104,16 @@ int main(int argc, const char *const argv[])
             std::cout << "\n";
             if (i->ifa_addr && AF_PACKET == i->ifa_addr->sa_family)
             {
-                auto stats = static_cast<const rtnl_link_stats *>(ifa->ifa_data);
+                const auto stats = static_cast<const rtnl_link_stats *>(ifa->ifa_data);
                 std::cout << "    tx_packets = " << stats->tx_packets << "\n"
                           << "    rx_packets = " << stats->rx_packets << "\n"
-                          << "    tx_bytes  = " << stats->tx_bytes << "\n"
+                          << "    tx_bytes   = " << stats->tx_bytes << "\n"
                           << "    rx_bytes   = " << stats->rx_bytes;
             }
             /*
             else if (i->ifa_addr && AF_LINK == i->ifa_addr->sa_family)
             {
-                auto data = static_cast<const if_data*>(ifa->ifa_data);
+                const auto data = static_cast<const if_data*>(ifa->ifa_data);
                 std::cout
                     << "    receive_packets = " << int(data.ifi_ipackets) << "\n";
             } */
