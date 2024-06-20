@@ -21,8 +21,13 @@ public:
     std::string get_last_error_string() const override
     {
         std::array<char, 256> buffer{};
-        ::strerror_r(get_last_error_code(), buffer.data(), buffer.size() - 1);
-        return std::string(buffer.data());
+
+#if (_POSIX_C_SOURCE >= 200112L) && !_GNU_SOURCE
+        auto sz = strerror_r(get_last_error_code(), buffer.data(), buffer.size());
+        return std::string(buffer.begin(), buffer.begin() + sz);
+#else
+        return strerror_r(get_last_error_code(), buffer.data(), buffer.size());
+#endif
     };
 };
 
