@@ -3,6 +3,8 @@ extern "C"
 #include <pcap.h>
 }
 
+#include <array>
+#include <cassert>
 #include <cctype>
 #include <cerrno>
 #include <iostream>
@@ -12,8 +14,8 @@ extern "C"
 #include "packet_printer.h"
 
 // Default snap length (maximum bytes per packet to capture).
-const auto SNAP_LEN = 1518;
-const auto MAX_PACKET_TO_CAPTURE = 10;
+constexpr auto SNAP_LEN = 1518;
+constexpr auto MAX_PACKET_TO_CAPTURE = 10;
 
 static void pcap_callback(u_char *args, const pcap_pkthdr *header, const u_char *packet)
 {
@@ -27,19 +29,12 @@ int main(int argc, const char *const argv[])
 {
     std::string dev;
     // Pcap error buffer.
-    char errbuf[PCAP_ERRBUF_SIZE];
-
-    std::string filter_exp = "ip or ip6";
-    // Compiled filter program (expression).
-    bpf_program fp;
-    bpf_u_int32 mask;
-    bpf_u_int32 net;
-    // Number of packets to capture.
-    int num_packets = MAX_PACKET_TO_CAPTURE;
+    std::array<char, PCAP_ERRBUF_SIZE> errbuf;
 
     // Check for capture device name on command-line.
     if (2 == argc)
     {
+        assert(argv[1]);
         dev = argv[1];
     }
     else if (argc > 2)
@@ -55,23 +50,31 @@ int main(int argc, const char *const argv[])
     else
     {
         // Find a capture device if not specified on command-line.
-        pcap_if_t *all_devs_sp;
+        pcap_if_t *all_devs_sp = nullptr;
 
-        if (pcap_findalldevs(&all_devs_sp, errbuf) != 0 || nullptr == all_devs_sp)
+        if (pcap_findalldevs(&all_devs_sp, errbuf.data()) != 0 || nullptr == all_devs_sp)
         {
-            std::cerr << "Couldn't find default device: \"" << errbuf << "\"" << std::endl;
+            std::cerr << "Couldn't find default device: \"" << errbuf.data() << "\"" << std::endl;
             return EXIT_FAILURE;
         }
+        assert(all_devs_sp->name);
         dev = all_devs_sp->name;
         pcap_freealldevs(all_devs_sp);
     }
 
+    bpf_u_int32 mask;
+    bpf_u_int32 net;
+
     // Get network number and mask associated with capture device.
-    if (-1 == pcap_lookupnet(dev.c_str(), &net, &mask, errbuf))
+    if (-1 == pcap_lookupnet(dev.c_str(), &net, &mask, errbuf.data()))
     {
-        std::cerr << "Couldn't get netmask for device \"" << dev << "\": " << errbuf << std::endl;
+        std::cerr << "Couldn't get netmask for device \"" << dev << "\": " << errbuf.data() << std::endl;
         net = mask = 0;
     }
+
+    // Number of packets to capture.
+    constexpr int num_packets = MAX_PACKET_TO_CAPTURE;
+    constexpr char filter_exp[] = "ip or ip6";
 
     // Print capture info.
     std::cout << "Device: " << dev << "\n"
@@ -81,14 +84,17 @@ int main(int argc, const char *const argv[])
               << "Filter expression: " << filter_exp << std::endl;
 
     // Open capture device and get packet capture handle.
-    pcap_t *handle = pcap_open_live(dev.c_str(), SNAP_LEN, 1, 1000, errbuf);
+    pcap_t *const handle = pcap_open_live(dev.c_str(), SNAP_LEN, 1, 1000, errbuf.data());
     if (nullptr == handle)
     {
-        std::cerr << "Couldn't open device \"" << dev << "\": " << errbuf << "!" << std::endl;
+        std::cerr << "Couldn't open device \"" << dev << "\": " << errbuf.data() << "!" << std::endl;
         return EXIT_FAILURE;
     }
 
     int exit_code = EXIT_SUCCESS;
+
+    // Compiled filter program (expression).
+    bpf_program fp{};
 
     try
     {
@@ -101,7 +107,7 @@ int main(int argc, const char *const argv[])
         }
 
         // Compile the filter expression.
-        if (pcap_compile(handle, &fp, filter_exp.c_str(), 0, net) == -1)
+        if (pcap_compile(handle, &fp, filter_exp, 0, net) == -1)
         {
             ss << "Couldn't parse filter \"" << filter_exp << "\": " << pcap_geterr(handle) << "!" << std::endl;
             throw std::logic_error(ss.str());
@@ -114,7 +120,11 @@ int main(int argc, const char *const argv[])
             throw std::logic_error(ss.str());
         }
 
-        pcap_loop(handle, num_packets, pcap_callback, nullptr);
+        if (PCAP_ERROR == pcap_loop(handle, num_packets, pcap_callback, nullptr))
+        {
+            ss << "Pcap loop failed: " << pcap_geterr(handle) << "!" << std::endl;
+            throw std::logic_error(ss.str());
+        }
     }
     catch (const std::exception &e)
     {

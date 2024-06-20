@@ -1,3 +1,4 @@
+#include <cassert>
 #include <cstdlib>
 #include <exception>
 #include <iomanip>
@@ -25,10 +26,16 @@ int main(int argc, const char* const argv[])
     try
     {
         // Create a raw socket which supports IPv4 only.
-        socket_wrapper::SocketWrapper sock_wrap;
+        const socket_wrapper::SocketWrapper sock_wrap;
 
-        Sniffer sniffer(argv[1], argv[2], sock_wrap);
-        sniffer.start_capture();
+        assert(argv[1]);
+        assert(argv[2]);
+        if (!Sniffer(argv[1], argv[2], sock_wrap).start_capture()) throw std::runtime_error("Failed to start captuure");
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
     }
     catch (...)
     {

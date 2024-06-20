@@ -8,17 +8,19 @@
 #include "pcap_structures.h"
 
 
+constexpr size_t ethernet_proto_type_offset = 12;
+
 #ifdef WIN32
 #    include <iphlpapi.h>
 #    include <mstcpip.h>
 #    include <ws2ipdef.h>
 const auto IFNAMSIZ = 16;
-#else
+#else  // WIN32
 #    include <linux/if.h>
 #    include <linux/if_packet.h>
 #    include <sys/ioctl.h>
 #    include <sys/socket.h>
-#endif
+#endif  // WIN32
 
 #if !defined(WIN32)
 // *nix only.
@@ -55,7 +57,7 @@ auto get_if_address(const std::string& if_name, int sock)
 
     return iface_addr;
 }
-#else
+#else   // WIN32
 auto get_if_address(const std::string& if_name, int sock)
 {
     sockaddr_in sa = {.sin_family = PF_INET, .sin_port = 0};
@@ -63,15 +65,13 @@ auto get_if_address(const std::string& if_name, int sock)
 
     return sa;
 }
-#endif
+#endif  // WIN32
 
 
 bool Sniffer::init()
 {
     // For Windows socket address must be bound before switching to the promisc mode.
-    if (!bind_socket()) return false;
-    if (!switch_promisc(true)) return false;
-    if (!write_pcap_header()) return false;
+    if (!bind_socket() || !switch_promisc(true) || !write_pcap_header()) return false;
 
     initialized_ = true;
     return true;
@@ -86,16 +86,7 @@ Sniffer::~Sniffer()
 
 bool Sniffer::bind_socket()
 {
-    const auto iface_addr = get_if_address(if_name_, sock_);
-
-    if (!sock_)
-    {
-        std::cerr << "Socket error: " << sock_wrap_.get_last_error_string() << "." << std::endl;
-        return false;
-    }
-
-    const size_t len = if_name_.size();
-    if (IFNAMSIZ <= len)
+    if (const size_t len = if_name_.size(); IFNAMSIZ <= len)
     {
         std::cerr << "Too long interface name!" << std::endl;
         return false;
@@ -110,6 +101,7 @@ bool Sniffer::bind_socket()
     }*/
 
     // Bind the socket to the specified IP address.
+    const auto iface_addr = get_if_address(if_name_, sock_);
     if (INVALID_SOCKET == bind(sock_, reinterpret_cast<const struct sockaddr*>(&iface_addr), sizeof(iface_addr)))
     {
         std::cerr << "bind() failed: " << sock_wrap_.get_last_error_string() << "." << std::endl;
@@ -120,7 +112,7 @@ bool Sniffer::bind_socket()
 }
 
 
-bool Sniffer::switch_promisc(bool enabled)
+bool Sniffer::switch_promisc(bool enabled) noexcept
 {
 #if defined(WIN32)
     // Give us ALL IPv4 packets sent and received to the specific IP address.
@@ -133,11 +125,20 @@ bool Sniffer::switch_promisc(bool enabled)
 
     if (INVALID_SOCKET == rc)
     {
-        std::cerr << "Ioctl() failed: " << sock_wrap_.get_last_error_string() << "." << std::endl;
+        std::cerr << "Ioctl() failed: " << sock_wrap_.get_last_error_code() << "." << std::endl;
         return false;
     }
 #else
-    auto ifr = get_ifr(if_name_, sock_);
+    ifreq ifr;
+    try
+    {
+        ifr = get_ifr(if_name_, sock_);
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+        return false;
+    }
 
     if (-1 == ioctl(sock_, SIOCGIFFLAGS, &ifr))
     {
@@ -163,13 +164,6 @@ bool Sniffer::switch_promisc(bool enabled)
 
 bool Sniffer::write_pcap_header()
 {
-    if (!of_)
-    {
-        std::cerr << "\"" << pcap_filename_ << "\""
-                  << "failed [" << errno << "]." << std::endl;
-        return false;
-    }
-
     of_.exceptions(std::ifstream::failbit);
 
     try
@@ -218,9 +212,10 @@ bool Sniffer::capture()
     // Calculate timestamp for this packet.
     // auto cur_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     using namespace std::chrono;
-    auto cur_time = duration_cast<microseconds>(time_point_cast<microseconds>(system_clock::now()).time_since_epoch());
-    auto t_s = seconds(duration_cast<seconds>(cur_time));
-    auto u_s = cur_time - duration_cast<microseconds>(t_s);
+    const auto cur_time =
+        duration_cast<microseconds>(time_point_cast<microseconds>(system_clock::now()).time_since_epoch());
+    const auto t_s = seconds(duration_cast<seconds>(cur_time));
+    const auto u_s = cur_time - duration_cast<microseconds>(t_s);
 
     // Set out PCAP packet header fields.
     pkt->ts.tv_sec = t_s.count();
@@ -253,7 +248,7 @@ bool Sniffer::start_capture()
 }
 
 
-bool Sniffer::stop_capture()
+bool Sniffer::stop_capture() noexcept
 {
     if (!started_) return false;
     started_ = false;

@@ -17,6 +17,7 @@
 #include <socket_wrapper/socket_wrapper.h>
 
 #include <algorithm>
+#include <cassert>
 #include <cerrno>
 #include <cstdint>
 #include <iostream>
@@ -44,7 +45,10 @@ int main(int argc, const char* const argv[])
         return EXIT_FAILURE;
     }
 
-    const std::string if_name = {argv[1]};
+    assert(argv[1]);
+    const std::string if_name = argv[1];
+
+    assert(argv[2]);
     std::string i_flag = argv[2];
     bool enable_promisc;
 
@@ -88,7 +92,7 @@ int main(int argc, const char* const argv[])
     // Need to test, that interface in the promisc mode.
     getchar();
 #else
-    struct ifreq ifr = {0};
+    ifreq ifr = {0};
     std::copy(if_name.begin(), if_name.end(), ifr.ifr_name);
 
     if (-1 == ioctl(sock, SIOCGIFINDEX, &ifr))
