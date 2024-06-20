@@ -12,7 +12,9 @@ extern "C"
 }
 
 #include <algorithm>
+#include <array>
 #include <cassert>
+#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -49,13 +51,15 @@ int main(int argc, const char *const argv[])
 
     mii_ioctl_data *mii_data = reinterpret_cast<mii_ioctl_data *>(&ifr.ifr_data);
 
-    for (int i = 0; i < 0x20; ++i)
+    for (int i = 0; i < 0x1c; ++i)
     {
         mii_data->reg_num = i;
         if (ioctl(sock, SIOCGMIIREG, &ifr) < 0)
         {
-            close(sock);
-            throw std::system_error(errno, std::system_category(), "ioctl");
+            std::array<char, 256> buffer{};
+
+            std::cerr << "Ioctl error: " << ::strerror_r(errno, buffer.data(), buffer.size()) << std::endl;
+            continue;
         }
         std::cout << std::hex << "PHY addr: 0x" << mii_data->phy_id << ", reg: 0x" << mii_data->reg_num << ", value: 0x"
                   << mii_data->val_out << std::endl;

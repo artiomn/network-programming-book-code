@@ -18,15 +18,15 @@ extern "C"
 
 void print_adapter_params(const std::string& name)
 {
-    ethtool_link_settings cmd = {.cmd = ETHTOOL_GLINKSETTINGS};
-    ifreq ifr = {0};
-
     const int sock = socket(AF_INET, SOCK_DGRAM, 0);
 
     if (sock < 0)
     {
         throw std::system_error(errno, std::system_category(), "socket");
     }
+
+    ethtool_link_settings cmd = {.cmd = ETHTOOL_GLINKSETTINGS};
+    ifreq ifr = {0};
 
     std::copy_n(name.c_str(), std::min(static_cast<size_t>(IF_NAMESIZE), name.size()), ifr.ifr_name);
     ifr.ifr_data = reinterpret_cast<caddr_t>(&cmd);
