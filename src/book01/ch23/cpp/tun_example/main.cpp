@@ -16,18 +16,18 @@ extern "C"
 }
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cstdint>
 #include <exception>
 #include <iostream>
 #include <optional>
 #include <string>
-#include <vector>
 
 
 int perform_ioctl(int fd, const int call_id, void *result, const std::string &msg)
 {
-    auto ioctl_res = ioctl(fd, call_id, result);
+    const auto ioctl_res = ioctl(fd, call_id, result);
     if (-1 == ioctl_res)
     {
         throw std::system_error(errno, std::system_category(), msg);
@@ -40,7 +40,7 @@ int perform_ioctl(int fd, const int call_id, void *result, const std::string &ms
 class TunTapNetworkInterface
 {
 public:
-    static const auto mac_size = 6;
+    static constexpr auto mac_size = 6;
 
 public:
     explicit TunTapNetworkInterface(int ni_desc) : fd_(ni_desc) {}
@@ -58,27 +58,23 @@ public:
         if (-1 != fd_) close(fd_);
     }
 
-    virtual const std::string type() const = 0;
+    virtual std::string type() const = 0;
 
 public:
     TunTapNetworkInterface(const TunTapNetworkInterface &) = delete;
+    TunTapNetworkInterface &operator=(const TunTapNetworkInterface &) = delete;
 
 public:
     operator int() const { return fd_; }
 
     int reset()
     {
-        int fd = fd_;
+        const int fd = fd_;
         fd_ = -1;
         return fd;
     }
 
-    std::string get_name() const
-    {
-        auto ifr{std::move(get_iff())};
-
-        return ifr.ifr_name;
-    }
+    std::string get_name() const { return get_iff().ifr_name; }
 
     std::string set_name(const std::string &new_name)
     {
@@ -88,14 +84,14 @@ public:
         }
 
         // New socket needed, TUN/TAP descriptor can't be used.
-        int sock = socket(PF_INET, SOCK_DGRAM, 0);
+        const int sock = socket(PF_INET, SOCK_DGRAM, 0);
 
         if (sock < 0)
         {
             throw std::system_error(errno, std::system_category(), "Opening socket");
         }
 
-        const auto old_name = std::move(get_name());
+        const auto old_name = get_name();
 
         ifreq ifr = {0};
 
@@ -139,7 +135,7 @@ private:
 class Tun : public TunTapNetworkInterface
 {
 public:
-    Tun(int ni_desc, ifreq &ifr) : TunTapNetworkInterface::TunTapNetworkInterface(ni_desc)
+    explicit Tun(int ni_desc, ifreq &ifr) : TunTapNetworkInterface::TunTapNetworkInterface(ni_desc)
     {
         ifr.ifr_flags = IFF_TUN | IFF_NO_PI;
 
@@ -150,19 +146,15 @@ public:
 
         perform_ioctl(*this, TUNSETIFF, &ifr, "TUNSETIFF ioctl failed");
     }
-    Tun(Tun &&other) : TunTapNetworkInterface::TunTapNetworkInterface(std::move(other)) {}
+    Tun(Tun &&) = default;
 
-    const std::string type() const override { return "tun"; }
+    std::string type() const override { return "tun"; }
 
     Tun &operator=(const Tun &) = delete;
-    Tun &operator=(Tun &&other)
-    {
-        TunTapNetworkInterface::operator=(std::move(other));
-        return *this;
-    }
+    Tun &operator=(Tun &&) = default;
 
 protected:
-    bool set_if_features(ifreq &ifr)
+    bool set_if_features(ifreq &ifr) noexcept
     {
         unsigned int features = 0;
 
@@ -184,30 +176,25 @@ protected:
 class Tap : public TunTapNetworkInterface
 {
 public:
-    Tap(int ni_desc, ifreq &ifr) : TunTapNetworkInterface::TunTapNetworkInterface(ni_desc)
+    explicit Tap(int ni_desc, ifreq &ifr) : TunTapNetworkInterface::TunTapNetworkInterface(ni_desc)
     {
         ifr.ifr_flags = IFF_TAP;
         perform_ioctl(*this, TUNSETIFF, &ifr, "TUNSETIFF ioctl failed");
     }
-    Tap(Tap &&other) : TunTapNetworkInterface::TunTapNetworkInterface(std::move(other)) {}
+    Tap(Tap &&) = default;
 
-    const std::string type() const override { return "tap"; }
+    std::string type() const override { return "tap"; }
 
-    Tap &operator=(Tap &&other)
-    {
-        TunTapNetworkInterface::operator=(std::move(other));
-        return *this;
-    }
+    Tap &operator=(Tap &&) = default;
+    Tap &operator=(const Tap &) = delete;
 
 public:
     void set_hw_addr(const uint8_t hw_addr[TunTapNetworkInterface::mac_size])
     {
-        ifreq ifr{std::move(get_iff())};
-
-        int sock = socket(AF_INET, SOCK_DGRAM, 0);
-
+        ifreq ifr = get_iff();
         std::copy(hw_addr, hw_addr + TunTapNetworkInterface::mac_size, &ifr.ifr_hwaddr.sa_data[0]);
 
+        const int sock = socket(AF_INET, SOCK_DGRAM, 0);
         if (sock < 0)
         {
             throw std::system_error(errno, std::generic_category(), "Can't create socket");
@@ -215,7 +202,17 @@ public:
 
         // Only for Ethernet.
         ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
-        perform_ioctl(sock, SIOCSIFHWADDR, &ifr, "Can't set interface address");
+        try
+        {
+            perform_ioctl(sock, SIOCSIFHWADDR, &ifr, "Can't set interface address");
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << e.what() << std::endl;
+            close(sock);
+            throw;
+        }
+        close(sock);
     }
 };
 
@@ -223,15 +220,17 @@ public:
 class TunTapController
 {
 public:
-    Tap open_tap(const std::optional<std::string> &dev_name = std::nullopt) { return internal_open<Tap>(dev_name); }
+    using DevName = std::optional<std::string>;
 
-    Tun open_tun(const std::optional<std::string> &dev_name = std::nullopt) { return internal_open<Tun>(dev_name); }
+    Tap open_tap(const DevName &dev_name = std::nullopt) const { return internal_open<Tap>(dev_name); }
+
+    Tun open_tun(const DevName &dev_name = std::nullopt) const { return internal_open<Tun>(dev_name); }
 
 private:
     template <class T>
-    T internal_open(const std::optional<std::string> &dev_name)
+    T internal_open(const DevName &dev_name) const
     {
-        int dev_fd = open("/dev/net/tun", O_RDWR);
+        const int dev_fd = open("/dev/net/tun", O_RDWR);
 
         if (dev_fd < 0)
         {
@@ -240,7 +239,7 @@ private:
 
         ifreq ifr = {0};
 
-        if (dev_name)
+        if (dev_name.has_value())
         {
             if (dev_name->size() >= IFNAMSIZ)
             {
@@ -250,34 +249,33 @@ private:
             std::copy(dev_name->begin(), dev_name->end(), ifr.ifr_name);
         }
 
-        return std::move(T(dev_fd, ifr));
+        return T(dev_fd, ifr);
     }
 };
 
 
 int main(int argc, const char *const argv[])
 {
-    const auto buffer_size = 1600;
-    TunTapController controller;
+    constexpr auto buffer_size = 1600;
+    const TunTapController controller;
 
     try
     {
-        Tap tt_iface{std::move((argc > 1) ? controller.open_tap(std::string(argv[1])) : controller.open_tap())};
-        auto &&dev_name = std::move(tt_iface.get_name());
+        Tap tt_iface{(argc > 1) ? controller.open_tap(std::string(argv[1])) : controller.open_tap()};
+        auto &&dev_name = tt_iface.get_name();
 
         std::cout << "Device " << dev_name << " was opened." << std::endl;
 
-        std::vector<char> buf(buffer_size);
+        std::array<char, buffer_size> buf;
 
-        uint8_t mac_addr[] = {0x12, 0x10, 0x20, 0x30, 0x40, 0x50};
+        const uint8_t mac_addr[] = {0x12, 0x10, 0x20, 0x30, 0x40, 0x50};
 
         tt_iface.set_hw_addr(mac_addr);
 
         while (true)
         {
-            int bytes_count;
             std::cout << "Waiting for data..." << std::endl;
-            bytes_count = read(tt_iface, &buf[0], buf.size());
+            const int bytes_count = read(tt_iface, &buf[0], buf.size());
             std::cout << "Read " << bytes_count << " bytes "
                       << "from " << dev_name << "." << std::endl;
         }
