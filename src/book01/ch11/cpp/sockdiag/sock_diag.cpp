@@ -11,7 +11,7 @@ extern "C"
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
-    // Don't use this here!
+    // Don't use it here!
     // #include <netinet/tcp.h>
 }
 
@@ -100,7 +100,7 @@ void print_diag(const inet_diag_msg *diag, unsigned int len)
 
         std::string if_name;
 
-        for (auto i = if_ni.get(); !(0 == i->if_index && nullptr == i->if_name); ++i)
+        for (struct if_nameindex *i = if_ni.get(); !(0 == i->if_index && nullptr == i->if_name); ++i)
         {
             if (i->if_index == diag->id.idiag_if)
             {
@@ -186,7 +186,7 @@ void print_responses(int fd)
             throw std::system_error(errno, std::generic_category(), "recvmsg");
         }
 
-        if (ret == 0) return;
+        if (0 == ret) return;
 
         if (nladdr.nl_family != AF_NETLINK)
         {
@@ -202,9 +202,9 @@ void print_responses(int fd)
 
         for (; NLMSG_OK(h, ret); h = NLMSG_NEXT(h, ret))
         {
-            if (h->nlmsg_type == NLMSG_DONE) return;
+            if (NLMSG_DONE == h->nlmsg_type) return;
 
-            if (h->nlmsg_type == NLMSG_ERROR)
+            if (NLMSG_ERROR == h->nlmsg_type)
             {
                 const nlmsgerr *err = static_cast<const nlmsgerr *>(NLMSG_DATA(h));
 
@@ -230,7 +230,7 @@ void print_responses(int fd)
 }
 
 
-int main(void)
+int main()
 {
     try
     {

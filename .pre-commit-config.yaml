@@ -43,7 +43,7 @@ repos:
         additional_dependencies:
           [clang-format==15.0.7]
       - id: cppcheck
-        args: ["-v", "-x", "c++", "--inline-suppr", "--suppress-xml=src/.cppcheck-suppress.xml"]
+        args: ["-v", "-x", "c++", "--check-level=exhaustive", "--inline-suppr", "--suppress-xml=src/.cppcheck-suppress.xml"]
         exclude: npcap-sdk-1.12/.*|book01/ch18/cpp/pil/.*
 
       - id: cpplint
