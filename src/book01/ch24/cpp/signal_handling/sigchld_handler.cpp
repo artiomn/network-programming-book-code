@@ -12,14 +12,12 @@ extern "C"
 
 void proc_exit(int signal)
 {
-    int wstat;
-    pid_t pid;
-
     std::cout << "Signal: " << signal << " (" << strsignal(signal) << ")" << std::endl;
 
     while (true)
     {
-        pid = waitpid(-1, &wstat, WNOHANG);
+        int wstat = 0;
+        const pid_t pid = waitpid(-1, &wstat, WNOHANG);
         switch (pid)
         {
             case -1:
@@ -40,6 +38,7 @@ int main()
     if (SIG_ERR == signal(SIGCHLD, &proc_exit))
     {
         perror("signal()");
+        return EXIT_FAILURE;
     }
 
     switch (fork())
@@ -53,4 +52,5 @@ int main()
         default:
             getchar();
     }
+    return EXIT_SUCCESS;
 }
