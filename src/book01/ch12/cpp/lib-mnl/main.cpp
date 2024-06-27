@@ -47,7 +47,6 @@ static int data_attr_cb(const nlattr *attr, void *data)
 static int data_cb(const nlmsghdr *nlh, void *data)
 {
     assert(nlh);
-    assert(data);
 
     nlattr *tb[IFA_MAX + 1] = {};
     ifaddrmsg *ifa = static_cast<ifaddrmsg *>(mnl_nlmsg_get_payload(static_cast<const nlmsghdr *>(nlh)));

@@ -25,17 +25,21 @@ with IPRoute() as ipr:
     print(f'Devices count = {len(devs)}, Device index = {dev_index}')
 
     print_if_attrs(ipr.link('get', index=dev_index)[0]['attrs'])
+    link_state = 'down'
 
-    # Bring it down.
-    ipr.link('set', index=dev_index, state='down')
+    try:
+        link_state = ipr.link('get', index=dev_index)[0]['state']
 
-    # Change the interface MAC address and rename it just for fun.
-    ipr.link('set', index=dev_index, address='00:11:22:33:44:55', ifname='eno2')
+        # Bring it down.
+        ipr.link('set', index=dev_index, state='down')
 
-    # Add primary IP address.
-    ipr.addr('add', index=dev_index, address='10.0.0.1', mask=24, broadcast='10.0.0.255')
+        # Change the interface MAC address and rename it just for fun.
+        ipr.link('set', index=dev_index, address='00:11:22:33:44:55', ifname='eno2')
 
-    # Bring it up.
-    ipr.link('set', index=dev_index, state='up')
+        # Add primary IP address.
+        ipr.addr('add', index=dev_index, address='10.0.0.1', mask=24, broadcast='10.0.0.255')
+    finally:
+        ipr.link('set', index=dev_index, state=link_state)
+        print(f'Interface {sys.argv[1]} state restored...')
 
     print_if_attrs(ipr.link('get', index=dev_index)[0]['attrs'])

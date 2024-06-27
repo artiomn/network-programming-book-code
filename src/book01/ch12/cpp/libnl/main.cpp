@@ -50,13 +50,14 @@ int main(int argc, const char *const argv[])
 
         const std::unique_ptr<rtnl_link, decltype(&rtnl_link_put)> link{
             rtnl_link_get_by_name(cache, if_name.c_str()), &rtnl_link_put};
+
         if (!link)
         {
             throw std::system_error(error_code, std::iostream_category(), "Interface was not found");
         }
-        std::cout << "\"" << if_name << "\" interface acquired" << std::endl;
 
-        std::cout << "Current \"" << if_name
+        std::cout << "\"" << if_name << "\" interface acquired\n"
+                  << "Current \"" << if_name
                   << "\" status: " << ((rtnl_link_get_flags(link.get()) & IFF_UP) ? "up" : "down") << std::endl;
 
         const std::unique_ptr<rtnl_link, decltype(&rtnl_link_put)> change{rtnl_link_alloc(), &rtnl_link_put};
