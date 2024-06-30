@@ -1,7 +1,11 @@
 #include <socket_wrapper/socket_functions.h>
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
+
+extern "C"
+{
 #include <svcguid.h>
+}
 
 #include <array>
 #include <cassert>
@@ -26,7 +30,7 @@ int main(int argc, char* argv[])
                 WSALookupServiceBegin(&first_query, LUP_RETURN_NAME | LUP_RETURN_COMMENT | LUP_RETURN_ADDR, &h_lookup)))
         {
             throw std::system_error(
-                errno, std::system_category(), "Error on WSALookupServiceBegin: " + std::to_string(WSAGetLastError()));
+                sw.get_last_error_code(), std::system_category(), "Error on WSALookupServiceBegin()");
         }
 
         uint32_t result = 0;
@@ -59,8 +63,7 @@ int main(int argc, char* argv[])
                     }
                     else
                         throw std::system_error(
-                            errno, std::system_category(),
-                            "Error on WSALookupServiceNext: " + std::to_string(WSAGetLastError()));
+                            sw.get_last_error_code(), std::system_category(), "Error on WSALookupServiceNext()");
                 }
 
                 std::wcout << "Service instance name: " << p_data->lpszServiceInstanceName << "\n"
@@ -72,12 +75,12 @@ int main(int argc, char* argv[])
                 {
                     if (IPPROTO_UDP == p_data->lpcsaBuffer[i].iProtocol)
                     {
-                        char addr[INET_ADDRSTRLEN];
+                        std::array<char, INET_ADDRSTRLEN> addr;
                         const auto& sa =
                             reinterpret_cast<const sockaddr_in*>(p_data->lpcsaBuffer[i].RemoteAddr.lpSockaddr);
                         assert(AF_INET == sa->sin_family);
 
-                        std::cout << inet_ntop(AF_INET, &sa->sin_addr, addr, INET_ADDRSTRLEN) << std::endl;
+                        std::cout << inet_ntop(AF_INET, &sa->sin_addr, addr.data(), addr.size()) << std::endl;
                     }
                 }
             }
@@ -87,14 +90,12 @@ int main(int argc, char* argv[])
             }
             else
                 throw std::system_error(
-                    errno, std::system_category(),
-                    "Error on WSALookupServiceNext: " + std::to_string(WSAGetLastError()));
+                    sw.get_last_error_code(), std::system_category(), "Error on WSALookupServiceNext()");
         };
 
         if (WSALookupServiceEnd(h_lookup))
             throw std::system_error(
-                errno, std::system_category(),
-                "WSALookupServiceEnd(hlookup) failed with error code " + std::to_string(WSAGetLastError()));
+                sw.get_last_error_code(), std::system_category(), "WSALookupServiceEnd(hlookup) failed");
     }
     catch (const std::exception& e)
     {
