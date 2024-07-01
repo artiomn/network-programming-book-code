@@ -1,7 +1,10 @@
 extern "C"
 {
-#include <nb30.h>
+// clang-format off
+// Windows header must be first.
 #include <windows.h>
+#include <nb30.h>
+    // clang-format on
 }
 
 

@@ -52,7 +52,7 @@ int main()
                   << "Catalog Entry ID: " << protocol_info[i].dwCatalogEntryId << "\n"
                   << "Version: " << protocol_info[i].iVersion << "\n"
                   << "Entry type: "
-                  << ((protocol_info[i].ProtocolChain.ChainLen == 1) ? "Base Service Provider" : "Layered Chain Entry")
+                  << ((1 == protocol_info[i].ProtocolChain.ChainLen) ? "Base Service Provider" : "Layered Chain Entry")
                   << "\n"
                   << "Protocol: " << protocol_info[i].szProtocol << "\n"
                   << "Protocol Chain length: " << protocol_info[i].ProtocolChain.ChainLen << "\n"
