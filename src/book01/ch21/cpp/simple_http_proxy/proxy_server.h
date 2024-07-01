@@ -4,39 +4,29 @@
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
 
-#include <iostream>
-#include <regex>
 #include <string>
 #include <thread>
 #include <tuple>
+#include <utility>
 
 
 class ProxyServer final
 {
 public:
-    static const std::regex uri_regexp;
-
-    // cppcheck-suppress unusedStructMember
-    const size_t back_log = 10;
-    // cppcheck-suppress unusedStructMember
-    const unsigned short default_target_port = 80;  // NOLINT
-
-    typedef std::tuple<std::string, std::string, unsigned short> uri_data;  // NOLINT
-
-public:
-    explicit ProxyServer(unsigned short port = 8080);
-    ~ProxyServer();
+    explicit ProxyServer(std::uint16_t port = 8080);
 
 public:
     void start();
-    void stop();
+    void stop() noexcept;
 
-public:
-    std::string read_line(socket_wrapper::Socket &sock) const;
+private:
+    using uri_data = std::tuple<std::string, std::string, std::uint16_t>;
+
+    std::string read_line(const socket_wrapper::Socket &sock) const;
 
     // Send HTML error message to the client.
     void client_error(
-        socket_wrapper::Socket &sock, const std::string &cause, int err_num, const std::string &short_message,
+        const socket_wrapper::Socket &sock, const std::string &cause, int err_num, const std::string &short_message,
         const std::string &long_message) const;
     // Extract the host name, path to the resource and the port number from the URL.
     uri_data parse_uri(const std::string &uri) const;
@@ -48,7 +38,7 @@ public:
      * If the host header is present in the reqest headers frm the client it copies
      * it directly. Else it generates it using the hostname and adds it.
      */
-    std::tuple<std::string, std::string> parse_request_headers(socket_wrapper::Socket &s) const;
+    std::pair<std::string, std::string> parse_request_headers(const socket_wrapper::Socket &s) const;
 
     /*     Core part of the proxy server that parses the request from the client,
             forwards it to the server and sends the response (cached or real-time)
@@ -57,15 +47,12 @@ public:
     */
     void proxify(socket_wrapper::Socket client_socket);
 
-    unsigned short get_port() const { return port_; }  // NOLINT
+private:
+    bool try_to_connect(const socket_wrapper::Socket &s, const sockaddr *sa, size_t sa_size);
+    socket_wrapper::Socket connect_to_target_server(const std::string &host_name, std::uint16_t port);
 
 private:
-    bool try_to_connect(socket_wrapper::Socket &s, const sockaddr *sa, size_t sa_size);
-    socket_wrapper::Socket connect_to_target_server(const std::string &host_name, unsigned short port);
-
-private:
-    unsigned short port_;  // NOLINT
-    bool started_ = false;
+    const std::uint16_t port_ = 0;
     socket_wrapper::SocketWrapper sock_wrap_;
     socket_wrapper::Socket sock_;
 };
