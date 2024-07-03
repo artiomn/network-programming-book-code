@@ -3,10 +3,12 @@
 
 extern "C"
 {
+// clang-format off
 // Must not be sorted!
 #include <ip2string.h>
 #include <iphlpapi.h>
 #include <windows.h>
+    // clang-format on
 }
 
 #include <iostream>
@@ -110,7 +112,8 @@ int main()
         {
             std::string ip(INET_ADDRSTRLEN, 0);
             DWORD sz = ip.size();
-            if (WSAAddressToString(addr->Address.lpSockaddr, addr->Address.iSockaddrLength, nullptr, &ip[0], &sz) == 0)
+            if (WSAAddressToString(addr->Address.lpSockaddr, addr->Address.iSockaddrLength, nullptr, &ip.data(), &sz) ==
+                0)
                 std::cout << "My address = " << ip.c_str() << std::endl;
         }
 
