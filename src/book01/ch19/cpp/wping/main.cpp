@@ -187,74 +187,71 @@ bool ping(const t_ping_data *const wping)
     int end_time = 0;
     // Ping with responses.
     DWORD good_packets_cnt = 0;
-    while (true)
+
+    // Lookup destination
+    // Use inet_addr() to determine if we're dealing with a name
+    // or an address.
+
+    // Set some reasonable default values.
+    ip_info.Ttl = 255;
+    ip_info.Tos = 0;
+    ip_info.Flags = 0;
+    ip_info.OptionsSize = 0;
+    ip_info.OptionsData = nullptr;
+
+    if (wping->opts & PING_OPT_VERBOSE)
     {
-        // Lookup destination
-        // Use inet_addr() to determine if we're dealing with a name
-        // or an address.
+        std::cout << "Count = " << wping->count << "\nSize  = " << wping->buf_sz + sizeof(ICMP_ECHO_REPLY)
+                    << "\nDelay = " << wping->delay << "\nSending to \""
+                    << inet_ntop(AF_INET, &ia_dest.sin_addr, ip_buf.data(), ip_buf.size()) << "\"" << std::endl;
+    }
 
-        // Set some reasonable default values.
-        ip_info.Ttl = 255;
-        ip_info.Tos = 0;
-        ip_info.Flags = 0;
-        ip_info.OptionsSize = 0;
-        ip_info.OptionsData = nullptr;
+    end_time = (t_ping_func::tpf_min == wping->ping_func) ? PING_MAX_TIME : 0;
+    for (int i = 0; i < wping->count; ++i)
+    {
+        echo_reply->Status = IP_SUCCESS;
+        // Request is an ICMP echo:
+        // icmpSendEcho(Handle from IcmpCreateFile(), Destination IP address,
+        //              Pointer to buffer to send, Size of buffer in bytes,
+        //              Request options, Reply buffer, Time to wait in milliseconds).
+        // Replies count.
+        DWORD rep_cnt = IcmpSendEcho(
+            hndl_icmp, reinterpret_cast<const sockaddr_in *>(&ia_dest)->sin_addr.s_addr, buf.data(),
+            static_cast<WORD>(buf.size()), &ip_info, echo_reply,
+            static_cast<DWORD>(sizeof(ICMP_ECHO_REPLY) + buf.size()), wping->delay);
+        if (!(wping->opts & PING_OPT_NOSLEEP)) Sleep(wping->delay);
 
-        if (wping->opts & PING_OPT_VERBOSE)
+        if (rep_cnt > 0 && (IP_SUCCESS == echo_reply->Status))
         {
-            std::cout << "Count = " << wping->count << "\nSize  = " << wping->buf_sz + sizeof(ICMP_ECHO_REPLY)
-                      << "\nDelay = " << wping->delay << "\nSending to \""
-                      << inet_ntop(AF_INET, &ia_dest.sin_addr, ip_buf.data(), ip_buf.size()) << "\"" << std::endl;
-        }
-
-        end_time = (t_ping_func::tpf_min == wping->ping_func) ? PING_MAX_TIME : 0;
-        for (int i = 0; i < wping->count; ++i)
-        {
-            echo_reply->Status = IP_SUCCESS;
-            // Request is an ICMP echo:
-            // icmpSendEcho(Handle from IcmpCreateFile(), Destination IP address,
-            //              Pointer to buffer to send, Size of buffer in bytes,
-            //              Request options, Reply buffer, Time to wait in milliseconds).
-            // Replies count.
-            DWORD rep_cnt = IcmpSendEcho(
-                hndl_icmp, reinterpret_cast<const sockaddr_in *>(&ia_dest)->sin_addr.s_addr, buf.data(),
-                static_cast<WORD>(buf.size()), &ip_info, echo_reply,
-                static_cast<DWORD>(sizeof(ICMP_ECHO_REPLY) + buf.size()), wping->delay);
-            if (!(wping->opts & PING_OPT_NOSLEEP)) Sleep(wping->delay);
-
-            if (rep_cnt > 0 && (IP_SUCCESS == echo_reply->Status))
+            while (rep_cnt--)
             {
-                while (rep_cnt--)
-                {
-                    end_time = get_end_time(end_time, wping, echo_reply->RoundTripTime);
-                    if (wping->opts & PING_OPT_VERBOSE)
-                    {
-                        std::cout << "Received from: "
-                                  << inet_ntop(AF_INET, &echo_reply->Address, ip_buf.data(), ip_buf.size())
-                                  << "\nStatus: " << echo_reply->Status
-                                  << "\nRoundtrip time: " << echo_reply->RoundTripTime << "ms"
-                                  << "\nTTL: " << static_cast<int>(echo_reply->Options.Ttl)
-                                  << "\nBytes: " << echo_reply->DataSize << "\n"
-                                  << std::endl;
-                    }
-                    ++good_packets_cnt;
-                }
-            }
-            else
-            {
+                end_time = get_end_time(end_time, wping, echo_reply->RoundTripTime);
                 if (wping->opts & PING_OPT_VERBOSE)
                 {
-                    std::cout << "Host " << wping->host << " (resolved:\""
-                              << inet_ntop(AF_INET, &ia_dest.sin_addr, ip_buf.data(), ip_buf.size())
-                              << "\") doesn't respond!" << std::endl;
+                    std::cout << "Received from: "
+                                << inet_ntop(AF_INET, &echo_reply->Address, ip_buf.data(), ip_buf.size())
+                                << "\nStatus: " << echo_reply->Status
+                                << "\nRoundtrip time: " << echo_reply->RoundTripTime << "ms"
+                                << "\nTTL: " << static_cast<int>(echo_reply->Options.Ttl)
+                                << "\nBytes: " << echo_reply->DataSize << "\n"
+                                << std::endl;
                 }
-                end_time += get_end_time(end_time, wping, wping->delay);
+                ++good_packets_cnt;
             }
         }
-
-        ret_status = good_packets_cnt != 0;
-        break;
+        else
+        {
+            if (wping->opts & PING_OPT_VERBOSE)
+            {
+                std::cout << "Host " << wping->host << " (resolved:\""
+                            << inet_ntop(AF_INET, &ia_dest.sin_addr, ip_buf.data(), ip_buf.size())
+                            << "\") doesn't respond!" << std::endl;
+            }
+            end_time += get_end_time(end_time, wping, wping->delay);
+        }
     }
+
+    ret_status = good_packets_cnt != 0;
 
     if (!(wping->opts & PING_OPT_AVAIL))
     {
