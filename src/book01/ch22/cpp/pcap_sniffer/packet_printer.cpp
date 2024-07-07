@@ -5,13 +5,13 @@
 #include <string>
 
 // Ethernet headers are always exactly 14 bytes.
-const auto SIZE_ETHERNET = 14;
+constexpr auto SIZE_ETHERNET = 14;
 
 // Ethernet addresses are 6 bytes.
-const auto ETHER_ADDR_LEN = 6;
+constexpr auto ETHER_ADDR_LEN = 6;
 
 // IP header size in bytes.
-const auto ip_header_size = 20;
+constexpr auto ip_header_size = 20;
 
 // Ethernet header.
 struct sniff_ethernet
@@ -22,13 +22,13 @@ struct sniff_ethernet
 };
 
 // Reserved fragment flag.
-const u_short ip_rf = 0x8000;
+constexpr u_short ip_rf = 0x8000;
 // don't fragment flag.
-const u_short ip_df = 0x4000;
+constexpr u_short ip_df = 0x4000;
 // more fragments flag.
-const u_short ip_mf = 0x2000;
+constexpr u_short ip_mf = 0x2000;
 // mask for fragmenting bits.
-const u_short ip_offmask = 0x1fff;
+constexpr u_short ip_offmask = 0x1fff;
 
 // IP header.
 struct sniff_ip
@@ -99,7 +99,6 @@ struct sniff_tcp
     tcp_seq th_ack;
     // Data offset, rsvd.
     u_char th_offx2;
-    // cppcheck-suppress unusedStructMember
     tcp_flags th_flags;
     u_short th_win;
     u_short th_sum;
@@ -267,14 +266,6 @@ void PacketPrinter::got_packet(u_char *args, const pcap_pkthdr *header, const u_
               << "\n"
               << "    To: " << inet_ntop(network_proto_type, dst, &proto_addr[0], proto_addr.size()) << std::endl;
 
-    const sniff_tcp *tcp;
-    // Packet payload.
-    const u_char *payload;
-
-    // Define/compute ip header offset.
-    int size_tcp;
-    int size_payload;
-
     // Determine protocol.
     switch (transport_proto_type)
     {
@@ -304,8 +295,8 @@ void PacketPrinter::got_packet(u_char *args, const pcap_pkthdr *header, const u_
     // OK, this packet is TCP.
 
     // Define/compute tcp header offset.
-    tcp = reinterpret_cast<const sniff_tcp *>(packet + SIZE_ETHERNET + size_ip);
-    size_tcp = th_off(tcp) * 4;
+    const sniff_tcp *tcp = reinterpret_cast<const sniff_tcp *>(packet + SIZE_ETHERNET + size_ip);
+    const int size_tcp = th_off(tcp) * 4;
     if (size_tcp < ip_header_size)
     {
         std::cerr << "    * Invalid TCP header length: " << size_tcp << " bytes" << std::endl;
@@ -316,10 +307,10 @@ void PacketPrinter::got_packet(u_char *args, const pcap_pkthdr *header, const u_
               << "    Dst port: " << ntohs(tcp->th_dport) << std::endl;
 
     // Define/compute tcp payload (segment) offset.
-    payload = static_cast<const u_char *>(packet + SIZE_ETHERNET + size_ip + size_tcp);
+    const u_char *payload = static_cast<const u_char *>(packet + SIZE_ETHERNET + size_ip + size_tcp);
 
     // Compute tcp payload (segment) size.
-    size_payload = ip_len - (size_ip + size_tcp);
+    const int size_payload = ip_len - (size_ip + size_tcp);
 
     // Print payload data; it's usually binary, so don't just
     // treat it as a string.

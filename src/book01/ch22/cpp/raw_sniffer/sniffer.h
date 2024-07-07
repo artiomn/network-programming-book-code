@@ -1,6 +1,5 @@
 #pragma once
 
-#include <atomic>
 #include <fstream>
 #include <string>
 
@@ -19,7 +18,7 @@
 class Sniffer
 {
 public:
-    Sniffer(
+    explicit Sniffer(
         const std::string &if_name, const std::string &pcap_filename, const socket_wrapper::SocketWrapper &sock_wrap)
         : if_name_(if_name),
           pcap_filename_(pcap_filename),
@@ -32,18 +31,38 @@ public:
           // Open and overwrite capture file stream.
           of_(pcap_filename_, std::ios_base::binary)
     {
-        init();
+        if (!sock_)
+        {
+            throw std::system_error(
+                sock_wrap_.get_last_error_code(), std::system_category(),
+                "Socket error: " + sock_wrap_.get_last_error_string());
+        }
+
+        if (!of_)
+        {
+            throw std::runtime_error("Failed to open " + pcap_filename_);
+        }
+
+        if (!init())
+        {
+            throw std::runtime_error("Sniffer init failed");
+        }
     }
 
     ~Sniffer();
 
+    Sniffer(const Sniffer &) = delete;
+    Sniffer &operator=(const Sniffer &) = delete;
+    Sniffer(Sniffer &&) = delete;
+    Sniffer &operator=(Sniffer &&) = delete;
+
 public:
-    bool initialized() const { return initialized_; }
+    bool initialized() const noexcept { return initialized_; }
 
 public:
     bool start_capture();
-    bool stop_capture();
-    bool switch_promisc(bool enabled);
+    bool stop_capture() noexcept;
+    bool switch_promisc(bool enabled) noexcept;
     bool capture();
 
 protected:
@@ -52,15 +71,12 @@ protected:
     bool write_pcap_header();
 
 private:
-    // cppcheck-suppress unusedStructMember
-    const size_t ethernet_proto_type_offset = 12;
-
     const std::string if_name_;
     const std::string pcap_filename_;
     const socket_wrapper::SocketWrapper &sock_wrap_;
-    socket_wrapper::Socket sock_;
+    const socket_wrapper::Socket sock_;
 
     std::ofstream of_;
-    std::atomic<bool> started_ = false;
+    bool started_ = false;
     bool initialized_ = false;
 };
