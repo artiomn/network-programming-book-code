@@ -14,7 +14,7 @@
 #include <vector>
 
 
-const size_t command_size = 5;
+constexpr size_t command_size = 5;
 
 
 int main(int argc, const char* argv[])
@@ -25,8 +25,8 @@ int main(int argc, const char* argv[])
         return EXIT_FAILURE;
     }
 
-    socket_wrapper::SocketWrapper sock_wrap;
-    socket_wrapper::Socket sock = {AF_INET, SOCK_DGRAM, IPPROTO_UDP};
+    const socket_wrapper::SocketWrapper sock_wrap;
+    const socket_wrapper::Socket sock = {AF_INET, SOCK_DGRAM, IPPROTO_UDP};
 
     if (!sock)
     {
@@ -34,10 +34,12 @@ int main(int argc, const char* argv[])
         return EXIT_FAILURE;
     }
 
-    const std::string host_name = {argv[1]};
-    const struct hostent* remote_host{gethostbyname(host_name.c_str())};
+    assert(argv[1]);
+    const std::string host_name{argv[1]};
+    const hostent* remote_host{gethostbyname(host_name.c_str())};
 
-    struct sockaddr_in server_addr = {.sin_family = AF_INET, .sin_port = htons(std::stoi(argv[2]))};
+    assert(argv[2]);
+    sockaddr_in server_addr = {.sin_family = AF_INET, .sin_port = htons(std::stoi(argv[2]))};
 
     server_addr.sin_addr.s_addr = *reinterpret_cast<const in_addr_t*>(remote_host->h_addr);
 
