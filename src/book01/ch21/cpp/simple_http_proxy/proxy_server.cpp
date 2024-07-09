@@ -90,16 +90,16 @@ void ProxyServer::client_error(
 {
     std::string err_headers = "HTTP/1.0 " + std::to_string(err_num) + " " + short_message + "\r\n";
 
-    // Print the HTTP response.
-    if (send(sock, &err_headers.at(0), err_headers.size(), 0) == -1)
+    // Send the HTTP response.
+    if (-1 == send(sock, &err_headers.at(0), err_headers.size(), 0))
     {
-        throw std::system_error(errno, std::system_category(), "send");
+        throw std::system_error(sock_wrap_.get_last_error_code(), std::system_category(), "send");
     }
 
     err_headers = "Content-type: text/html\r\n";
-    if (send(sock, &err_headers.at(0), err_headers.size(), 0) == -1)
+    if (-1 == send(sock, &err_headers.at(0), err_headers.size(), 0))
     {
-        throw std::system_error(errno, std::system_category(), "send");
+        throw std::system_error(sock_wrap_.get_last_error_code(), std::system_category(), "send");
     }
 
     std::stringstream err_body_s;
@@ -113,13 +113,13 @@ void ProxyServer::client_error(
     auto err_body = err_body_s.str();
 
     err_headers = "Content-length: " + std::to_string(err_body.size()) + "\r\n\r\n";
-    if (send(sock, &err_headers.at(0), err_headers.size(), 0) == -1)
+    if (-1 == send(sock, &err_headers.at(0), err_headers.size(), 0))
     {
-        throw std::system_error(errno, std::system_category(), "send");
+        throw std::system_error(sock_wrap_.get_last_error_code(), std::system_category(), "send");
     }
-    if (send(sock, &err_body.at(0), err_body.size(), 0) == -1)
+    if (-1 == send(sock, &err_body.at(0), err_body.size(), 0))
     {
-        throw std::system_error(errno, std::system_category(), "send");
+        throw std::system_error(sock_wrap_.get_last_error_code(), std::system_category(), "send");
     }
 }
 
@@ -237,7 +237,7 @@ socket_wrapper::Socket ProxyServer::connect_to_target_server(const std::string &
         }
     }  // for
 
-    throw std::system_error(errno, std::system_category(), "Connection error");
+    throw std::system_error(sock_wrap_.get_last_error_code(), std::system_category(), "Connection error");
 }
 
 
@@ -298,10 +298,8 @@ void ProxyServer::proxify(socket_wrapper::Socket client_socket)
                   << "============\n"
                   << "New request:\n"
                   << "------------\n"
-                  << new_request << "============\n"
-                  << std::endl;
-
-        std::cout << "Connecting to host: \"" << host_name << ":" << port << "\"..." << std::endl;
+                  << new_request << "============\n\n"
+                  << "Connecting to host: \"" << host_name << ":" << port << "\"..." << std::endl;
 
         // Create new connection with server.
         auto &&proxy_to_server_socket = connect_to_target_server(host_name, port);
@@ -338,7 +336,7 @@ void ProxyServer::proxify(socket_wrapper::Socket client_socket)
 
         if (send(client_socket, &response.at(0), response.size(), 0) < 0)
         {
-            throw std::system_error(errno, std::system_category(), "send");
+            throw std::system_error(sock_wrap_.get_last_error_code(), std::system_category(), "send");
         }
     }
     catch (const std::exception &e)
