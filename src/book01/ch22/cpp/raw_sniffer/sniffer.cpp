@@ -1,6 +1,7 @@
 #include "sniffer.h"
 
 #include <algorithm>
+#include <array>
 #include <cerrno>
 #include <chrono>
 #include <iostream>
@@ -191,13 +192,13 @@ bool Sniffer::capture()
 {
     // First 14 bytes are a fake ethernet header with IPv4 as the protocol.
     // `char` type is using for the compatibility with Windows.
-    char buffer[BUFFER_SIZE_HDR + BUFFER_SIZE_PKT] = {0};
-    // 0x08 - IP protocol type in the Ethernet frame protocolol type field (offset = 12).
-    buffer[BUFFER_OFFSET_ETH + ethernet_proto_type_offset] = 0x08;
-    pcap_sf_pkthdr* pkt = reinterpret_cast<struct pcap_sf_pkthdr*>(buffer);
+    std::array<char, BUFFER_SIZE_HDR + BUFFER_SIZE_PKT> buffer;
+    // 0x08 - IP protocol type in the Ethernet frame protocol type field (offset = 12).
+    buffer[BUFFER_OFFSET_ETH + ethernet_proto_type_offset] = 0x08;  // cppcheck-suppress containerOutOfBounds
+    pcap_sf_pkthdr* pkt = reinterpret_cast<pcap_sf_pkthdr*>(buffer.data());
 
     // Read the next packet, blocking forever.
-    int rc = recv(sock_, buffer + BUFFER_WRITE_OFFSET, BUFFER_SIZE_IP, 0);
+    const int rc = recv(sock_, buffer.data() + BUFFER_WRITE_OFFSET, BUFFER_SIZE_IP, 0);
 
     if (INVALID_SOCKET == rc)
     {
@@ -205,7 +206,7 @@ bool Sniffer::capture()
         return false;
     }
 
-    // End of file for some strange reason, so stop reading packets.
+    // Data receiving error, so stop reading packets.
     if (!rc) return false;
 
     std::cout << rc << " bytes received..." << std::endl;
@@ -224,7 +225,7 @@ bool Sniffer::capture()
     pkt->len = rc + BUFFER_ADD_HEADER_SIZE;
 
     // Write packet.
-    of_.write(reinterpret_cast<const char*>(buffer), rc + BUFFER_SIZE_HDR + BUFFER_ADD_HEADER_SIZE);
+    of_.write(buffer.data(), rc + BUFFER_SIZE_HDR + BUFFER_ADD_HEADER_SIZE);
     of_.flush();
 
     return true;

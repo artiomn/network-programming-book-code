@@ -57,7 +57,7 @@ class NetworkProtocolHeader:
 
     @final
     @classmethod
-    def unpack_packet(cls, base_protocol, packet, skip_channel_proto_check: bool = False) -> list[Any]:
+    def unpack_packet(cls, base_protocol, packet, *, skip_channel_proto_check: bool = False) -> list[Any]:
         """Package unpacking method."""
         if not issubclass(base_protocol, NetworkProtocolHeader):
             raise TypeError(

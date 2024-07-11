@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 
+
 // Ethernet headers are always exactly 14 bytes.
 constexpr auto SIZE_ETHERNET = 14;
 
@@ -99,6 +100,7 @@ struct sniff_tcp
     tcp_seq th_ack;
     // Data offset, rsvd.
     u_char th_offx2;
+    // cppcheck-suppress unusedStructMember
     tcp_flags th_flags;
     u_short th_win;
     u_short th_sum;
@@ -160,15 +162,15 @@ void PacketPrinter::print_hex_ascii_line(const u_char *payload, int len, int off
 void PacketPrinter::print_payload(const u_char *payload, int len)
 {
     int len_rem = len;
-    // number of bytes per line.
-    int line_width = 16;
-    // zero-based offset counter.
+    // Number of bytes per line.
+    constexpr int line_width = 16;
+    // Zero-based offset counter.
     int offset = 0;
     const u_char *ch = payload;
 
     if (len <= 0) return;
 
-    /* data fits on one line */
+    // Data fits on one line.
     if (len <= line_width)
     {
         print_hex_ascii_line(ch, len, offset);
@@ -190,7 +192,7 @@ void PacketPrinter::print_payload(const u_char *payload, int len)
         // Check if we have line width chars or less.
         if (len_rem <= line_width)
         {
-            /* print last line and get out */
+            // Print last line and get out.
             print_hex_ascii_line(ch, len_rem, offset);
             break;
         }

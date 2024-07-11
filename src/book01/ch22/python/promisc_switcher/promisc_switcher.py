@@ -15,21 +15,17 @@ class InterfacePromiscSwitcher(ctypes.Structure):
 
     def __init__(self, if_name: str, *args, **kw):
         super().__init__(*args, **kw)
-        self._sock: socket.socket
-        if 'socket' in kw:
-            self._sock = kw['socket']
-        else:
-            self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self._sock = kw['socket'] if 'socket' in kw else socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         self.ifr_ifrn = if_name.encode()
 
     @property
     def socket(self) -> socket.socket | None:
-        return self._sock
+        return self._sock  # type: ignore
 
     def set_promisc(self):
         sock = self._sock
-        if sys.platform == 'win32':
+        if 'win32' == sys.platform:
             sock.bind((self.ifr_ifrn, 0))
             sock.ioctl(socket.SIO_RCVALL, socket.RCVALL_ON)
         else:
@@ -38,8 +34,8 @@ class InterfacePromiscSwitcher(ctypes.Structure):
             ioctl(sock.fileno(), self.SIOCSIFFLAGS, self)
 
     def unset_promisc(self, close_socket: bool = True):
-        if sys.platform == 'win32':
-            self._sock.ioctl(socket.SIO_RCVALL, socket.RCVALL_OFF)
+        if 'win32' == sys.platform:
+            self._sock.ioctl(socket.SIO_RCVALL, socket.RCVALL_OFF)  # type: ignore[attr-defined]
         else:
             self.ifr_flags &= ~self.IFF_PROMISC  # pylint: disable=E1101(no-member)
             ioctl(self._sock.fileno(), self.SIOCSIFFLAGS, self)

@@ -107,7 +107,7 @@ int main(int argc, const char *const argv[])
         }
 
         // Compile the filter expression.
-        if (pcap_compile(handle, &fp, filter_exp, 0, net) == -1)
+        if (-1 == pcap_compile(handle, &fp, filter_exp, 0, net))
         {
             ss << "Couldn't parse filter \"" << filter_exp << "\": " << pcap_geterr(handle) << "!" << std::endl;
             throw std::logic_error(ss.str());
