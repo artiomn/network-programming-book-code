@@ -185,6 +185,12 @@ RUN \
   && install uSockets/src/libusockets.h ${INSTALL_PREFIX}/include/ \
   && cd / \
   && rm -rf uWebSockets \
+  && git clone ${GIT_CLONE_PARAMETERS} https://github.com/seladb/PcapPlusPlus \
+  && cd PcapPlusPlus \
+  && cmake -DPCAPPP_BUILD_EXAMPLES=OFF -DPCAPPP_BUILD_TESTS=OFF -B build \
+  && cmake --build build --parallel \
+  && cmake --install build \
+  && cd / \
   && git clone ${GIT_CLONE_PARAMETERS} https://github.com/google/flatbuffers \
   && cd flatbuffers \
   && cmake \
