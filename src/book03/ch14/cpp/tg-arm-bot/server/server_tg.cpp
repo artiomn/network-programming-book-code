@@ -6,6 +6,8 @@
 #include <exception>
 #include <iostream>
 #include <sstream>
+#include <utility>
+#include <vector>
 
 
 using namespace TgBot;
@@ -148,7 +150,7 @@ void create_and_run_tg_bot(const std::string& token, CommandHandler on_command)
 
             if (StringTools::startsWith(message->text, "/start"))
             {
-                bot.getApi().sendMessage(message->chat->id, "Bot started...", false, 0, keyboard);
+                bot.getApi().sendMessage(message->chat->id, "Bot started...", nullptr, 0, keyboard);
                 return;
             }
 
