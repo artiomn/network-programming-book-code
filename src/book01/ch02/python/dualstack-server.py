@@ -2,15 +2,11 @@
 
 import socket
 
-with socket.socket(socket.AF_INET6, socket.SOCK_STREAM, socket.IPPROTO_TCP) as sock:
+with socket.socket(socket.AF_INET6, socket.SOCK_DGRAM, socket.IPPROTO_UDP) as sock:
     sock.bind(('::', 12345, 0, 0))
-    sock.listen()
+
     print(f'Listening socket = {sock}, ' f'dual stack = {socket.has_dualstack_ipv6()}\n')
 
     while True:
-        s, addr = sock.accept()
-        print(f'Client socket = {s}\nClient address = {addr}')
-
-        with s:
-            while data := s.recv(15):
-                print(data)
+        while data := sock.recvfrom(15):
+            print(data)
