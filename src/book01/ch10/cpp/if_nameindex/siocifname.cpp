@@ -25,7 +25,6 @@ int main(int argc, const char *const argv[])
 
     const socket_wrapper::SocketWrapper sock_wrap;
 
-
     try
     {
         ifreq ifr = {};

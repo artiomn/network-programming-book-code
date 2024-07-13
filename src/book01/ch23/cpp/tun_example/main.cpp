@@ -100,7 +100,7 @@ public:
 
         try
         {
-            perform_ioctl(sock, SIOCSIFNAME, &ifr, "SIOCSIFNAME ioctl failed");
+            perform_ioctl(sock, SIOCSIFNAME, &ifr, "SIOCSIFNAME failed");
         }
         catch (...)
         {
