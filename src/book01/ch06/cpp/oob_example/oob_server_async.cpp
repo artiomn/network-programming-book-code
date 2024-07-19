@@ -20,7 +20,7 @@ extern "C"
 
 
 constexpr size_t buffer_size = 255;
-std::atomic<bool> oob_flag = false;
+volatile std::atomic<bool> oob_flag = false;
 
 
 void signal_handler(int signal)
