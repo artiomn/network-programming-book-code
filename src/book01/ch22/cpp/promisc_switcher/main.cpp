@@ -5,12 +5,15 @@
 #    include <iphlpapi.h>
 #    include <mstcpip.h>
 #else
+extern "C"
+{
 #    include <sys/ioctl.h>
 #    include <sys/socket.h>
 // For IF_PROMISC.
 #    include <linux/if.h>
 // For ETH_P_ALL.
 #    include <netinet/if_ether.h>
+}
 #endif
 
 #include <socket_wrapper/socket_class.h>
