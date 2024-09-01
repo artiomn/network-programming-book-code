@@ -27,8 +27,7 @@ int main()
         if ((result = dn_expand(buf.data(), buf.data() + result, buf.data(), exp_buf.data(), exp_buf.size())) != -1)
         {
             std::cout << "Len = " << result << "\n"
-                      << std::string(exp_buf.begin(), exp_buf.begin() + result) << "\n"
-                      << std::endl;
+                      << std::string(exp_buf.begin(), exp_buf.begin() + result) << std::endl;
             return EXIT_SUCCESS;
         }
 
