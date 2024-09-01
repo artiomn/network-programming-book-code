@@ -30,6 +30,32 @@ void signal_handler(int signal)
 }
 
 
+void recv_data(
+    const socket_wrapper::SocketWrapper &sock_wrap, const socket_wrapper::Socket &client_sock,
+    std::array<char, buffer_size> &data_buff)
+{
+    if (ssize_t n = recv(client_sock, data_buff.data(), data_buff.size(), 0); n < 0)
+    {
+        if (auto e_code = sock_wrap.get_last_error_code(); EINTR == e_code || EAGAIN == e_code)
+        {
+            std::cout << "recv was broken by signal!" << std::endl;
+        }
+        else
+            throw std::system_error(e_code, std::system_category(), "recv data");
+    }
+    else if (!n)
+    {
+        std::cout << "No data, exiting..." << std::endl;
+        exit(EXIT_SUCCESS);
+    }
+    else
+    {
+        std::cout << "Ordinary data received...\n"
+                  << n << " bytes was read: " << std::string(data_buff.begin(), data_buff.begin() + n) << std::endl;
+    }
+}
+
+
 int main(int argc, const char *const argv[])
 {
     if (argc != 2)
@@ -66,7 +92,11 @@ int main(int argc, const char *const argv[])
                     throw std::system_error(sock_wrap.get_last_error_code(), std::system_category(), "sockatmark");
                     break;
                 case 1:
-                    if (!oob_flag) continue;
+                    if (!oob_flag)
+                    {
+                        recv_data(sock_wrap, client_sock, data_buff);
+                        continue;
+                    }
                     std::cout << "OOB data received..." << std::endl;
                     char oob_data;
                     if (recv(client_sock, &oob_data, 1, MSG_OOB) < 0)
@@ -81,27 +111,8 @@ int main(int argc, const char *const argv[])
                     oob_flag = false;
                     break;
                 case 0:
-                    if (ssize_t n = recv(client_sock, data_buff.data(), data_buff.size(), 0); n < 0)
-                    {
-                        auto e_code = sock_wrap.get_last_error_code();
-                        if (EINTR == e_code || EAGAIN == e_code)
-                        {
-                            std::cout << "recv was broken by signal!" << std::endl;
-                            continue;
-                        }
-                        throw std::system_error(e_code, std::system_category(), "recv data");
-                    }
-                    else if (!n)
-                    {
-                        std::cout << "No data, exiting..." << std::endl;
-                        exit(EXIT_SUCCESS);
-                    }
-                    else
-                    {
-                        std::cout << "Ordinary data received...\n"
-                                  << n << " bytes was read: " << std::string(data_buff.begin(), data_buff.begin() + n)
-                                  << std::endl;
-                    }
+                    std::cout << "sockatmark() is 0" << std::endl;
+                    recv_data(sock_wrap, client_sock, data_buff);
                     break;
                 default:
                     throw std::runtime_error("unexpected sockatmark");
