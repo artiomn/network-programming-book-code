@@ -20,8 +20,29 @@ extern "C"
 #include <vector>
 
 
-constexpr size_t clients_count = 10;
 constexpr size_t buffer_size = 255;
+
+
+void recv_data(
+    const socket_wrapper::SocketWrapper &sock_wrap, const socket_wrapper::Socket &client_sock,
+    std::array<char, buffer_size> &data_buff)
+{
+    if (ssize_t n = recv(client_sock, data_buff.data(), data_buff.size(), 0); n < 0)
+    {
+        throw std::system_error(sock_wrap.get_last_error_code(), std::system_category(), "recv data");
+    }
+    else if (!n)
+    {
+        std::cout << "No data, exiting..." << std::endl;
+        exit(EXIT_SUCCESS);
+    }
+    else
+    {
+        std::cout << "Ordinary data received...\n"
+                  << n << " bytes was read: " << std::string(data_buff.begin(), data_buff.begin() + n) << std::endl;
+    }
+}
+
 
 int main(int argc, const char *const argv[])
 {
@@ -45,15 +66,17 @@ int main(int argc, const char *const argv[])
 
         while (true)
         {
-            int at_mark = sockatmark(client_sock);
-
-            switch (at_mark)
+            switch (sockatmark(client_sock))
             {
                 case -1:
                     throw std::system_error(errno, std::system_category(), "sockatmark");
                     break;
                 case 1:
-                    if (oob_printed) continue;
+                    if (oob_printed)
+                    {
+                        recv_data(sock_wrap, client_sock, data_buff);
+                        continue;
+                    }
                     std::cout << "OOB data received..." << std::endl;
 
                     char oob_data;
@@ -65,21 +88,7 @@ int main(int argc, const char *const argv[])
                     oob_printed = true;
                     break;
                 case 0:
-                    if (ssize_t n = recv(client_sock, data_buff.data(), data_buff.size(), 0); n < 0)
-                    {
-                        throw std::system_error(sock_wrap.get_last_error_code(), std::system_category(), "recv data");
-                    }
-                    else if (!n)
-                    {
-                        std::cout << "No data, exiting..." << std::endl;
-                        exit(EXIT_SUCCESS);
-                    }
-                    else
-                    {
-                        std::cout << "Ordinary data received...\n"
-                                  << n << " bytes was read: " << std::string(data_buff.begin(), data_buff.begin() + n)
-                                  << std::endl;
-                    }
+                    recv_data(sock_wrap, client_sock, data_buff);
                     oob_printed = false;
                     break;
                 default:
