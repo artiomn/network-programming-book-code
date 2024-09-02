@@ -20,13 +20,11 @@ extern "C"
 
 
 constexpr size_t buffer_size = 255;
-volatile std::atomic<bool> oob_flag = false;
 
 
 void signal_handler(int signal)
 {
     std::cout << "SIGURG [" << signal << "] received" << std::endl;
-    oob_flag = true;
 }
 
 
@@ -92,15 +90,16 @@ int main(int argc, const char *const argv[])
                     throw std::system_error(sock_wrap.get_last_error_code(), std::system_category(), "sockatmark");
                     break;
                 case 1:
-                    if (!oob_flag)
-                    {
-                        recv_data(sock_wrap, client_sock, data_buff);
-                        continue;
-                    }
-                    std::cout << "OOB data received..." << std::endl;
                     char oob_data;
-                    if (recv(client_sock, &oob_data, 1, MSG_OOB) < 0)
+                    std::cout << "OOB data received..?" << std::endl;
+                    if (-1 == recv(client_sock, &oob_data, 1, MSG_OOB))
                     {
+                        if (EINVAL == sock_wrap.get_last_error_code())
+                        {
+                            std::cout << "EINVAL - this is not OOB" << std::endl;
+                            recv_data(sock_wrap, client_sock, data_buff);
+                            continue;
+                        }
                         throw std::system_error(sock_wrap.get_last_error_code(), std::system_category(), "recv oob");
                     }
                     else
@@ -108,7 +107,6 @@ int main(int argc, const char *const argv[])
                         std::cout << "OOB data = " << oob_data << std::endl;
                     }
 
-                    oob_flag = false;
                     break;
                 case 0:
                     std::cout << "sockatmark() is 0" << std::endl;
