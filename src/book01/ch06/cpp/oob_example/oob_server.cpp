@@ -62,8 +62,6 @@ int main(int argc, const char *const argv[])
 
         std::array<char, buffer_size> data_buff;
 
-        bool oob_printed = false;
-
         while (true)
         {
             switch (sockatmark(client_sock))
@@ -72,24 +70,23 @@ int main(int argc, const char *const argv[])
                     throw std::system_error(errno, std::system_category(), "sockatmark");
                     break;
                 case 1:
-                    if (oob_printed)
+                    std::cout << "OOB data received..?" << std::endl;
+                    if (char oob_data = 0; -1 == recv(client_sock, &oob_data, 1, MSG_OOB))
                     {
-                        recv_data(sock_wrap, client_sock, data_buff);
-                        continue;
-                    }
-                    std::cout << "OOB data received..." << std::endl;
-
-                    char oob_data;
-                    if (-1 == recv(client_sock, &oob_data, 1, MSG_OOB))
-                    {
+                        if (EINVAL == sock_wrap.get_last_error_code())
+                        {
+                            std::cout << "EINVAL - this is not OOB" << std::endl;
+                            recv_data(sock_wrap, client_sock, data_buff);
+                            continue;
+                        }
                         throw std::system_error(sock_wrap.get_last_error_code(), std::system_category(), "recv oob");
                     }
-                    std::cout << "OOB data = " << oob_data << std::endl;
-                    oob_printed = true;
+                    else
+                        std::cout << "OOB data = " << oob_data << std::endl;
                     break;
                 case 0:
+                    std::cout << "sockatmark() is 0" << std::endl;
                     recv_data(sock_wrap, client_sock, data_buff);
-                    oob_printed = false;
                     break;
                 default:
                     throw std::runtime_error("unexpected sockatmark");

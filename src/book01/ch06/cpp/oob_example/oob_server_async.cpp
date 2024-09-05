@@ -71,8 +71,6 @@ int main(int argc, const char *const argv[])
             throw std::system_error(errno, std::system_category(), "signal");
         }
 
-        std::array<char, buffer_size> data_buff;
-
         assert(argv[1]);
         auto server_sock = socket_wrapper::create_tcp_server(argv[1]);
         auto client_sock = socket_wrapper::accept_client(server_sock);
@@ -82,6 +80,9 @@ int main(int argc, const char *const argv[])
             throw std::system_error(errno, std::system_category(), "fcntl");
         }
 
+
+        std::array<char, buffer_size> data_buff;
+
         while (true)
         {
             switch (sockatmark(client_sock))
@@ -90,9 +91,8 @@ int main(int argc, const char *const argv[])
                     throw std::system_error(sock_wrap.get_last_error_code(), std::system_category(), "sockatmark");
                     break;
                 case 1:
-                    char oob_data;
                     std::cout << "OOB data received..?" << std::endl;
-                    if (-1 == recv(client_sock, &oob_data, 1, MSG_OOB))
+                    if (char oob_data = 0; -1 == recv(client_sock, &oob_data, 1, MSG_OOB))
                     {
                         if (EINVAL == sock_wrap.get_last_error_code())
                         {
@@ -103,10 +103,7 @@ int main(int argc, const char *const argv[])
                         throw std::system_error(sock_wrap.get_last_error_code(), std::system_category(), "recv oob");
                     }
                     else
-                    {
                         std::cout << "OOB data = " << oob_data << std::endl;
-                    }
-
                     break;
                 case 0:
                     std::cout << "sockatmark() is 0" << std::endl;
