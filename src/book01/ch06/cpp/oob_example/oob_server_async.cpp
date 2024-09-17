@@ -36,7 +36,7 @@ void recv_data(
     {
         if (auto e_code = sock_wrap.get_last_error_code(); EINTR == e_code || EAGAIN == e_code)
         {
-            std::cout << "recv was broken by signal!" << std::endl;
+            std::cout << "recv was interrupted!" << std::endl;
         }
         else
             throw std::system_error(e_code, std::system_category(), "recv data");
