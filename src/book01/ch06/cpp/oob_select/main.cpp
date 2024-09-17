@@ -123,7 +123,6 @@ int main(int argc, const char *const argv[])
                             if (EINVAL == sock_wrap.get_last_error_code())
                             {
                                 std::cout << "EINVAL - this is not OOB" << std::endl;
-                                recv_data(sock_wrap, client_sock, data_buff);
                                 continue;
                             }
                             throw std::system_error(
