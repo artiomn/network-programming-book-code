@@ -103,7 +103,7 @@ bool Sniffer::bind_socket()
 
     // Bind the socket to the specified IP address.
     const auto iface_addr = get_if_address(if_name_, sock_);
-    if (INVALID_SOCKET == bind(sock_, reinterpret_cast<const struct sockaddr*>(&iface_addr), sizeof(iface_addr)))
+    if (-1 == bind(sock_, reinterpret_cast<const struct sockaddr*>(&iface_addr), sizeof(iface_addr)))
     {
         std::cerr << "bind() failed: " << sock_wrap_.get_last_error_string() << "." << std::endl;
         return false;
@@ -124,7 +124,7 @@ bool Sniffer::switch_promisc(bool enabled) noexcept
     // interface.
     int rc = WSAIoctl(sock_, SIO_RCVALL, &value, sizeof(value), nullptr, 0, &out, nullptr, nullptr);
 
-    if (INVALID_SOCKET == rc)
+    if (SOCKET_ERROR == rc)
     {
         std::cerr << "Ioctl() failed: " << sock_wrap_.get_last_error_code() << "." << std::endl;
         return false;
@@ -200,13 +200,14 @@ bool Sniffer::capture()
     // Read the next packet, blocking forever.
     const int rc = recv(sock_, buffer.data() + BUFFER_WRITE_OFFSET, BUFFER_SIZE_IP, 0);
 
-    if (INVALID_SOCKET == rc)
+    if (-1 == rc)
     {
+        // Data receiving error.
         std::cerr << "recv() failed: " << sock_wrap_.get_last_error_string() << std::endl;
         return false;
     }
 
-    // Data receiving error, so stop reading packets.
+    // Connection closed, so stop reading packets.
     if (!rc) return false;
 
     std::cout << rc << " bytes received..." << std::endl;
