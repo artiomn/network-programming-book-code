@@ -332,11 +332,17 @@ sys network power video storage lp input audio wheel artiom docker
 Пример:
 
 ```cmd
-➭ ./run sudo ./build/bin/ch02-ping google.com
-Pinging "google.com" [64.233.165.113]
-Start to sending packets...
-Sending packet 0 to "google.com" request with id = 29
-Receiving packet 0 from "google.com" response with id = 29, time = 15.5ms
+./run sudo ./build/bin/b01-ch04-ping-from-root google.com
+Pinging "google.com" [142.250.113.113]
+Raw socket was created...
+Starting to send packets...
+TTL = 255
+Recv timeout seconds = 1
+Recv timeout microseconds = 0
+Sending packet 0 to "google.com" request with id = 33
+Receiving packet 0 from "google.com" response with id = 33, time = 159ms
+Sending packet 1 to "google.com" request with id = 33
+Receiving packet 1 from "google.com" response with id = 33, time = 160ms
 ```
 
 [К оглавлению ⮐](#%D0%BE%D0%B3%D0%BB%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5)
