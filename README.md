@@ -1,10 +1,10 @@
-# Repository with a code for the "Network Programming in the High-level Languages" book
+# Repository with a code for the "Network Programming" book
 
 [![Build C++ code for Linux](https://github.com/artiomn/network-programming-book-code/actions/workflows/cpp-linux-build.yml/badge.svg)](https://github.com/artiomn/network-programming-book-code/actions/workflows/cpp-linux-build.yml)
 [![Build C++ code for Windows](https://github.com/artiomn/network-programming-book-code/actions/workflows/cpp-windows-build.yml/badge.svg)](https://github.com/artiomn/network-programming-book-code/actions/workflows/cpp-windows-build.yml)
 [![Build and push Docker images](https://github.com/artiomn/network-programming-book-code/actions/workflows/docker-images-build.yml/badge.svg)](https://github.com/artiomn/network-programming-book-code/actions/workflows/docker-images-build.yml)
 
-Код для книги "Сетевое программирование на языках высокого уровня".
+Код для книги "Сетевое программирование".
 
 ## Оглавление
 
