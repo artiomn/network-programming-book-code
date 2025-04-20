@@ -332,7 +332,7 @@ sys network power video storage lp input audio wheel artiom docker
 Пример:
 
 ```cmd
-./run sudo ./build/bin/b01-ch04-ping-from-root google.com
+➭ ./run sudo ./build/bin/b01-ch04-ping-from-root google.com
 Pinging "google.com" [142.250.113.113]
 Raw socket was created...
 Starting to send packets...
