@@ -198,7 +198,7 @@ There are:
 ### Docker - what's it?
 
 It is assumed that you will use Internet search while working with the book.
-Accordingly, [Google will help](https://google.gik-team.com/?q=Docker).
+Accordingly, [Google will help](https://google.com/?q=Docker).
 In short, [Docker](https://en.wikipedia.org/wiki/Docker) is one of the options for implementing containerization infrastructure automation.
 It allows you to isolate applications in containers, the images of which are downloaded from the repository.
 Here it is needed so that:
