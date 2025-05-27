@@ -29,6 +29,7 @@ This repository contains the programming examples for the book "Network Programm
   - [I've found error in the code, how can I fix it?](#ive-found-error-in-the-code-how-can-i-fix-it)
 - [For contributors](#for-contributors)
 - [Authors contacts](#authors-contacts)
+- [Where is the answers can be downloaded?](#where-is-the-answers-can-be-downloaded)
 
 ## Beginning
 
@@ -442,5 +443,11 @@ For pre-commit to work correctly and check cpp files, you also need to install [
 
 If you have something to say, [create an Issue](https://github.com/artiomn/network-programming-book-code/issues).
 Or contact the [Telegram channel](https://t.me/net_progr) about the book.
+
+[ToC ⮐](#table-of-contents)
+
+## Where is the answers can be downloaded?
+
+You can ask for the answers in the TG channel written above.
 
 [ToC ⮐](#table-of-contents)
