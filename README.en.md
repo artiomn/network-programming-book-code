@@ -27,9 +27,10 @@ This repository contains the programming examples for the book "Network Programm
   - [Where to download Netcat under Windows?](#where-to-download-netcat-under-windows)
   - [I'm doing all right, but something is not connected](#im-doing-all-right-but-something-is-not-connected)
   - [I've found error in the code, how can I fix it?](#ive-found-error-in-the-code-how-can-i-fix-it)
+  - [Where is the answers can be downloaded?](#where-is-the-answers-can-be-downloaded)
+  - [Where Internet resources list can be downloaded?](#where-internet-resources-list-can-be-downloaded)
 - [For contributors](#for-contributors)
 - [Authors contacts](#authors-contacts)
-- [Where is the answers can be downloaded?](#where-is-the-answers-can-be-downloaded)
 
 ## Beginning
 
@@ -408,6 +409,18 @@ But in this case, we can't promise a quick fix.
 
 [ToC ⮐](#table-of-contents)
 
+### Where is the answers can be downloaded?
+
+You can ask for the answers in the TG channel written below.
+
+[ToC ⮐](#table-of-contents)
+
+## Where Internet resources list can be downloaded?
+
+In the file [Internet_resources_list.pdf](Internet_resources_list.pdf).
+
+[ToC ⮐](#table-of-contents)
+
 ## For contributors
 
 There is a script `install_git_hooks.py` in the root directory, this script checks for the pre-commit tool installed, and if it is not, installs it.
@@ -443,11 +456,5 @@ For pre-commit to work correctly and check cpp files, you also need to install [
 
 If you have something to say, [create an Issue](https://github.com/artiomn/network-programming-book-code/issues).
 Or contact the [Telegram channel](https://t.me/net_progr) about the book.
-
-[ToC ⮐](#table-of-contents)
-
-## Where is the answers can be downloaded?
-
-You can ask for the answers in the TG channel written above.
 
 [ToC ⮐](#table-of-contents)
