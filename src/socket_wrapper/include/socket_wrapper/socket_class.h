@@ -12,7 +12,7 @@ public:
     explicit Socket(SocketDescriptorType socket_descriptor);
 
     Socket(const Socket &) = delete;
-    Socket(Socket &&s);
+    Socket(Socket &&s) noexcept;
     Socket &operator=(const Socket &s) = delete;
     Socket &operator=(Socket &&s);
 
