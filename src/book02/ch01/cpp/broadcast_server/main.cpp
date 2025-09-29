@@ -10,7 +10,7 @@
 #include <thread>
 
 
-const size_t buffer_size = 256;
+constexpr size_t buffer_size = 256;
 
 
 int main(int argc, char const* const argv[])

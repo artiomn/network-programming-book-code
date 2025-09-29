@@ -27,7 +27,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP) as so
             continue
 
     while True:
-        data = f'I\'am {sock.getsockname()} sending data to ' f'{sock.getpeername()}'
+        data = f'I\'am {sock.getsockname()} ' \
+               f'sending data to ' f'{sock.getpeername()}'
         print(f'Sending "{data}"')
         sock.send(data.encode())
         print('Receiving...')

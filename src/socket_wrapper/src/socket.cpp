@@ -22,7 +22,7 @@ Socket::Socket(int domain, int type, int protocol) : socket_descriptor_(INVALID_
 Socket::Socket(SocketDescriptorType socket_descriptor) : socket_descriptor_(socket_descriptor) {}
 
 
-Socket::Socket(Socket &&s)
+Socket::Socket(Socket &&s) noexcept
 {
     socket_descriptor_ = s.socket_descriptor_;
     s.socket_descriptor_ = INVALID_SOCKET;

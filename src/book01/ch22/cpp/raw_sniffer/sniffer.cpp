@@ -103,7 +103,7 @@ bool Sniffer::bind_socket()
 
     // Bind the socket to the specified IP address.
     const auto iface_addr = get_if_address(if_name_, sock_);
-    if (-1 == bind(sock_, reinterpret_cast<const struct sockaddr*>(&iface_addr), sizeof(iface_addr)))
+    if (-1 == bind(sock_, reinterpret_cast<const sockaddr*>(&iface_addr), sizeof(iface_addr)))
     {
         std::cerr << "bind() failed: " << sock_wrap_.get_last_error_string() << "." << std::endl;
         return false;
