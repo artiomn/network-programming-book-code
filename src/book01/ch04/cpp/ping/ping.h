@@ -104,12 +104,13 @@ public:
 
 public:
     // Zero packet constructor. Need for recv.
-    explicit PingPacket(size_t packet_size = ping_packet_size) : data_buffer_(packet_size, 0)
+    // cppcheck-suppress noExplicitConstructor
+    PingPacket(size_t packet_size = ping_packet_size) : data_buffer_(packet_size, 0)  // NOLINT
     {
         assert(data_buffer_.size() >= sizeof(icmphdr));
     }
 
-    explicit PingPacket(uint16_t packet_id, uint16_t packet_sequence_number, size_t packet_size = ping_packet_size)
+    PingPacket(uint16_t packet_id, uint16_t packet_sequence_number, size_t packet_size = ping_packet_size)
     {
         create_new_packet(packet_id, packet_sequence_number, packet_size);
     }
@@ -119,7 +120,7 @@ public:
         assert(data_buffer_.size() >= sizeof(icmphdr));
     }
 
-    explicit PingPacket(const BufferType::const_iterator &start, const BufferType::const_iterator &end)
+    PingPacket(const BufferType::const_iterator &start, const BufferType::const_iterator &end)
         : data_buffer_{start, end}
     {
         assert(data_buffer_.size() >= sizeof(icmphdr));

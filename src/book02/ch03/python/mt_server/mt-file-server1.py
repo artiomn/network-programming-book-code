@@ -120,6 +120,7 @@ def send_file_to_the_client(c_sock: socket.socket):
     except BaseException as e:
         print(e)
         result = False
+
     c_sock.close()
     print(f'Client with tid = {current_thread().name} [{current_thread().native_id}] exiting...')
     return result

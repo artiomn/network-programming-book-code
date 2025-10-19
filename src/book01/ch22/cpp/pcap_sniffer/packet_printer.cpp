@@ -4,6 +4,13 @@
 #include <iostream>
 #include <string>
 
+#if !defined(ETHERTYPE_IP)
+constexpr auto ETHERTYPE_IP = 0x0800;
+#endif
+
+#if !defined(ETHERTYPE_IPV6)
+constexpr auto ETHERTYPE_IPV6 = 0x86DD;
+#endif
 
 // Ethernet headers are always exactly 14 bytes.
 constexpr auto SIZE_ETHERNET = 14;
@@ -219,7 +226,7 @@ void PacketPrinter::got_packet(u_char *args, const pcap_pkthdr *header, const u_
 
     switch (ntohs(ethernet->ether_type))
     {
-        case 0x0800:
+        case ETHERTYPE_IP:
         {
             std::cout << "  IPv4 protocol" << std::endl;
             proto_addr.resize(INET_ADDRSTRLEN);
@@ -241,7 +248,7 @@ void PacketPrinter::got_packet(u_char *args, const pcap_pkthdr *header, const u_
             dst = &ip->ip_dst;
             break;
         }
-        case 0x86DD:
+        case ETHERTYPE_IPV6:
         {
             std::cout << "  IPv6 protocol" << std::endl;
             proto_addr.resize(INET6_ADDRSTRLEN);

@@ -25,7 +25,7 @@ extern "C"
 #include <string>
 
 
-int perform_ioctl(int fd, const int call_id, void *result, const std::string &msg)
+int perform_ioctl(int fd, int call_id, void *result, const std::string &msg)
 {
     const auto ioctl_res = ioctl(fd, call_id, result);
     if (-1 == ioctl_res)

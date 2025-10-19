@@ -73,7 +73,7 @@ void print_diag(const inet_diag_msg *diag, unsigned int len)
         throw std::system_error(errno, std::generic_category(), "short response");
     }
 
-    if (diag->idiag_family != AF_INET && diag->idiag_family != AF_INET6)
+    if (AF_INET != diag->idiag_family && AF_INET6 != diag->idiag_family)
     {
         throw std::logic_error("unexpected protocol family");
     }
@@ -219,7 +219,7 @@ void print_responses(int fd)
                 }
             }
 
-            if (h->nlmsg_type != SOCK_DIAG_BY_FAMILY)
+            if (SOCK_DIAG_BY_FAMILY != h->nlmsg_type)
             {
                 throw std::system_error(errno, std::generic_category(), "unexpected nlmsg_type");
             }
