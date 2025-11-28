@@ -1,16 +1,15 @@
 cmake_minimum_required(VERSION 3.10)
 
-project("${CHAPTER_NAME}libevpp-echo-server" C CXX)
+project("${CHAPTER_NAME}c-ares-example" C CXX)
 
-find_library(LIBEV ev REQUIRED)
-set(${PROJECT_NAME}_SRC libevpp_echo_server.cpp)
+find_library(CARES cares REQUIRED)
+set(${PROJECT_NAME}_SRC main.cpp)
 
 source_group(source FILES ${${PROJECT_NAME}_SRC}})
 
 add_executable("${PROJECT_NAME}" "${${PROJECT_NAME}_SRC}")
-target_link_libraries("${PROJECT_NAME}" "${LIBEV}")
+target_link_libraries("${PROJECT_NAME}" "${CARES}")
 
 if(WIN32)
   target_link_libraries("${PROJECT_NAME}" wsock32 ws2_32)
 endif()
-

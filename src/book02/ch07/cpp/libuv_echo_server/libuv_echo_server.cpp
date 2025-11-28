@@ -1,7 +1,7 @@
+#include <cstdlib>
 #include <iostream>
 #include <memory>
 #include <string>
-#include <cstdlib>
 
 extern "C"
 {
@@ -25,9 +25,7 @@ void echo_write(uv_write_t *req, int status)
 {
     if (status)
     {
-        std::cerr
-            << "Write error " <<  uv_strerror(status)
-            << std::endl;
+        std::cerr << "Write error " << uv_strerror(status) << std::endl;
     }
 
     delete req;
@@ -40,10 +38,8 @@ void echo_read(uv_stream_t *client, ssize_t nread, const uv_buf_t *buf)
     {
         if (nread != UV_EOF)
         {
-            std::cerr
-                << "Read error " <<  uv_err_name(nread)
-                << std::endl;
-            uv_close(reinterpret_cast<uv_handle_t*>(client), nullptr);
+            std::cerr << "Read error " << uv_err_name(nread) << std::endl;
+            uv_close(reinterpret_cast<uv_handle_t *>(client), nullptr);
         }
     }
     else if (nread > 0)
@@ -64,22 +60,20 @@ void on_new_connection(uv_stream_t *server, int status)
 {
     if (status < 0)
     {
-        std::cerr
-            << "New connection error "
-            << uv_strerror(status) << std::endl;
+        std::cerr << "New connection error " << uv_strerror(status) << std::endl;
         return;
     }
 
     auto client = new uv_tcp_t;
     uv_tcp_init(loop, client);
 
-    if (0 == uv_accept(server, reinterpret_cast<uv_stream_t*>(client)))
+    if (0 == uv_accept(server, reinterpret_cast<uv_stream_t *>(client)))
     {
-        uv_read_start(reinterpret_cast<uv_stream_t*>(client), alloc_buffer, echo_read);
+        uv_read_start(reinterpret_cast<uv_stream_t *>(client), alloc_buffer, echo_read);
     }
     else
     {
-        uv_close(reinterpret_cast<uv_handle_t*>(client), nullptr);
+        uv_close(reinterpret_cast<uv_handle_t *>(client), nullptr);
     }
 }
 
@@ -95,8 +89,8 @@ int main()
 
     uv_ip4_addr("0.0.0.0", port, &addr);
 
-    uv_tcp_bind(&server, reinterpret_cast<const struct sockaddr*>(&addr), 0);
-    int r = uv_listen(reinterpret_cast<uv_stream_t*>(&server), 128, on_new_connection);
+    uv_tcp_bind(&server, reinterpret_cast<const struct sockaddr *>(&addr), 0);
+    int r = uv_listen(reinterpret_cast<uv_stream_t *>(&server), 128, on_new_connection);
     if (r)
     {
         std::cerr << "Listen error " << uv_strerror(r) << std::endl;
@@ -107,4 +101,3 @@ int main()
 
     return uv_run(loop, UV_RUN_DEFAULT);
 }
-

@@ -33,8 +33,8 @@ extern "C"
 #endif
 
 
-const auto clients_count = 10;
-const auto buffer_size = 4096;
+constexpr auto clients_count = 10;
+constexpr auto buffer_size = 4096;
 using namespace std::literals;
 namespace fs = std::filesystem;
 
@@ -126,7 +126,7 @@ public:
             if (size <= recv_bytes) break;
         }
 
-        buffer[recv_bytes] = '\0';
+        buffer[std::min(size, recv_bytes)] = '\0';
 
         auto result = std::string(buffer.begin(), buffer.begin() + recv_bytes);
         std::cout << "Request = \"" << result << "\"" << std::endl;
