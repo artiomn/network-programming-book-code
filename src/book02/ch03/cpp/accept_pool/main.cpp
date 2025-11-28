@@ -23,7 +23,7 @@ extern "C"
 #include <boost/asio.hpp>
 
 
-const auto clients_count = 3;
+constexpr auto clients_count = 3;
 
 
 int main(int argc, const char *const argv[])

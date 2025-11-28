@@ -29,7 +29,7 @@ extern "C"
 
 
 #if !defined(MAX_PATH)
-#    define MAX_PATH (256)
+#    define MAX_PATH 256
 #endif
 
 
