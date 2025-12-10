@@ -28,7 +28,7 @@ class Transceiver:
     def socket(self):
         return self._client_sock
 
-    def send_buffer(self, buffer):
+    def send_buffer(self, buffer: bytes):
         self._client_sock.sendall(buffer)
 
     def send_file(self, file_path: Path):

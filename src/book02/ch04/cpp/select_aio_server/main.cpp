@@ -34,8 +34,8 @@ extern "C"
 #include <socket_wrapper/socket_wrapper.h>
 
 
-const auto clients_count = 10;
-const auto buffer_size = 4096;
+constexpr auto clients_count = 10;
+constexpr auto buffer_size = 4096;
 using namespace std::literals;
 namespace fs = std::filesystem;
 
@@ -55,7 +55,7 @@ const wchar_t separ = *reinterpret_cast<const wchar_t *>(&fs::path::preferred_se
 
 void set_nonblock(SocketDescriptorType fd)
 {
-    const IoctlType flag = 1;
+    constexpr IoctlType flag = 1;
 
     if (ioctl(fd, FIONBIO, const_cast<IoctlType *>(&flag)) < 0)
     {
