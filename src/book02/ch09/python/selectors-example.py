@@ -14,13 +14,15 @@ def accept(srv_sock, _):
 
 
 def read(conn, _):
-    data = conn.recv(1000)
-    if data:
-        print(f'Echoing {repr(data)} to {conn.getpeername()}...')
-        # Synchronous.
-        conn.send(data)
-    else:
-        selector.unregister(conn)
+    try:
+        data = conn.recv(1000)
+        if data:
+            print(f'Echoing {repr(data)} to {conn.getpeername()}...')
+            # Synchronous.
+            conn.send(data)
+        else:
+            selector.unregister(conn)
+    finally:
         conn.close()
 
 
