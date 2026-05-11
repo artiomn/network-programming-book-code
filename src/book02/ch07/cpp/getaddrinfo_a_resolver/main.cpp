@@ -25,7 +25,7 @@ int add_request(const std::string &host, std::vector<gaicb *> &reqs)
 
     if (ret)
     {
-        throw std::system_error(EDOM, std::generic_category(), gai_strerror(ret));
+        throw std::system_error(EDOM, std::system_category(), gai_strerror(ret));
     }
 
     return reqs.size() - 1;
@@ -41,7 +41,7 @@ void wait_requests(const std::vector<gaicb *> &wait_reqs)
 
     if (ret)
     {
-        throw std::system_error(EDOM, std::generic_category(), gai_strerror(ret));
+        throw std::system_error(EDOM, std::system_category(), gai_strerror(ret));
     }
 
     for (size_t i = 0; i < wait_reqs.size(); ++i)
@@ -91,7 +91,7 @@ void list_requests(const std::vector<gaicb *> &reqs)
             ret = getnameinfo(res->ai_addr, res->ai_addrlen, host.data(), host.size(), nullptr, 0, NI_NUMERICHOST);
             if (ret)
             {
-                throw std::system_error(EDOM, std::generic_category(), gai_strerror(ret));
+                throw std::system_error(EDOM, std::system_category(), gai_strerror(ret));
             }
             std::cout << std::string(host.begin(), host.end());
         }
@@ -104,7 +104,7 @@ void list_requests(const std::vector<gaicb *> &reqs)
 }
 
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
     std::vector<std::string> sites = {"www.kernel.org", "www.yandex.ru", "www.google.com"};
 

@@ -25,7 +25,7 @@ void echo_read_cb(bufferevent *bev, void *ctx)
 }
 
 
-void echo_event_cb(struct bufferevent *bev, short events, void *ctx)  // NOLINT
+void echo_event_cb(bufferevent *bev, short events, void *ctx)  // NOLINT
 {
     if (events & BEV_EVENT_ERROR) std::cerr << "Error from bufferevent!" << std::endl;
     if (events & (BEV_EVENT_EOF | BEV_EVENT_ERROR))
@@ -35,8 +35,7 @@ void echo_event_cb(struct bufferevent *bev, short events, void *ctx)  // NOLINT
 }
 
 
-void accept_conn_cb(
-    struct evconnlistener *listener, evutil_socket_t fd, struct sockaddr *address, int socklen, void *ctx)
+void accept_conn_cb(evconnlistener *listener, evutil_socket_t fd, struct sockaddr *address, int socklen, void *ctx)
 {
     event_base *base = evconnlistener_get_base(listener);
     bufferevent *bev = bufferevent_socket_new(base, fd, BEV_OPT_CLOSE_ON_FREE);
@@ -47,9 +46,9 @@ void accept_conn_cb(
 }
 
 
-void accept_error_cb(struct evconnlistener *listener, void *ctx)
+void accept_error_cb(evconnlistener *listener, void *ctx)
 {
-    struct event_base *base = evconnlistener_get_base(listener);
+    event_base *base = evconnlistener_get_base(listener);
     int err = EVUTIL_SOCKET_ERROR();
     std::cerr << "Got an error " << err << evutil_socket_error_to_string(err) << " on the listener.\n"
               << "Shutting down." << std::endl;
