@@ -17,7 +17,7 @@ void print_current_alg(int sock)
     alg_name.resize(256);
     socklen_t len = alg_name.length();
 
-    if (getsockopt(sock, IPPROTO_TCP, TCP_CONGESTION, &alg_name[0], &len) != 0)
+    if (getsockopt(sock, IPPROTO_TCP, TCP_CONGESTION, alg_name.data(), &len) != 0)
     {
         throw std::system_error(errno, std::system_category(), "getsockopt");
     }
