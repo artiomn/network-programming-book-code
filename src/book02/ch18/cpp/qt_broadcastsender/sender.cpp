@@ -48,35 +48,52 @@
 **
 ****************************************************************************/
 
-#ifndef SENDER_H
-#define SENDER_H
+#include "sender.h"
 
-#include <QWidget>
-#include <QTimer>
+#include <QtCore>
+#include <QtNetwork>
+#include <QtWidgets>
 
-QT_BEGIN_NAMESPACE
-class QLabel;
-class QPushButton;
-class QUdpSocket;
-QT_END_NAMESPACE
-
-class Sender : public QWidget
+Sender::Sender(QWidget *parent) : QWidget(parent)
 {
-    Q_OBJECT
+    statusLabel = new QLabel(tr("Ready to broadcast datagrams on port 45454"));
+    statusLabel->setWordWrap(true);
 
-public:
-    explicit Sender(QWidget *parent = nullptr);
+    startButton = new QPushButton(tr("&Start"));
+    auto quitButton = new QPushButton(tr("&Quit"));
 
-private slots:
-    void startBroadcasting();
-    void broadcastDatagram();
+    auto buttonBox = new QDialogButtonBox;
+    buttonBox->addButton(startButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(quitButton, QDialogButtonBox::RejectRole);
 
-private:
-    QLabel *statusLabel = nullptr;
-    QPushButton *startButton = nullptr;
-    QUdpSocket *udpSocket = nullptr;
-    QTimer timer;
-    int messageNo = 1;
-};
+    //! [0]
+    udpSocket = new QUdpSocket(this);
+    //! [0]
 
-#endif
+    connect(startButton, &QPushButton::clicked, this, &Sender::startBroadcasting);
+    connect(quitButton, &QPushButton::clicked, this, &Sender::close);
+    connect(&timer, &QTimer::timeout, this, &Sender::broadcastDatagram);
+
+    auto mainLayout = new QVBoxLayout;
+    mainLayout->addWidget(statusLabel);
+    mainLayout->addWidget(buttonBox);
+    setLayout(mainLayout);
+
+    setWindowTitle(tr("Broadcast Sender"));
+}
+
+void Sender::startBroadcasting()
+{
+    startButton->setEnabled(false);
+    timer.start(1000);
+}
+
+void Sender::broadcastDatagram()
+{
+    statusLabel->setText(tr("Now broadcasting datagram %1").arg(messageNo));
+    //! [1]
+    QByteArray datagram = "Broadcast message " + QByteArray::number(messageNo);
+    udpSocket->writeDatagram(datagram, QHostAddress::Broadcast, 45454);
+    //! [1]
+    ++messageNo;
+}

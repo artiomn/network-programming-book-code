@@ -48,53 +48,35 @@
 **
 ****************************************************************************/
 
-#include <QtWidgets>
-#include <QtNetwork>
-#include <QtCore>
+#ifndef SENDER_H
+#define SENDER_H
 
-#include "sender.h"
+#include <QTimer>
+#include <QWidget>
 
-Sender::Sender(QWidget *parent)
-    : QWidget(parent)
+QT_BEGIN_NAMESPACE
+class QLabel;
+class QPushButton;
+class QUdpSocket;
+QT_END_NAMESPACE
+
+class Sender : public QWidget
 {
-    statusLabel = new QLabel(tr("Ready to broadcast datagrams on port 45454"));
-    statusLabel->setWordWrap(true);
+    Q_OBJECT
 
-    startButton = new QPushButton(tr("&Start"));
-    auto quitButton = new QPushButton(tr("&Quit"));
+public:
+    explicit Sender(QWidget *parent = nullptr);
 
-    auto buttonBox = new QDialogButtonBox;
-    buttonBox->addButton(startButton, QDialogButtonBox::ActionRole);
-    buttonBox->addButton(quitButton, QDialogButtonBox::RejectRole);
+private slots:
+    void startBroadcasting();
+    void broadcastDatagram();
 
-//! [0]
-    udpSocket = new QUdpSocket(this);
-//! [0]
+private:
+    QLabel *statusLabel = nullptr;
+    QPushButton *startButton = nullptr;
+    QUdpSocket *udpSocket = nullptr;
+    QTimer timer;
+    int messageNo = 1;
+};
 
-    connect(startButton, &QPushButton::clicked, this, &Sender::startBroadcasting);
-    connect(quitButton, &QPushButton::clicked, this, &Sender::close);
-    connect(&timer, &QTimer::timeout, this, &Sender::broadcastDatagram);
-
-    auto mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(statusLabel);
-    mainLayout->addWidget(buttonBox);
-    setLayout(mainLayout);
-
-    setWindowTitle(tr("Broadcast Sender"));
-}
-
-void Sender::startBroadcasting()
-{
-    startButton->setEnabled(false);
-    timer.start(1000);
-}
-
-void Sender::broadcastDatagram()
-{
-    statusLabel->setText(tr("Now broadcasting datagram %1").arg(messageNo));
-//! [1]
-    QByteArray datagram = "Broadcast message " + QByteArray::number(messageNo);
-    udpSocket->writeDatagram(datagram, QHostAddress::Broadcast, 45454);
-//! [1]
-    ++messageNo;
-}
+#endif

@@ -17,4 +17,3 @@ export APACHE_GROUP="$(id -gn)"
 
 echo "Root: ${APACHE_SERVER_ROOT}"
 "${SERVER_BINARY}" -f "${SCRIPT_DIR}/httpd.conf" -d "${APACHE_SERVER_ROOT}" -DFOREGROUND || echo "Error!"
-
