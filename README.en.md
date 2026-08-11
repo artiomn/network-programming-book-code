@@ -69,10 +69,14 @@ Beyond the obvious, there are things that not all **beginner** developers unders
 
 For example:
 
-- Attempting to request with solutions for tasks in this repository. After that, you will be blocked immediately. Without personal explanations of why you can't do this.
+- Attempting to request with solutions for tasks in this repository.
+  If you want to share your solution, please do it in the separate repository.
+  In the future we can publish readers solutions in one place.
 - Attempting to "attack" with claims against authors who "owe you". This is more about things that are obvious to most people.
-  We sell you a book: you pay, the store provides it to you. This is where our agreement ends, and we don't owe you anything anymore (including advertising is not a public offer).
+  We sell you a book: you pay, the store provides it to you.
   Everything else is done at the discretion of the authors.
+  Of course, we'll try to help you, if we can.
+  But don't demand authors to fix your bugs and solve tasks.
 
 [ToC ⮐](#table-of-contents)
 
