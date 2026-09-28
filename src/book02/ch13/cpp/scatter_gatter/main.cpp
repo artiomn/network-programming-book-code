@@ -10,6 +10,7 @@ extern "C"
 #include <socket_wrapper/socket_headers.h>
 #include <socket_wrapper/socket_wrapper.h>
 
+#include <array>
 #include <cerrno>
 #include <iostream>
 #include <stdexcept>
@@ -62,7 +63,7 @@ int main(int argc, const char *const argv[])
 
         std::vector<char> data_buffer(256);
 
-        struct iovec iov[1];
+        std::array<iovec, 1> iov;
 
         iov[0].iov_base = &data_buffer[0];
         iov[0].iov_len = data_buffer.size();
@@ -71,13 +72,14 @@ int main(int argc, const char *const argv[])
         // iov[2].iov_base = buf2;
         // iov[2].iov_len = sizeof(buf2);
         // ...
-        const size_t iovcnt = sizeof(iov) / sizeof(iovec);
+        constexpr int iovcnt = iov.size();
 
         ssize_t bytes_count = -1;
 
         while (bytes_count)
         {
-            bytes_count = readv(client_sock, iov, iovcnt);
+            iov[0].iov_len = data_buffer.size();
+            bytes_count = readv(client_sock, iov.data(), iovcnt);
 
             if (bytes_count < 0)
             {
@@ -85,7 +87,8 @@ int main(int argc, const char *const argv[])
                 throw std::system_error(errno, std::system_category(), "readv");
             }
 
-            bytes_count = writev(client_sock, iov, iovcnt);
+            iov[0].iov_len = bytes_count;
+            bytes_count = writev(client_sock, iov.data(), iovcnt);
 
             if (bytes_count < 0)
             {
