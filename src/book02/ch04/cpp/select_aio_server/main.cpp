@@ -21,6 +21,7 @@ extern "C"
 extern "C"
 {
 #    include <io.h>
+#    include <fcntl.h>
 }
 #    include <cwctype>
 
@@ -170,6 +171,7 @@ public:
 #else
         file_descriptor_ = _open(file_path.string().c_str(), _O_BINARY, _O_RDONLY);
 #endif
+        std::cout << "File descriptor: " << file_descriptor_ << std::endl;
 
         return file_descriptor_;
     }
