@@ -65,7 +65,6 @@ jobs:
           tools: 'tools_ifw tools_qtcreator,qt.tools.qtcreator'
           set-env: 'true'
           tools-only: 'false'
-          extra: '--external 7z'
       - name: Setup Ninja
         uses: ashutoshvarma/setup-ninja@master
         with:
