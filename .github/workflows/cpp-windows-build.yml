@@ -44,6 +44,10 @@ jobs:
           # boost_install_dir: C:\some_directory
           platform_version: 2019
           toolset: msvc
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
@@ -57,7 +61,7 @@ jobs:
           archives: 'qtbase qtsvg'
           cache: 'false'
           cache-key-prefix: 'install-qt-action'
-          setup-python: 'true'
+          setup-python: 'false'
           tools: 'tools_ifw tools_qtcreator,qt.tools.qtcreator'
           set-env: 'true'
           tools-only: 'false'
