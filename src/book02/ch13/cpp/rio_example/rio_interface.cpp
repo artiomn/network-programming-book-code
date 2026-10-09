@@ -15,8 +15,9 @@ SOCKET RIO::make_socket(int domain, int type, int proto)
 
 RIO::~RIO()
 {
-    CloseHandle(iocp_handle_);
+    // rio_.RIOCloseCompletionQueue();
     rio_.RIODeregisterBuffer(buffer_id_);
+    CloseHandle(iocp_handle_);
 }
 
 
@@ -140,7 +141,7 @@ RIO_EXTENSION_FUNCTION_TABLE RIO::init_rio(const SOCKET rio_sock)
     if (0 != WSAIoctl(rio_sock, SIO_GET_MULTIPLE_EXTENSION_FUNCTION_POINTER, &function_table_id, sizeof(GUID),
                         reinterpret_cast<void**>(&result), sizeof(result), &bytes, nullptr, nullptr))
     {
-        throw std::system_error(GetLastError(), std::system_category(), "WSAIoctl() with SIO_GET_MULTIPLE_EXTENSION_FUNCTION_POINTER");
+        throw std::system_error(WSAGetLastError(), std::system_category(), "WSAIoctl() with SIO_GET_MULTIPLE_EXTENSION_FUNCTION_POINTER");
     }
     return result;
 }
