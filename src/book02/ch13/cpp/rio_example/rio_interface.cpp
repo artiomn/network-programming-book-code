@@ -15,57 +15,72 @@ SOCKET RIO::make_socket(int domain, int type, int proto)
 
 RIO::~RIO()
 {
-    // rio_.RIOCloseCompletionQueue();
-    rio_.RIODeregisterBuffer(buffer_id_);
-    CloseHandle(iocp_handle_);
+    if (buffer_id_ != RIO_INVALID_BUFFERID)
+    {
+        rio_.RIODeregisterBuffer(buffer_id_);
+    }
+
+    if (completion_queue_ != RIO_INVALID_CQ)
+    {
+        rio_.RIOCloseCompletionQueue(completion_queue_);
+    }
+
+    if (iocp_handle_ != INVALID_HANDLE_VALUE)
+    {
+        CloseHandle(iocp_handle_);
+    }
+
+    buffer_.reset();
 }
 
 
-RIO_CQ RIO::make_client_queues(SOCKET client_sock)
+void RIO::make_client_queues(SOCKET client_sock)
 {
-    RIO_CQ queue = rio_.RIOCreateCompletionQueue(rio_pending_recvs * 4, &completion_type_);
-    if (RIO_INVALID_CQ == queue)
+    completion_queue_ = rio_.RIOCreateCompletionQueue(rio_pending_recvs * 4, &completion_type_);
+    if (RIO_INVALID_CQ == completion_queue_)
     {
         throw std::system_error(WSAGetLastError(), std::system_category(), "RIOCreateCompletionQueue()");
     }
 
     request_queue_ =
-        rio_.RIOCreateRequestQueue(client_sock, rio_pending_recvs, 1, rio_pending_recvs, 1, queue, queue, nullptr);
+        rio_.RIOCreateRequestQueue(client_sock, rio_pending_recvs, 1, rio_pending_recvs, 1,
+            completion_queue_, completion_queue_, nullptr);
     if (RIO_INVALID_RQ == request_queue_)
     {
         throw std::system_error(WSAGetLastError(), std::system_category(), "RIOCreateRequestQueue()");
     }
-
-    return queue;
 }
 
 
 RIO::RIOBuf RIO::make_buffers()
 {
     const DWORD total_buffer_size = buffer_size * rio_pending_recvs * 2;
+
     UCHAR cur_numa_node_number;
 
     if (!GetNumaProcessorNode(GetCurrentProcessorNumber(), &cur_numa_node_number))
     {
-        throw std::system_error(WSAGetLastError(), std::system_category(), "GetNumaProcessorNode()");
+        throw std::system_error(GetLastError(), std::system_category(), "GetNumaProcessorNode()");
     }
-    char* raw_buffer =
-        reinterpret_cast<char*>(VirtualAlloc(nullptr, total_buffer_size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
 
-    buffer_id_ = rio_.RIORegisterBuffer(raw_buffer, total_buffer_size);
-    if (buffer_id_ == RIO_INVALID_BUFFERID)
+    RIO::RIOBuf buffer{
+        static_cast<char*>(VirtualAllocExNuma(GetCurrentProcess(), nullptr, total_buffer_size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE, cur_numa_node_number)),
+        [](char *p) { VirtualFreeEx( GetCurrentProcess(), p, 0, MEM_RELEASE); }
+    };
+
+    buffer_id_ = rio_.RIORegisterBuffer(buffer.get(), total_buffer_size);
+    if (RIO_INVALID_BUFFERID == buffer_id_)
     {
-        VirtualFree(raw_buffer, 0, MEM_RELEASE);
         throw std::system_error(WSAGetLastError(), std::system_category(), "RIORegisterBuffer()");
     }
 
-    return std::unique_ptr<char, void (*)(char *)>(raw_buffer, [](char *p) { VirtualFree(p, 0, MEM_RELEASE); });
+    return buffer;
 }
 
 
-ULONG RIO::read_completion_queue(RIO_CQ &queue, std::array<RIORESULT, rio_max_results> &results)
+ULONG RIO::read_completion_queue(std::array<RIORESULT, rio_max_results> &results)
 {
-    auto result = rio_.RIODequeueCompletion(queue, results.data(), rio_max_results);
+    auto result = rio_.RIODequeueCompletion(completion_queue_, results.data(), rio_max_results);
 
     if (RIO_CORRUPT_CQ == result)
     {
@@ -163,11 +178,10 @@ void RIO::make_iocp()
 }
 
 
-std::tuple<RIO_CQ, RIO::RIOBuf> RIO::init_data_exchange(SOCKET client_sock)
+char* RIO::init_data_exchange(SOCKET client_sock)
 {
-    auto result = std::make_tuple(make_client_queues(client_sock), make_buffers());
-
+    make_client_queues(client_sock);
     init_recv_bufs();
 
-    return result;
+    return buffer_.get();
 }

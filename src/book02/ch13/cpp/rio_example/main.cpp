@@ -58,26 +58,26 @@ int main()
 
         std::cout << "Client was connected..." << std::endl;
 
-        auto [client_queue, raw_buffer] = rio.init_data_exchange(client_sock);
+        auto raw_buffer = rio.init_data_exchange(client_sock);
         auto iocp_handle = rio.get_iocp();
 
         std::array<RIORESULT, RIO::rio_max_results> results;
         bool done = false;
 
         // Notification.
-        if (rio.notify(client_queue) != ERROR_SUCCESS)
+        if (rio.notify() != ERROR_SUCCESS)
         {
             done = true;
         }
 
         while (!done)
         {
-            DWORD bytesCount = 0;
-            ULONG_PTR completionKey = 0;
-            LPOVERLAPPED pOverlapped = nullptr;
+            DWORD bytes_count = 0;
+            ULONG_PTR completion_key = 0;
+            LPOVERLAPPED overlapped_ptr = nullptr;
 
             // Sleep until RIO trigger will be in the signaled state.
-            if (!GetQueuedCompletionStatus(iocp_handle, &bytesCount, &completionKey, &pOverlapped, INFINITE))
+            if (!GetQueuedCompletionStatus(iocp_handle, &bytes_count, &completion_key, &overlapped_ptr, INFINITE))
             {
                 throw std::system_error(GetLastError(), std::system_category(), "IOCP Error");
             }
@@ -85,12 +85,12 @@ int main()
             // Data reading from the RIO queue.
             while (!done)
             {
-                auto results_count = rio.read_completion_queue(client_queue, results);
+                auto results_count = rio.read_completion_queue(results);
 
                 if (0 == results_count)
                 {
                     // Empty queue, enable notification trigger.
-                    if (rio.notify(client_queue) != ERROR_SUCCESS)
+                    if (rio.notify() != ERROR_SUCCESS)
                     {
                         done = true;
                         break;
@@ -98,7 +98,7 @@ int main()
 
                     // If the packet was received during RIONotify() call,
                     // get it now, otherwise GetQueuedCompletionStatus() will hang on the next loop iteration.
-                    results_count = rio.read_completion_queue(client_queue, results);
+                    results_count = rio.read_completion_queue(results);
                     if (0 == results_count)
                     {
                         // No data.
@@ -130,14 +130,14 @@ int main()
                             done = true;
                             break;
                         }
-                        char *packet_data = raw_buffer.get() + buffer_ptr->Offset;
+                        const char *packet_data = raw_buffer + buffer_ptr->Offset;
                         std::cout
                             << "Data received (" << bytes_transferred << " bytes): "
                             << std::string(packet_data, bytes_transferred)
                             << std::endl;
                         // Copy data from the recieving buffer and send it back.
                         RIO::EXTENDED_RIO_BUF* send_buffer_ptr= rio.get_send_buf(buffer_ptr->operation_id_);
-                        char *send_data_ptr = raw_buffer.get() + send_buffer_ptr->Offset;
+                        char *send_data_ptr = raw_buffer + send_buffer_ptr->Offset;
                         std::copy(packet_data, packet_data + bytes_transferred, send_data_ptr);
                         send_buffer_ptr->Length = bytes_transferred;
                         // Sending context is 0.
