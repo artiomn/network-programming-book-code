@@ -3,6 +3,12 @@
 #include <system_error>
 
 
+DWORD round_up(DWORD value, DWORD alignment)
+{
+    return (value + alignment - 1) & ~(alignment - 1);
+}
+
+
 SOCKET RIO::make_socket(int domain, int type, int proto)
 {
     if (auto sock = WSASocket(domain, type, proto, nullptr, 0, WSA_FLAG_REGISTERED_IO); INVALID_SOCKET != sock)
@@ -54,7 +60,11 @@ void RIO::make_client_queues(SOCKET client_sock)
 
 RIO::RIOBuf RIO::make_buffers()
 {
-    const DWORD total_buffer_size = buffer_size * rio_pending_recvs * 2;
+    SYSTEM_INFO systemInfo = {};
+    GetSystemInfo(&systemInfo);
+
+    const DWORD total_buffer_size = round_up(buffer_size * rio_pending_recvs * 2,
+        systemInfo.dwAllocationGranularity);
 
     UCHAR cur_numa_node_number;
 
