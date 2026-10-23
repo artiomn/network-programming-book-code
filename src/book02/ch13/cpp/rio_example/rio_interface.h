@@ -1,9 +1,5 @@
 #pragma once
 
-#include <array>
-#include <memory>
-#include <vector>
-
 #include <socket_wrapper/socket_class.h>
 #include <socket_wrapper/socket_functions.h>
 #include <socket_wrapper/socket_headers.h>
@@ -15,6 +11,10 @@ extern "C"
 #include <memoryapi.h>
 }
 
+#include <array>
+#include <memory>
+#include <vector>
+
 
 class RIO
 {
@@ -25,7 +25,7 @@ public:
     static constexpr DWORD buffer_size = 65536;
 
 public:
-    using RIOBuf = std::unique_ptr<char, void(*)(char*)>;
+    using RIOBuf = std::unique_ptr<char, void (*)(char *)>;
     struct EXTENDED_RIO_BUF : public RIO_BUF
     {
         DWORD operation_id_;
@@ -35,16 +35,16 @@ public:
     static SOCKET make_socket(int domain, int type, int proto);
 
 public:
-    RIO(const SOCKET rio_sock, void *completion_key = (void *)1) : rio_(init_rio(rio_sock)),
-        completion_key_(completion_key), buffer_(make_buffers())
+    explicit RIO(const SOCKET rio_sock, void *completion_key = (void *)1)  // cppcheck-suppress intToPointerCast
+        : rio_(init_rio(rio_sock)), completion_key_(completion_key), buffer_(make_buffers())
     {
         make_iocp();
     }
 
-    RIO(const RIO&) = delete;
-    RIO& operator=(const RIO&) = delete;
-    RIO(RIO&&) = delete;
-    RIO& operator=(RIO&&) = delete;
+    RIO(const RIO &) = delete;
+    RIO &operator=(const RIO &) = delete;
+    RIO(RIO &&) = delete;
+    RIO &operator=(RIO &&) = delete;
 
     ~RIO();
 
@@ -53,10 +53,10 @@ public:
     RIO_CQ &get_cq() { return completion_queue_; }
     RIO_RQ &get_rq() { return request_queue_; }
     auto get_buffer_id() const { return buffer_id_; }
-    EXTENDED_RIO_BUF* get_send_buf(DWORD id) { return &send_bufs_[id]; }
+    EXTENDED_RIO_BUF *get_send_buf(DWORD id) { return &send_bufs_[id]; }
 
 public:
-    char* init_data_exchange(SOCKET client_sock);
+    char *init_data_exchange(SOCKET client_sock);
     int notify() { return rio_.RIONotify(completion_queue_); }
     ULONG read_completion_queue(std::array<RIORESULT, rio_max_results> &results);
 
@@ -82,6 +82,6 @@ private:
     RIO_NOTIFICATION_COMPLETION completion_type_;
     RIO_CQ completion_queue_ = RIO_INVALID_CQ;
     RIO_RQ request_queue_ = RIO_INVALID_RQ;
-    std::array<EXTENDED_RIO_BUF, rio_pending_recvs> recv_bufs_;
-    std::array<EXTENDED_RIO_BUF, rio_pending_recvs> send_bufs_;
+    std::array<EXTENDED_RIO_BUF, rio_pending_recvs> recv_bufs_;  // cppcheck-suppress unusedStructMember
+    std::array<EXTENDED_RIO_BUF, rio_pending_recvs> send_bufs_;  // cppcheck-suppress unusedStructMember
 };

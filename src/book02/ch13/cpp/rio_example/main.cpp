@@ -27,11 +27,7 @@ int main()
         socket_wrapper::Socket server_sock(RIO::make_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP));
         RIO rio(server_sock);
 
-        sockaddr_in local_addr
-        {
-            .sin_family = AF_INET,
-            .sin_port = htons(server_port)
-        };
+        sockaddr_in local_addr{.sin_family = AF_INET, .sin_port = htons(server_port)};
 
         local_addr.sin_addr.s_addr = INADDR_ANY;
 
@@ -49,7 +45,8 @@ int main()
 
         sockaddr_in client_addr{};
         int client_addr_len = sizeof(client_addr);
-        socket_wrapper::Socket client_sock(accept(server_sock, reinterpret_cast<sockaddr *>(&client_addr), &client_addr_len));
+        socket_wrapper::Socket client_sock(
+            accept(server_sock, reinterpret_cast<sockaddr *>(&client_addr), &client_addr_len));
 
         if (INVALID_SOCKET == client_sock)
         {
@@ -120,7 +117,8 @@ int main()
                     }
 
                     // Receiving operation.
-                    RIO::EXTENDED_RIO_BUF* buffer_ptr = reinterpret_cast<RIO::EXTENDED_RIO_BUF*>(results[i].RequestContext);
+                    RIO::EXTENDED_RIO_BUF *buffer_ptr =
+                        reinterpret_cast<RIO::EXTENDED_RIO_BUF *>(results[i].RequestContext);
                     if (0 == results[i].Status)
                     {
                         ULONG bytes_transferred = results[i].BytesTransferred;
@@ -131,23 +129,21 @@ int main()
                             break;
                         }
                         const char *packet_data = raw_buffer + buffer_ptr->Offset;
-                        std::cout
-                            << "Data received (" << bytes_transferred << " bytes): "
-                            << std::string(packet_data, bytes_transferred)
-                            << std::endl;
+                        std::cout << "Data received (" << bytes_transferred
+                                  << " bytes): " << std::string(packet_data, bytes_transferred) << std::endl;
                         // Copy data from the recieving buffer and send it back.
-                        RIO::EXTENDED_RIO_BUF* send_buffer_ptr= rio.get_send_buf(buffer_ptr->operation_id_);
+                        RIO::EXTENDED_RIO_BUF *send_buffer_ptr = rio.get_send_buf(buffer_ptr->operation_id_);
                         char *send_data_ptr = raw_buffer + send_buffer_ptr->Offset;
                         std::copy(packet_data, packet_data + bytes_transferred, send_data_ptr);
                         send_buffer_ptr->Length = bytes_transferred;
                         // Sending context is 0.
                         rio.send(send_buffer_ptr, 1, 0, 0);
-                        // Return receving buffer.
+                        // Return receiving buffer.
                         rio.recv(buffer_ptr, 1, 0, buffer_ptr);
                     }
                     else
                     {
-                        std::cerr << "RIO recieving error: " << results[i].Status << std::endl;
+                        std::cerr << "RIO receiving error: " << results[i].Status << std::endl;
                         done = true;
                         break;
                     }
@@ -155,7 +151,7 @@ int main()
             }
         }
     }
-    catch (const std::exception& e)
+    catch (const std::exception &e)
     {
         std::cerr << e.what() << ": " << sock_wrap.get_last_error_string() << "!" << std::endl;
         return EXIT_FAILURE;

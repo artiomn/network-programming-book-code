@@ -48,9 +48,8 @@ void RIO::make_client_queues(SOCKET client_sock)
         throw std::system_error(WSAGetLastError(), std::system_category(), "RIOCreateCompletionQueue()");
     }
 
-    request_queue_ =
-        rio_.RIOCreateRequestQueue(client_sock, rio_pending_recvs, 1, rio_pending_recvs, 1,
-            completion_queue_, completion_queue_, nullptr);
+    request_queue_ = rio_.RIOCreateRequestQueue(
+        client_sock, rio_pending_recvs, 1, rio_pending_recvs, 1, completion_queue_, completion_queue_, nullptr);
     if (RIO_INVALID_RQ == request_queue_)
     {
         throw std::system_error(WSAGetLastError(), std::system_category(), "RIOCreateRequestQueue()");
@@ -63,8 +62,7 @@ RIO::RIOBuf RIO::make_buffers()
     SYSTEM_INFO systemInfo = {};
     GetSystemInfo(&systemInfo);
 
-    const DWORD total_buffer_size = round_up(buffer_size * rio_pending_recvs * 2,
-        systemInfo.dwAllocationGranularity);
+    const DWORD total_buffer_size = round_up(buffer_size * rio_pending_recvs * 2, systemInfo.dwAllocationGranularity);
 
     UCHAR cur_numa_node_number;
 
@@ -74,9 +72,10 @@ RIO::RIOBuf RIO::make_buffers()
     }
 
     RIO::RIOBuf buffer{
-        static_cast<char*>(VirtualAllocExNuma(GetCurrentProcess(), nullptr, total_buffer_size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE, cur_numa_node_number)),
-        [](char *p) { VirtualFreeEx( GetCurrentProcess(), p, 0, MEM_RELEASE); }
-    };
+        static_cast<char *>(VirtualAllocExNuma(
+            GetCurrentProcess(), nullptr, total_buffer_size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE,
+            cur_numa_node_number)),
+        [](char *p) { VirtualFreeEx(GetCurrentProcess(), p, 0, MEM_RELEASE); }};
 
     buffer_id_ = rio_.RIORegisterBuffer(buffer.get(), total_buffer_size);
     if (RIO_INVALID_BUFFERID == buffer_id_)
@@ -117,7 +116,8 @@ void RIO::init_recv_bufs()
             DWORD err = WSAGetLastError();
             if (err != WSA_IO_PENDING)
             {
-                throw std::system_error(err, std::system_category(), "Initial RIOReceive() failed at index " + std::to_string(i));
+                throw std::system_error(
+                    err, std::system_category(), "Initial RIOReceive() failed at index " + std::to_string(i));
             }
         }
     }
@@ -163,10 +163,12 @@ RIO_EXTENSION_FUNCTION_TABLE RIO::init_rio(const SOCKET rio_sock)
     DWORD bytes = 0;
     RIO_EXTENSION_FUNCTION_TABLE result;
 
-    if (0 != WSAIoctl(rio_sock, SIO_GET_MULTIPLE_EXTENSION_FUNCTION_POINTER, &function_table_id, sizeof(GUID),
-                        reinterpret_cast<void**>(&result), sizeof(result), &bytes, nullptr, nullptr))
+    if (0 != WSAIoctl(
+                 rio_sock, SIO_GET_MULTIPLE_EXTENSION_FUNCTION_POINTER, &function_table_id, sizeof(GUID),
+                 reinterpret_cast<void **>(&result), sizeof(result), &bytes, nullptr, nullptr))
     {
-        throw std::system_error(WSAGetLastError(), std::system_category(), "WSAIoctl() with SIO_GET_MULTIPLE_EXTENSION_FUNCTION_POINTER");
+        throw std::system_error(
+            WSAGetLastError(), std::system_category(), "WSAIoctl() with SIO_GET_MULTIPLE_EXTENSION_FUNCTION_POINTER");
     }
     return result;
 }
@@ -175,20 +177,16 @@ RIO_EXTENSION_FUNCTION_TABLE RIO::init_rio(const SOCKET rio_sock)
 void RIO::make_iocp()
 {
     iocp_handle_ = CreateIoCompletionPort(INVALID_HANDLE_VALUE, nullptr, 0, 0);
-    completion_type_ =
-    {
+    completion_type_ = {
         .Type = RIO_IOCP_COMPLETION,
-        .Iocp =
-        {
+        .Iocp = {
             .IocpHandle = iocp_handle_,
-            .CompletionKey = const_cast<void*>(completion_key_),
-            .Overlapped = &overlapped_
-        }
-    };
+            .CompletionKey = const_cast<void *>(completion_key_),
+            .Overlapped = &overlapped_}};
 }
 
 
-char* RIO::init_data_exchange(SOCKET client_sock)
+char *RIO::init_data_exchange(SOCKET client_sock)
 {
     make_client_queues(client_sock);
     init_recv_bufs();
