@@ -11,7 +11,8 @@ DWORD round_up(DWORD value, DWORD alignment)
 
 SOCKET RIO::make_socket(int domain, int type, int proto)
 {
-    if (auto sock = WSASocket(domain, type, proto, nullptr, 0, WSA_FLAG_REGISTERED_IO); INVALID_SOCKET != sock)
+    if (auto sock = WSASocket(domain, type, proto, nullptr, 0, WSA_FLAG_REGISTERED_IO | WSA_FLAG_OVERLAPPED);
+        INVALID_SOCKET != sock)
     {
         return sock;
     }
