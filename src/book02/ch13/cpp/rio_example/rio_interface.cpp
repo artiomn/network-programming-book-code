@@ -3,7 +3,7 @@
 #include <system_error>
 
 
-DWORD round_up(DWORD value, DWORD alignment)
+inline DWORD round_up(DWORD value, DWORD alignment)
 {
     return (value + alignment - 1) & ~(alignment - 1);
 }
