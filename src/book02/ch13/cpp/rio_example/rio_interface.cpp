@@ -22,11 +22,6 @@ SOCKET RIO::make_socket(int domain, int type, int proto)
 
 RIO::~RIO()
 {
-    if (buffer_id_ != RIO_INVALID_BUFFERID)
-    {
-        rio_.RIODeregisterBuffer(buffer_id_);
-    }
-
     if (completion_queue_ != RIO_INVALID_CQ)
     {
         rio_.RIOCloseCompletionQueue(completion_queue_);
@@ -35,6 +30,11 @@ RIO::~RIO()
     if (iocp_handle_ != INVALID_HANDLE_VALUE)
     {
         CloseHandle(iocp_handle_);
+    }
+
+    if (buffer_id_ != RIO_INVALID_BUFFERID)
+    {
+        rio_.RIODeregisterBuffer(buffer_id_);
     }
 
     buffer_.reset();
