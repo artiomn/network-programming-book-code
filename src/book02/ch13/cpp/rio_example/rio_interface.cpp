@@ -43,12 +43,6 @@ RIO::~RIO()
 
 void RIO::make_client_queues(SOCKET client_sock)
 {
-    completion_queue_ = rio_.RIOCreateCompletionQueue(rio_pending_recvs * 4, &completion_type_);
-    if (RIO_INVALID_CQ == completion_queue_)
-    {
-        throw std::system_error(WSAGetLastError(), std::system_category(), "RIOCreateCompletionQueue()");
-    }
-
     request_queue_ = rio_.RIOCreateRequestQueue(
         client_sock, rio_pending_recvs, 1, rio_pending_recvs, 1, completion_queue_, completion_queue_, nullptr);
     if (RIO_INVALID_RQ == request_queue_)
@@ -184,6 +178,12 @@ void RIO::make_iocp()
             .IocpHandle = iocp_handle_,
             .CompletionKey = const_cast<void *>(completion_key_),
             .Overlapped = &overlapped_}};
+
+    completion_queue_ = rio_.RIOCreateCompletionQueue(rio_pending_recvs * 4, &completion_type_);
+    if (RIO_INVALID_CQ == completion_queue_)
+    {
+        throw std::system_error(WSAGetLastError(), std::system_category(), "RIOCreateCompletionQueue()");
+    }
 }
 
 
