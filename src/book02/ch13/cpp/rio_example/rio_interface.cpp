@@ -162,11 +162,11 @@ RIO_EXTENSION_FUNCTION_TABLE RIO::init_rio(const SOCKET rio_sock)
 {
     GUID function_table_id = WSAID_MULTIPLE_RIO;
     DWORD bytes = 0;
-    RIO_EXTENSION_FUNCTION_TABLE result;
+    RIO_EXTENSION_FUNCTION_TABLE result = {};
 
     if (0 != WSAIoctl(
                  rio_sock, SIO_GET_MULTIPLE_EXTENSION_FUNCTION_POINTER, &function_table_id, sizeof(GUID),
-                 reinterpret_cast<void **>(&result), sizeof(result), &bytes, nullptr, nullptr))
+                 reinterpret_cast<void *>(&result), sizeof(result), &bytes, nullptr, nullptr))
     {
         throw std::system_error(
             WSAGetLastError(), std::system_category(), "WSAIoctl() with SIO_GET_MULTIPLE_EXTENSION_FUNCTION_POINTER");
